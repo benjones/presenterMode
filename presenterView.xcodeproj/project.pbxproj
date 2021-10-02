@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		B52A807F2706618F009691A6 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A807E2706618F009691A6 /* Capture.swift */; };
+		B52A80812707C809009691A6 /* MirrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A80802707C809009691A6 /* MirrorView.swift */; };
+		B52A80852707FD93009691A6 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A80842707FD93009691A6 /* GlobalViewModel.swift */; };
 		B531385D26F527CE00D022C9 /* presenterViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385C26F527CE00D022C9 /* presenterViewApp.swift */; };
 		B531385F26F527CE00D022C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385E26F527CE00D022C9 /* ContentView.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
@@ -35,6 +37,8 @@
 
 /* Begin PBXFileReference section */
 		B52A807E2706618F009691A6 /* Capture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Capture.swift; sourceTree = "<group>"; };
+		B52A80802707C809009691A6 /* MirrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorView.swift; sourceTree = "<group>"; };
+		B52A80842707FD93009691A6 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		B531385926F527CE00D022C9 /* presenterView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presenterView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B531385C26F527CE00D022C9 /* presenterViewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presenterViewApp.swift; sourceTree = "<group>"; };
 		B531385E26F527CE00D022C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -105,6 +109,8 @@
 				B531386526F527D000D022C9 /* Info.plist */,
 				B531386626F527D000D022C9 /* presenterView.entitlements */,
 				B531386226F527CF00D022C9 /* Preview Content */,
+				B52A80802707C809009691A6 /* MirrorView.swift */,
+				B52A80842707FD93009691A6 /* GlobalViewModel.swift */,
 			);
 			path = presenterView;
 			sourceTree = "<group>";
@@ -198,7 +204,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1300;
 				TargetAttributes = {
 					B531385826F527CE00D022C9 = {
 						CreatedOnToolsVersion = 12.5.1;
@@ -265,6 +271,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B52A807F2706618F009691A6 /* Capture.swift in Sources */,
+				B52A80852707FD93009691A6 /* GlobalViewModel.swift in Sources */,
+				B52A80812707C809009691A6 /* MirrorView.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterViewApp.swift in Sources */,
 			);
@@ -428,6 +436,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"presenterView/Preview Content\"";
 				DEVELOPMENT_TEAM = 3KXF9QPW4R;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = presenterView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -452,6 +461,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"presenterView/Preview Content\"";
 				DEVELOPMENT_TEAM = 3KXF9QPW4R;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = presenterView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

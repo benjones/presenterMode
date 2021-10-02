@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var windowPreviews : [WindowPreview] = []
     
-    
+    @EnvironmentObject var globalViewModel : GlobalViewModel
     
     var body: some View {
         VStack {
@@ -37,6 +37,8 @@ struct ContentView: View {
                                 .frame(width: 300, height: 300, alignment: .center)
                                 .border(Color.white)
                             Text("\(windowPreview.owner): \(windowPreview.title)")
+                        }.onTapGesture {
+                            shareWindow(windowPreview: windowPreview)
                         }
                     }
                 }.onAppear(perform: refreshWindows)
@@ -46,6 +48,25 @@ struct ContentView: View {
     
     func refreshWindows() -> Void {
         windowPreviews = getWindowPreviews()
+    }
+    
+    func shareWindow(windowPreview : WindowPreview) -> Void {
+        print("sharing \(windowPreview)")
+        
+        
+        if let mirrorWindow = globalViewModel.mirrorWindow {
+            mirrorWindow.orderFrontRegardless()
+        } else {
+            let mirrorWindow = NSWindow( contentRect: NSRect(x: 0, y: 0, width: 1920, height: 1080),
+                                     styleMask: [.titled, .closable, .miniaturizable, .fullScreen, .resizable],
+                                     backing: .buffered, defer: false)
+            mirrorWindow.contentView = NSHostingView(rootView: MirrorView())
+            mirrorWindow.isRestorable = false;
+            mirrorWindow.makeKeyAndOrderFront(nil)
+            mirrorWindow.setFrameTopLeftPoint(NSPoint(x:100,y:100))
+            mirrorWindow.isReleasedWhenClosed = false
+            globalViewModel.setMirror(window: mirrorWindow)
+        }
     }
 }
 
