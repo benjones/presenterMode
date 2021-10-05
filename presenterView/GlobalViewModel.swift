@@ -11,10 +11,17 @@ import AppKit
 class GlobalViewModel : NSObject, ObservableObject {
     
     @Published var mirrorWindow : NSWindow?
+    @Published var windowNumber : CGWindowID = 0
+    @Published var image : CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "static")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+    
     
     func setMirror(window: NSWindow){
         mirrorWindow = window
         mirrorWindow!.delegate = self
+    }
+    
+    func setWindow(wn: CGWindowID){
+        windowNumber = wn
     }
 }
 
@@ -30,4 +37,9 @@ extension GlobalViewModel : NSWindowDelegate {
             }
         }
       }
+    func windowWillResize(_ sender: NSWindow,
+                          to frameSize: NSSize) -> NSSize {
+        print("will resize handler")
+        return frameSize
+    }
 }

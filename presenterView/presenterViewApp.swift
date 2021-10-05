@@ -11,6 +11,8 @@ import SwiftUI
 @main
 struct presenterViewApp: App {
     @State var globalViewModel = GlobalViewModel()
+    @Environment(\.scenePhase) private var scenePhase
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -20,6 +22,10 @@ struct presenterViewApp: App {
 //            MirrorView()
 //        }
 //        .handlesExternalEvents(matching: Set(arrayLiteral: "MirrorView")) // create new window if one doesn't exist
+//        .onChange(of: scenePhase) { phase in
+//            print(phase)
+//        }
+        
     }
 }
 
