@@ -64,3 +64,11 @@ func getWindowPreviews() -> [WindowPreview]{
         return WindowPreview(owner: owner, title: windowName, windowNumber: windowNumber, image: image!)
     })
 }
+
+func maybeTruncate(str: String, limit: Int = 20) -> String {
+    if str.count < limit {
+        return str
+    } else {
+        return String(str[..<str.index(str.startIndex, offsetBy: limit)])
+    }
+}

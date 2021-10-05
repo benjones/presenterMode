@@ -13,7 +13,7 @@ class GlobalViewModel : NSObject, ObservableObject {
     @Published var mirrorWindow : NSWindow?
     @Published var windowNumber : CGWindowID = 0
     @Published var image : CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "static")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
-    
+    @Published var timer : Timer?
     
     func setMirror(window: NSWindow){
         mirrorWindow = window
@@ -33,7 +33,11 @@ extension GlobalViewModel : NSWindowDelegate {
             print(window)
             if window == mirrorWindow {
                 mirrorWindow = nil
-                print("closed mirror window")   
+                print("closed mirror window")
+                if timer != nil {
+                    timer?.invalidate()
+                }
+                
             }
         }
       }

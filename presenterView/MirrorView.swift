@@ -12,9 +12,6 @@ struct MirrorView: View {
     
     var body: some View {
         Group(){
-            VStack{
-                Text("Sharing window: \(globalViewModel.windowNumber)")
-            }
             Image(globalViewModel.image, scale: 1.0, orientation: Image.Orientation.up, label: Text(""))
                 .resizable()
                 .aspectRatio(contentMode: .fit)

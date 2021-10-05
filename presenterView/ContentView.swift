@@ -36,7 +36,7 @@ struct ContentView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 300, height: 300, alignment: .center)
                                 .border(Color.white)
-                            Text("\(windowPreview.owner): \(windowPreview.title)")
+                            Text("\(maybeTruncate( str: windowPreview.owner)): \(maybeTruncate(str: windowPreview.title))")
                         }.onTapGesture {
                             shareWindow(windowPreview: windowPreview)
                         }
@@ -62,15 +62,18 @@ struct ContentView: View {
     
     func shareWindow(windowPreview : WindowPreview) -> Void {
         print("sharing \(windowPreview)")
-//
-//        if let url = URL(string: "PresenterMode://MirrorView") { //replace myapp with your app's name
-//                    let res = NSWorkspace.shared.open(url)
-//                }
-//
+
         let mirrorWindow = getMirrorWindow()
-        print(mirrorWindow.contentView!)
+        mirrorWindow.title = "Sharing \(maybeTruncate(str: windowPreview.owner))"
+        
         globalViewModel.setWindow(wn: windowPreview.windowNumber)
         globalViewModel.image = windowPreview.image
+        
+        globalViewModel.timer = Timer(timeInterval: 1/30.0, repeats: true){_ in
+            globalViewModel.image = CGWindowListCreateImage(CGRect.null, CGWindowListOption.optionIncludingWindow, globalViewModel.windowNumber, CGWindowImageOption.bestResolution)!
+        }
+        
+        RunLoop.main.add(globalViewModel.timer!, forMode: .default)
     }
 }
 
