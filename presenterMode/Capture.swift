@@ -20,10 +20,6 @@ struct WindowPreview : Identifiable {
 }
 
 func getWindowPreviews() -> [WindowPreview]{
-    
-    //let runningApps = NSWorkspace.shared.runningApplications
-    
-    
     CGRequestScreenCaptureAccess()
     let cgWindowListInfo = CGWindowListCopyWindowInfo(CGWindowListOption.init([ CGWindowListOption.excludeDesktopElements,CGWindowListOption.optionAll]), kCGNullWindowID)
     
@@ -39,11 +35,7 @@ func getWindowPreviews() -> [WindowPreview]{
         return bounds["Width"]! >= threshold && bounds["Height"]! >= threshold
     })
     
-    print("\(bigWindows.count) big windows")
-    
     return bigWindows.compactMap({xcw -> WindowPreview? in
-        //print(xcw)
-        
         let owner = xcw["kCGWindowOwnerName"]! as! String
         let windowNumber = xcw["kCGWindowNumber"]! as! CGWindowID
         let windowName = xcw["kCGWindowName"]! as! String
@@ -52,15 +44,7 @@ func getWindowPreviews() -> [WindowPreview]{
         if image == nil {
             return nil
         }
-
-/*        let path = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)
-        print(path)
-        let fullPath = path.first!.appendingPathComponent("presenterMode/\(owner)_\(windowNumber).png")
         
-        let destination = CGImageDestinationCreateWithURL(fullPath as CFURL, kUTTypePNG, 1, nil)!
-        CGImageDestinationAddImage(destination, image!, nil)
-        CGImageDestinationFinalize(destination)
- */
         return WindowPreview(owner: owner, title: windowName, windowNumber: windowNumber, image: image!)
     })
 }

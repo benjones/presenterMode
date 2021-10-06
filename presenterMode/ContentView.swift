@@ -14,18 +14,19 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Text("Presenter View")
-                .font(.title)
-                .padding()
-            
             Text("Select Window to Share")
                 .font(.subheadline)
                 .padding()
             
-            Button(action: refreshWindows) {
-                Text("Refresh Windows")
-                    .font(.subheadline)
-            }
+            HStack {
+                Button(action: refreshWindows) {
+                    Text("Refresh Windows")
+                    
+                }
+                Button(action: stopSharing) {
+                    Text("Stop Sharing")
+                }.disabled(globalViewModel.timer == nil)
+            }  .font(.subheadline)
             
             ScrollView{
                 LazyVGrid(columns: Array(repeating: GridItem.init(.fixed(300)), count: 4)){
@@ -50,6 +51,11 @@ struct ContentView: View {
         windowPreviews = getWindowPreviews()
     }
     
+    func stopSharing() -> Void {
+        globalViewModel.stopAnimating()
+        globalViewModel.image = GlobalViewModel.staticImage
+    }
+    
     func getMirrorWindow() -> NSWindow {
         if let mirrorWindow = globalViewModel.mirrorWindow {
             return mirrorWindow
@@ -61,16 +67,22 @@ struct ContentView: View {
     }
     
     func shareWindow(windowPreview : WindowPreview) -> Void {
-        print("sharing \(windowPreview)")
-
         let mirrorWindow = getMirrorWindow()
         mirrorWindow.title = "Sharing \(maybeTruncate(str: windowPreview.owner))"
         
         globalViewModel.setWindow(wn: windowPreview.windowNumber)
         globalViewModel.image = windowPreview.image
         
-        globalViewModel.timer = Timer(timeInterval: 1/30.0, repeats: true){_ in
-            globalViewModel.image = CGWindowListCreateImage(CGRect.null, CGWindowListOption.optionIncludingWindow, globalViewModel.windowNumber, CGWindowImageOption.bestResolution)!
+        if globalViewModel.timer == nil {
+            globalViewModel.timer = Timer(timeInterval: 1/30.0, repeats: true){_ in
+                let frame = CGWindowListCreateImage(CGRect.null, CGWindowListOption.optionIncludingWindow, globalViewModel.windowNumber, CGWindowImageOption.bestResolution)
+                if frame == nil {
+                    globalViewModel.stopAnimating()
+                    globalViewModel.image = GlobalViewModel.staticImage
+                } else {
+                    globalViewModel.image = frame!
+                }
+            }
         }
         
         RunLoop.main.add(globalViewModel.timer!, forMode: .default)
