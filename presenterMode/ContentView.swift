@@ -55,8 +55,7 @@ struct ContentView: View {
                                 
                             
                         }.onTapGesture {
-                            print("tapped on av device")
-                            //shareWindow(windowPreview: windowPreview)
+                            shareAVDevice(device: avWrapper.device)
                         }
                         
                     }
@@ -81,20 +80,8 @@ struct ContentView: View {
     
     func startup() -> Void {
         
-        //without this ipads won't show up as capture dvices
-        //        //From https://stackoverflow.com/questions/48646470/ios-device-not-listed-by-avcapturedevice-devices-unless-quicktime-is-opened
-        //        var prop = CMIOObjectPropertyAddress(
-        //            mSelector: CMIOObjectPropertySelector(kCMIOHardwarePropertyAllowScreenCaptureDevices),
-        //            mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
-        //            mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMaster))
-        //
-        //        var allow : UInt32 = 1
-        //        let dataSize : UInt32 = 4
-        //        let zero : UInt32 = 0
-        //        CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &prop, zero, nil, dataSize, &allow)
-        //
         refreshWindows();
-        //print(captureDevices)
+
     }
     
     func refreshWindows() -> Void {
@@ -105,7 +92,17 @@ struct ContentView: View {
     
     
     func stopSharing() -> Void {
-        globalViewModel.stopAnimating()
+        switch globalViewModel.mirrorStatus {
+        case .notSharing: break
+            //nothing to do
+        case .windowShare:
+            globalViewModel.stopAnimating()
+            break;
+        case .sharedAVData:
+            avDeviceManager.stopSharing()
+            break;
+        }
+       
         globalViewModel.mirrorStatus = .notSharing
         if let mirrorWindow = globalViewModel.mirrorWindow {
             mirrorWindow.title = "Mirrored View"
@@ -116,7 +113,10 @@ struct ContentView: View {
         if let mirrorWindow = globalViewModel.mirrorWindow {
             return mirrorWindow
         } else {
-            let mirrorWindow = MirrorView().environmentObject(globalViewModel).openNewWindow()
+            let mirrorWindow = MirrorView()
+                .environmentObject(globalViewModel)
+                .environmentObject(avDeviceManager)
+                .openNewWindow()
             globalViewModel.setMirror(window: mirrorWindow)
             return mirrorWindow
         }
@@ -131,7 +131,7 @@ struct ContentView: View {
         globalViewModel.sharedWindowData.image = windowPreview.image
         if globalViewModel.sharedWindowData.timer == nil {
             globalViewModel.sharedWindowData.timer = Timer(timeInterval: 1/30.0, repeats: true){_ in
-                let frame = CGWindowListCreateImage(CGRect.null, CGWindowListOption.optionIncludingWindow, globalViewModel.windowNumber, CGWindowImageOption.bestResolution)
+                let frame = CGWindowListCreateImage(CGRect.null, CGWindowListOption.optionIncludingWindow, globalViewModel.sharedWindowData.windowNumber, CGWindowImageOption.bestResolution)
                 if frame == nil {
                     globalViewModel.stopAnimating()
                     globalViewModel.sharedWindowData.image = GlobalViewModel.staticImage
@@ -140,9 +140,15 @@ struct ContentView: View {
                 }
             }
         }
-        
-        
         RunLoop.main.add(globalViewModel.sharedWindowData.timer!, forMode: .default)
+    }
+    
+    func shareAVDevice(device: AVCaptureDevice) -> Void {
+        if avDeviceManager.setupCaptureSession(device: device) {
+            let mirrorWindow = getMirrorWindow()
+            mirrorWindow.title = "Sharing \(maybeTruncate(str: device.localizedName))"
+            globalViewModel.mirrorStatus = .sharedAVData
+        }
     }
 }
 

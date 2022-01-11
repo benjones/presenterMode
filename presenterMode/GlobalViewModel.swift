@@ -12,11 +12,12 @@ import AVFoundation
 struct SharedWindowData {
     var image : CGImage
     var timer : Timer?
+    var windowNumber : CGWindowID = 0
 }
 
-struct SharedAVData {
-    var captureSession : AVCaptureSession?
-}
+//struct SharedAVData {
+//    var captureSession : AVCaptureSession?
+//}
 
 enum MirrorStatus {
     case notSharing
@@ -32,14 +33,16 @@ class GlobalViewModel : NSObject, ObservableObject {
     
     
     @Published var mirrorWindow : NSWindow?
-    @Published var windowNumber : CGWindowID = 0
     @Published var mirrorStatus : MirrorStatus = MirrorStatus.notSharing
     //these should be part of the MirrorStatus enum but they can't be modified, so ...
     @Published var sharedWindowData = SharedWindowData(image: staticImage, timer: nil)
-    @Published var sharedAVData = SharedAVData(captureSession: nil)
-//    @Published var image : CGImage = staticImage
-//    @Published var timer : Timer?
-
+    
+    //stored in AVDeviceManager instead
+    //@Published var sharedAVData = SharedAVData(captureSession: nil)
+    
+    //    @Published var image : CGImage = staticImage
+    //    @Published var timer : Timer?
+    
     
     
     func setMirror(window: NSWindow){
@@ -48,21 +51,14 @@ class GlobalViewModel : NSObject, ObservableObject {
     }
     
     func setWindow(wn: CGWindowID){
-        windowNumber = wn
+        sharedWindowData.windowNumber = wn
     }
     
     func stopAnimating(){
-        switch mirrorStatus {
-        case .notSharing: break
-            //nothing to do
-        case .windowShare:
-            sharedWindowData.timer?.invalidate()
-            sharedWindowData.timer = nil
-            mirrorStatus = .notSharing
-            break;
-        case .sharedAVData:
-            break;
-        }
+        sharedWindowData.timer?.invalidate()
+        sharedWindowData.timer = nil
+        mirrorStatus = .notSharing
+        
         
     }
 }

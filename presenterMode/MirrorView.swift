@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MirrorView: View {
     @EnvironmentObject var globalViewModel : GlobalViewModel
+    @EnvironmentObject var avDeviceManager: AVDeviceManager
     
     var body: some View {
         Group(){
@@ -23,17 +24,13 @@ struct MirrorView: View {
                     .aspectRatio(contentMode: .fit)
                 
             case .sharedAVData:
-                Text("TODO")
+                PlayerContainerView(captureSession: avDeviceManager.avCaptureSession!)
                 
             }
             
         }.frame(minWidth: 960, idealWidth: 1280, maxWidth: CGFloat.infinity, minHeight: 540, idealHeight: 720,  maxHeight: CGFloat.infinity)
     }
     
-    
-    func getMirrorElement(for mirrorStatus: MirrorStatus){
-        
-    }
 }
 
 

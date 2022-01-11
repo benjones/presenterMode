@@ -14,7 +14,9 @@ import SwiftUI
 class AVDeviceManager : NSObject, ObservableObject {
     
     @Published var avCaptureDevices : [AVWrapper] = []
+    @Published var avCaptureSession : AVCaptureSession?
     private var delegates : [DevicePhotoDelegate] = []
+    
     
     private let connectionPublisher = NotificationCenter.default
         .publisher(for: NSNotification.Name.AVCaptureDeviceWasConnected)
@@ -89,6 +91,27 @@ class AVDeviceManager : NSObject, ObservableObject {
             print(self.avCaptureDevices);
         }
     }
+    
+    func setupCaptureSession(device: AVCaptureDevice) -> Bool{
+        avCaptureSession = AVCaptureSession();
+        
+        avCaptureSession!.beginConfiguration()
+        
+        do {
+            try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
+            print("input added to session")
+            avCaptureSession!.commitConfiguration();
+            avCaptureSession!.startRunning();
+            return true
+        } catch {
+            print("Error setting up cature session: \(error)")
+            return false
+        }
+    }
+    
+    func stopSharing(){
+        print("TODO stop sharing")
+    }
 }
 
 struct AVWrapper : Identifiable {
@@ -122,7 +145,7 @@ class DevicePhotoDelegate : NSObject, AVCapturePhotoCaptureDelegate {
             print("Error: ", error)
         }
         //manager.avWrappers.append(AVWrapper(dev: device,
-//                                            im: photo.cgImageRepresentation()!))
+        //                                            im: photo.cgImageRepresentation()!))
         
     }
     
