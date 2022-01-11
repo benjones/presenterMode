@@ -15,12 +15,16 @@ class AVDeviceManager : NSObject, ObservableObject {
     
     @Published var avCaptureDevices : [AVWrapper] = []
     @Published var avCaptureSession : AVCaptureSession?
+    private var activeDevice : AVCaptureDevice? = nil
     private var delegates : [DevicePhotoDelegate] = []
     
     
     private let connectionPublisher = NotificationCenter.default
         .publisher(for: NSNotification.Name.AVCaptureDeviceWasConnected)
-    private var subscriptionHandle : AnyCancellable? = nil
+    private let disconnectionPublisher = NotificationCenter.default
+        .publisher(for: NSNotification.Name.AVCaptureDeviceWasDisconnected)
+    private var connectedSubscriptionHandle : AnyCancellable? = nil
+    private var disconnectedSubscriptionHandle : AnyCancellable? = nil
     //let disconnectionPublisher = NotificationCenter.default
     //        .publisher(for: NSNotification.Name.AVCaptureDeviceWasDisconnected)
     
@@ -40,40 +44,20 @@ class AVDeviceManager : NSObject, ObservableObject {
         
         getCaptureDevices()
         
-        subscriptionHandle = connectionPublisher.sink { (message) in
+        connectedSubscriptionHandle = connectionPublisher.sink { (message) in
             print("got a message from the connection publisher")
             let device : AVCaptureDevice = message.object as! AVCaptureDevice;
             print(device.deviceType, " localized name: ", device.localizedName, " model id", device.modelID)
             self.avCaptureDevices.append(AVWrapper(dev: device))
-            //            var session = AVCaptureSession();
-            //
-            //            let photoOutput = AVCapturePhotoOutput()
-            //
-            //            session.beginConfiguration()
-            //
-            //            guard session.canAddOutput(photoOutput) else { return }
-            //            session.sessionPreset = .photo
-            //            session.addOutput(photoOutput)
-            //            print("output added to session")
-            //            do {
-            //                try session.addInput(AVCaptureDeviceInput(device: device));
-            //                print("input added to session")
-            //                session.commitConfiguration();
-            //                session.startRunning();
-            //                print("session running")
-            //
-            //                let photoSettings = AVCapturePhotoSettings()
-            //
-            //
-            //                print("about to try to capture a photo with",  device.localizedName)
-            //
-            //                let del = DevicePhotoDelegate(dev: device, man: self)
-            //                self.delegates.append(del)
-            //                photoOutput.capturePhoto(with: photoSettings, delegate: del)
-            //
-            //            } catch {
-            //                print("couldn't add capture device as input")
-            //            }
+           
+        }
+        
+        disconnectedSubscriptionHandle = disconnectionPublisher.sink { (message) in
+            print("got a message from the connection publisher")
+            let device : AVCaptureDevice = message.object as! AVCaptureDevice;
+            print(device.deviceType, " localized name: ", device.localizedName, " model id", device.modelID)
+            self.avCaptureDevices.removeAll(where: { $0.device == device})
+           
         }
     }
     
@@ -93,15 +77,21 @@ class AVDeviceManager : NSObject, ObservableObject {
     }
     
     func setupCaptureSession(device: AVCaptureDevice) -> Bool{
-        avCaptureSession = AVCaptureSession();
+        if avCaptureSession == nil {
+            avCaptureSession = AVCaptureSession();
+        }
         
+        avCaptureSession = avCaptureSession //trigger the publisher?
         avCaptureSession!.beginConfiguration()
         
         do {
             try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
             print("input added to session")
+            print("input size: \(avCaptureSession!.inputs.count)")
             avCaptureSession!.commitConfiguration();
             avCaptureSession!.startRunning();
+            activeDevice = device;
+
             return true
         } catch {
             print("Error setting up cature session: \(error)")
@@ -110,7 +100,17 @@ class AVDeviceManager : NSObject, ObservableObject {
     }
     
     func stopSharing(){
-        print("TODO stop sharing")
+        if avCaptureSession != nil{
+            avCaptureSession!.stopRunning()
+            do {
+                for input in avCaptureSession!.inputs {
+                        avCaptureSession!.removeInput(input);
+                    }
+            } catch {
+                print("error removing input from session: \(error)")
+            }
+            activeDevice = nil
+        }
     }
 }
 

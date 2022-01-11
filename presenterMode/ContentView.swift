@@ -123,6 +123,7 @@ struct ContentView: View {
     }
     
     func shareWindow(windowPreview : WindowPreview) -> Void {
+        stopSharing()
         let mirrorWindow = getMirrorWindow()
         mirrorWindow.title = "Sharing \(maybeTruncate(str: windowPreview.owner))"
         
@@ -144,6 +145,7 @@ struct ContentView: View {
     }
     
     func shareAVDevice(device: AVCaptureDevice) -> Void {
+        stopSharing()
         if avDeviceManager.setupCaptureSession(device: device) {
             let mirrorWindow = getMirrorWindow()
             mirrorWindow.title = "Sharing \(maybeTruncate(str: device.localizedName))"
