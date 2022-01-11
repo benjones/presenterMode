@@ -14,6 +14,8 @@
 		B531385F26F527CE00D022C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385E26F527CE00D022C9 /* ContentView.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
 		B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386326F527CF00D022C9 /* Preview Assets.xcassets */; };
+		B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B680BB278A246F004BBBDB /* AVCapture.swift */; };
+		B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B5C99D4D270E4E66007FBA84 /* Credits.rtf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +29,8 @@
 		B531386326F527CF00D022C9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B531386526F527D000D022C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B531386626F527D000D022C9 /* presenterMode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = presenterMode.entitlements; sourceTree = "<group>"; };
+		B5B680BB278A246F004BBBDB /* AVCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCapture.swift; sourceTree = "<group>"; };
+		B5C99D4D270E4E66007FBA84 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +47,7 @@
 		B531385026F527CE00D022C9 = {
 			isa = PBXGroup;
 			children = (
+				B5C99D4D270E4E66007FBA84 /* Credits.rtf */,
 				B531385B26F527CE00D022C9 /* presenterMode */,
 				B531385A26F527CE00D022C9 /* Products */,
 			);
@@ -68,6 +73,7 @@
 				B531386226F527CF00D022C9 /* Preview Content */,
 				B52A80802707C809009691A6 /* MirrorView.swift */,
 				B52A80842707FD93009691A6 /* GlobalViewModel.swift */,
+				B5B680BB278A246F004BBBDB /* AVCapture.swift */,
 			);
 			path = presenterMode;
 			sourceTree = "<group>";
@@ -138,6 +144,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */,
+				B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */,
 				B531386126F527CF00D022C9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -150,6 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B52A807F2706618F009691A6 /* Capture.swift in Sources */,
+				B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */,
 				B52A80852707FD93009691A6 /* GlobalViewModel.swift in Sources */,
 				B52A80812707C809009691A6 /* MirrorView.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
@@ -284,6 +292,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"presenterMode/Preview Content\"";
 				DEVELOPMENT_TEAM = 3KXF9QPW4R;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -309,6 +318,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"presenterMode/Preview Content\"";
 				DEVELOPMENT_TEAM = 3KXF9QPW4R;
 				ENABLE_HARDENED_RUNTIME = YES;

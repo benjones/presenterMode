@@ -11,11 +11,13 @@ import SwiftUI
 @main
 struct presenterModeApp: App {
     @State var globalViewModel = GlobalViewModel()
+    @State var avDeviceManager = AVDeviceManager()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(globalViewModel)
+                .environmentObject(avDeviceManager)
         }
         
     }

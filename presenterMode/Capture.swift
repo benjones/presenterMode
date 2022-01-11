@@ -8,6 +8,7 @@
 import Foundation
 
 import Cocoa
+import AVFoundation
 
 struct WindowPreview : Identifiable {
     var owner : String
@@ -18,6 +19,11 @@ struct WindowPreview : Identifiable {
     var id :  CGWindowID { return windowNumber}
     
 }
+
+//func windowPreviewFromIpad(device: AVCaptureDevice) -> WindowPreview {
+//    var name = device.localizedName
+//    AVCapturePhoto
+//}
 
 func getWindowPreviews() -> [WindowPreview]{
     CGRequestScreenCaptureAccess()
@@ -48,6 +54,8 @@ func getWindowPreviews() -> [WindowPreview]{
         return WindowPreview(owner: owner, title: windowName, windowNumber: windowNumber, image: image!)
     })
 }
+
+
 
 func maybeTruncate(str: String, limit: Int = 20) -> String {
     if str.count < limit {
