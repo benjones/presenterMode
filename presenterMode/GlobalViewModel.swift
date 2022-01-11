@@ -15,10 +15,6 @@ struct SharedWindowData {
     var windowNumber : CGWindowID = 0
 }
 
-//struct SharedAVData {
-//    var captureSession : AVCaptureSession?
-//}
-
 enum MirrorStatus {
     case notSharing
     case windowShare
@@ -36,13 +32,6 @@ class GlobalViewModel : NSObject, ObservableObject {
     @Published var mirrorStatus : MirrorStatus = MirrorStatus.notSharing
     //these should be part of the MirrorStatus enum but they can't be modified, so ...
     @Published var sharedWindowData = SharedWindowData(image: staticImage, timer: nil)
-    
-    //stored in AVDeviceManager instead
-    //@Published var sharedAVData = SharedAVData(captureSession: nil)
-    
-    //    @Published var image : CGImage = staticImage
-    //    @Published var timer : Timer?
-    
     
     
     func setMirror(window: NSWindow){

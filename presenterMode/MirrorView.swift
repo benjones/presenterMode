@@ -19,7 +19,7 @@ struct MirrorView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             case .windowShare:
-                Image(globalViewModel.sharedWindowData.image as! CGImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(""))
+                Image(globalViewModel.sharedWindowData.image , scale: 1.0, orientation: Image.Orientation.up, label: Text(""))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 

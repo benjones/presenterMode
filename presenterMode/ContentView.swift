@@ -88,9 +88,6 @@ struct ContentView: View {
         windowPreviews = getWindowPreviews()
     }
     
-    
-    
-    
     func stopSharing() -> Void {
         switch globalViewModel.mirrorStatus {
         case .notSharing: break
@@ -184,29 +181,3 @@ extension View {
     }
 }
 
-class PhotoDelegate : NSObject, AVCapturePhotoCaptureDelegate{
-    var cv : ContentView
-    init(theCV : ContentView){
-        cv = theCV
-        print("delegate constructed")
-    }
-    
-    
-    func photoOutput(_ output: AVCapturePhotoOutput,
-                     didFinishProcessingPhoto photo: AVCapturePhoto,
-                     error: Error?){
-        print("got the ipad photo!")
-        print(photo.timestamp)
-        
-    }
-    
-    func photoOutput(_: AVCapturePhotoOutput, willBeginCaptureFor: AVCaptureResolvedPhotoSettings){
-        print("starting the capture")
-    }
-    
-    func photoOutput(_: AVCapturePhotoOutput, didFinishCaptureFor: AVCaptureResolvedPhotoSettings, error: Error?){
-        print("did finish capture")
-    }
-    
-    
-}
