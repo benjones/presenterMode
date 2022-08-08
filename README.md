@@ -24,9 +24,11 @@ Note, the preview do not update automatically, and the list of windows is not up
 
 And that's it, that's the app.
 
+When you run it the first time, you'll probably have to OK to run code that's downloaded from the internet, and Presenter Mode will request some permissions (for screen recording, and camera which is needed for ipad mirroring).  The app does not use the network or touch any files.  You may also need to set your ipad up to trust your laptop.
+
 ## Known Bugs
 
-Occasionally when selecting my iPad to mirror, I just get a black screen.  Resetting the ipad (hold the top + volume buttons for a few seconds, and turn it off, wait a few seconds, and turn it back on)
+Occasionally when selecting my iPad to mirror, I just get a black screen.  Resetting the ipad (hold the top + volume buttons for a few seconds, and turn it off, wait a few seconds, and turn it back on) fixes this.  I usually restart Presenter Mode too, but I don't know for sure that it's necessary.
 
 Closing a window that's being shared sometimes crashes Presenter Mode.  I noticed this when trying to share 2 tabs of iTerm.app window, where switching between them, I think hides one window and makes another visible.
 
