@@ -136,8 +136,8 @@ class PlayerView: NSView {
     func setupLayer() {
         
         previewLayer?.frame = self.frame
-        previewLayer?.contentsGravity = .resizeAspectFill
-        previewLayer?.videoGravity = .resizeAspectFill
+        previewLayer?.contentsGravity = .resizeAspect
+        previewLayer?.videoGravity = .resizeAspect
         previewLayer?.connection?.automaticallyAdjustsVideoMirroring = false
         
         layer = previewLayer
