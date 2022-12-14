@@ -13,12 +13,22 @@ struct presenterModeApp: App {
     @State var globalViewModel = GlobalViewModel()
     @State var avDeviceManager = AVDeviceManager()
     
+    
+    
     var body: some Scene {
-        WindowGroup {
+        Window("Window Picker", id: "picker") {
             ContentView()
                 .environmentObject(globalViewModel)
                 .environmentObject(avDeviceManager)
         }
+        
+        Window(globalViewModel.title, id: "mirror"){
+            MirrorView()
+                .environmentObject(globalViewModel)
+                .environmentObject(avDeviceManager)
+
+        }
+        
         
     }
 }

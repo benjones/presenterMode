@@ -29,6 +29,7 @@ struct MirrorView: View {
             }
             
         }.frame(minWidth: 960, idealWidth: 1280, maxWidth: CGFloat.infinity, minHeight: 540, idealHeight: 720,  maxHeight: CGFloat.infinity)
+            .navigationTitle($globalViewModel.title)
     }
     
 }

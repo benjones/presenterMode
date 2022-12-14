@@ -30,7 +30,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         var prop = CMIOObjectPropertyAddress(
             mSelector: CMIOObjectPropertySelector(kCMIOHardwarePropertyAllowScreenCaptureDevices),
             mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
-            mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMaster))
+            mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
         
         var allow : UInt32 = 1
         let dataSize : UInt32 = 4
@@ -106,7 +106,7 @@ struct AVWrapper : Identifiable {
 }
 
 //adapted from from https://benoitpasquier.com/webcam-utility-app-macos-swiftui/
-final class PlayerContainerView: NSViewRepresentable {
+struct PlayerContainerView: NSViewRepresentable {
     typealias NSViewType = PlayerView
     
     let captureSession: AVCaptureSession

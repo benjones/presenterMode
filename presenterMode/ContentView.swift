@@ -15,7 +15,7 @@ struct ContentView: View {
     @EnvironmentObject var globalViewModel : GlobalViewModel
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     
-    
+    @Environment(\.openWindow) private var openWindow
     
     var stopSharingButtonDisabled: Bool {
         switch globalViewModel.mirrorStatus {
@@ -55,6 +55,7 @@ struct ContentView: View {
                                 
                             
                         }.onTapGesture {
+                            openWindow(id: "mirror")
                             shareAVDevice(device: avWrapper.device)
                         }
                         
@@ -68,6 +69,7 @@ struct ContentView: View {
                                 .border(Color.white)
                             Text("\(maybeTruncate( str: windowPreview.owner)): \(maybeTruncate(str: windowPreview.title))")
                         }.onTapGesture {
+                            openWindow(id: "mirror")
                             shareWindow(windowPreview: windowPreview)
                         }
                     }
@@ -100,32 +102,15 @@ struct ContentView: View {
             break;
         }
        
-        globalViewModel.mirrorStatus = .notSharing
-        if let mirrorWindow = globalViewModel.mirrorWindow {
-            mirrorWindow.title = "Mirrored View"
-        }
+        globalViewModel.stopSharing()
     }
     
-    func getMirrorWindow() -> NSWindow {
-        if let mirrorWindow = globalViewModel.mirrorWindow {
-            return mirrorWindow
-        } else {
-            let mirrorWindow = MirrorView()
-                .environmentObject(globalViewModel)
-                .environmentObject(avDeviceManager)
-                .openNewWindow()
-            globalViewModel.setMirror(window: mirrorWindow)
-            return mirrorWindow
-        }
-    }
+   
     
     func shareWindow(windowPreview : WindowPreview) -> Void {
         stopSharing()
-        let mirrorWindow = getMirrorWindow()
-        mirrorWindow.title = "Sharing \(maybeTruncate(str: windowPreview.owner))"
         
-        globalViewModel.setWindow(wn: windowPreview.windowNumber)
-        globalViewModel.mirrorStatus = .windowShare
+        globalViewModel.setWindow(wn: windowPreview.windowNumber, title: maybeTruncate(str: windowPreview.owner))
         globalViewModel.sharedWindowData.image = windowPreview.image
         if globalViewModel.sharedWindowData.timer == nil {
             globalViewModel.sharedWindowData.timer = Timer(timeInterval: 1/30.0, repeats: true){_ in
@@ -144,40 +129,13 @@ struct ContentView: View {
     func shareAVDevice(device: AVCaptureDevice) -> Void {
         stopSharing()
         if avDeviceManager.setupCaptureSession(device: device) {
-            let mirrorWindow = getMirrorWindow()
-            mirrorWindow.title = "Sharing \(maybeTruncate(str: device.localizedName))"
-            globalViewModel.mirrorStatus = .sharedAVData
+            globalViewModel.setSharingAVDevice(title: maybeTruncate(str: device.localizedName))
         }
     }
 }
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
 }
-
-
-extension View {
-    private func newWindowInternal(with title: String) -> NSWindow {
-        let window = NSWindow(
-            contentRect: NSRect(x: 20, y: 20, width: 680, height: 600),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false)
-        window.center()
-        window.isReleasedWhenClosed = false
-        window.title = title
-        window.makeKeyAndOrderFront(nil)
-        return window
-    }
-    
-    func openNewWindow(with title: String = "Mirrored View") -> NSWindow{
-        let ret = self.newWindowInternal(with: title)
-        ret.contentView = NSHostingView(rootView: self)
-        return ret
-    }
-}
-

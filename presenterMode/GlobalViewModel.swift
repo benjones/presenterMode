@@ -13,6 +13,7 @@ struct SharedWindowData {
     var image : CGImage
     var timer : Timer?
     var windowNumber : CGWindowID = 0
+    var title : String
 }
 
 enum MirrorStatus {
@@ -21,44 +22,39 @@ enum MirrorStatus {
     case sharedAVData
 }
 
-class GlobalViewModel : NSObject, ObservableObject {
+class GlobalViewModel : /*NSObject, */ObservableObject {
     
     public static let staticImage: CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "static")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
     
     public static let noPreviewAvailableImage: CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "noPreviewAvailable")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
     
-    
-    @Published var mirrorWindow : NSWindow?
     @Published var mirrorStatus : MirrorStatus = MirrorStatus.notSharing
     //these should be part of the MirrorStatus enum but they can't be modified, so ...
-    @Published var sharedWindowData = SharedWindowData(image: staticImage, timer: nil)
+    @Published var sharedWindowData = SharedWindowData(image: staticImage, timer: nil, title: "")
     
+    @Published var title = "Mirror View: Not Sharing"
     
-    func setMirror(window: NSWindow){
-        mirrorWindow = window
-        mirrorWindow!.delegate = self
+    func setWindow(wn: CGWindowID, title: String){
+        mirrorStatus = .windowShare
+        sharedWindowData.windowNumber = wn
+        self.title = "Sharing \(title)"
     }
     
-    func setWindow(wn: CGWindowID){
-        sharedWindowData.windowNumber = wn
+    func setSharingAVDevice(title: String){
+        mirrorStatus = .sharedAVData
+        self.title = "Sharing \(title)"
+    }
+    
+    func stopSharing(){
+        mirrorStatus = .notSharing
+        self.title = "Mirror View: Not Sharing"
     }
     
     func stopAnimating(){
         sharedWindowData.timer?.invalidate()
         sharedWindowData.timer = nil
         mirrorStatus = .notSharing
-        
-        
+        self.title = "Mirror View: Not Sharing"        
     }
-}
-
-extension GlobalViewModel : NSWindowDelegate {
-    func windowWillClose(_ notification: Notification) {
-        if let window = notification.object as? NSWindow {
-            if window == mirrorWindow {
-                mirrorWindow = nil
-                stopAnimating()
-            }
-        }
-    }
+   
 }
