@@ -9,6 +9,10 @@ import Foundation
 
 import Cocoa
 import AVFoundation
+import SwiftUI
+import ScreenCaptureKit
+import Combine
+import OSLog
 
 struct WindowPreview : Identifiable {
     var owner : String
@@ -63,4 +67,43 @@ func maybeTruncate(str: String, limit: Int = 20) -> String {
     } else {
         return String(str[..<str.index(str.startIndex, offsetBy: limit)])
     }
+}
+
+
+/// Capture delegate/Stream outputter.  For now will draw the frame directly onto the layer
+class StreamCaptureDelegate: NSObject, SCStreamOutput, SCStreamDelegate {
+    
+    var layer: CALayer
+    
+    private var logger = Logger()
+    
+    init(layer: CALayer) {
+        self.layer = layer
+    }
+    
+    func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of: SCStreamOutputType){
+        logger.debug("got a stream frame!")
+        guard buffer.isValid else { return }
+        guard of == SCStreamOutputType.screen else { return }
+        
+        //extract the image
+        guard let pixelBuffer = buffer.imageBuffer else {
+            logger.error("pixel buffer was nil")
+            return
+        }
+        
+        guard let surface: IOSurface = CVPixelBufferGetIOSurface(pixelBuffer)?.takeUnretainedValue() else {
+            logger.error("Couldn't get IOSurface")
+            return
+        }
+        
+        layer.contents = surface
+        
+    }
+    
+    func stream(_ stream: SCStream, didStopWithError error: Error) {
+        logger.debug("STREAM STOPPED WITH ERROR: \(error)")
+    }
+    
+    
 }

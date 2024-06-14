@@ -8,15 +8,22 @@
 import SwiftUI
 import AVFoundation
 import CoreMediaIO
+import OSLog
+import ScreenCaptureKit
 
 struct ContentView: View {
     @State private var windowPreviews : [WindowPreview] = []
     
+    //@Binding var screenRecorder : ScreenRecorder
+    @EnvironmentObject var pickerManager: ScreenPickerManager
     @EnvironmentObject var globalViewModel : GlobalViewModel
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     
     @Environment(\.openWindow) private var openWindow
     
+    private let logger = Logger()
+    
+
     var stopSharingButtonDisabled: Bool {
         switch globalViewModel.mirrorStatus {
         case .notSharing:
@@ -27,59 +34,15 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack {
-            Text("Select Window to Share")
-                .font(.subheadline)
-                .padding()
-            
-            HStack {
-                Button(action: refreshWindows) {
-                    Text("Refresh Windows")
-                    
-                }
-                Button(action: stopSharing) {
-                    Text("Stop Sharing")
-                }.disabled(stopSharingButtonDisabled)
-            }  .font(.subheadline)
-            
-            ScrollView{
-                LazyVGrid(columns: Array(repeating: GridItem.init(.fixed(300)), count: 4)){
-                    ForEach(avDeviceManager.avCaptureDevices) {avWrapper in
-                        VStack {
-                            Image(GlobalViewModel.noPreviewAvailableImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(avWrapper.device.localizedName))
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 300, height: 300, alignment: .center)
-                                .border(Color.white)
-                            Text("\(maybeTruncate( str: avWrapper.device.localizedName))")
-                                
-                            
-                        }.onTapGesture {
-                            openWindow(id: "mirror")
-                            shareAVDevice(device: avWrapper.device)
-                        }
-                        
-                    }
-                    ForEach(windowPreviews) { windowPreview in
-                        VStack {
-                            Image(windowPreview.image, scale: 1.0, orientation: Image.Orientation.up, label: Text(windowPreview.title))
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 300, height: 300, alignment: .center)
-                                .border(Color.white)
-                            Text("\(maybeTruncate( str: windowPreview.owner)): \(maybeTruncate(str: windowPreview.title))")
-                        }.onTapGesture {
-                            openWindow(id: "mirror")
-                            shareWindow(windowPreview: windowPreview)
-                        }
-                    }
-                }
-            }
-            .onAppear(perform: startup)
+        Button(action: {
+            logger.debug("Clicked button")
+            pickerManager.present()
+        }){
+            Text("Open picker")
         }
     }
     
-    
+    /*
     func startup() -> Void {
         
         refreshWindows();
@@ -108,7 +71,12 @@ struct ContentView: View {
    
     
     func shareWindow(windowPreview : WindowPreview) -> Void {
-        stopSharing()
+        //stopSharing()
+        if globalViewModel.mirrorStatus == .sharedAVData {
+            avDeviceManager.stopSharing()
+        }
+        
+        screenRecorder.share(windowPreview)
         
         globalViewModel.setWindow(wn: windowPreview.windowNumber, title: maybeTruncate(str: windowPreview.owner))
         globalViewModel.sharedWindowData.image = windowPreview.image
@@ -131,11 +99,76 @@ struct ContentView: View {
         if avDeviceManager.setupCaptureSession(device: device) {
             globalViewModel.setSharingAVDevice(title: maybeTruncate(str: device.localizedName))
         }
+    }*/
+}
+
+struct LegacyPickerView : View {
+    
+    @State private var windowPreviews : [WindowPreview] = []
+    
+    //@Binding var screenRecorder : ScreenRecorder
+    
+    @EnvironmentObject var globalViewModel : GlobalViewModel
+    @EnvironmentObject var avDeviceManager : AVDeviceManager
+    
+    @Environment(\.openWindow) private var openWindow
+    
+    var body: some View {
+        VStack {
+            Text("Select Window to Share")
+                .font(.subheadline)
+                .padding()
+            
+            HStack {
+                Button(action: {} /*refreshWindows*/) {
+                    Text("Refresh Windows")
+                    
+                }
+                Button(action: {} /*stopSharing*/) {
+                    Text("Stop Sharing")
+                }//.disabled(stopSharingButtonDisabled)
+            }  .font(.subheadline)
+            
+            ScrollView{
+                LazyVGrid(columns: Array(repeating: GridItem.init(.fixed(300)), count: 4)){
+                    ForEach(avDeviceManager.avCaptureDevices) {avWrapper in
+                        VStack {
+                            Image(GlobalViewModel.noPreviewAvailableImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(avWrapper.device.localizedName))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 300, height: 300, alignment: .center)
+                                .border(Color.white)
+                            Text("\(maybeTruncate( str: avWrapper.device.localizedName))")
+                                
+                            
+                        }.onTapGesture {
+                            openWindow(id: "mirror")
+                            //shareAVDevice(device: avWrapper.device)
+                        }
+                        
+                    }
+                    ForEach(windowPreviews) { windowPreview in
+                        VStack {
+                            Image(windowPreview.image, scale: 1.0, orientation: Image.Orientation.up, label: Text(windowPreview.title))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 300, height: 300, alignment: .center)
+                                .border(Color.white)
+                            Text("\(maybeTruncate( str: windowPreview.owner)): \(maybeTruncate(str: windowPreview.title))")
+                        }.onTapGesture {
+                            openWindow(id: "mirror")
+                            //shareWindow(windowPreview: windowPreview)
+                        }
+                    }
+                }
+            }
+            //.onAppear(perform: startup)
+        }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}

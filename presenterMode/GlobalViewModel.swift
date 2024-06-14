@@ -9,6 +9,12 @@ import Foundation
 import AppKit
 import AVFoundation
 
+
+enum SharingStatus {
+    case notSharing
+    case SCSharing(StreamCaptureDelegate)
+}
+
 struct SharedWindowData {
     var image : CGImage
     var timer : Timer?

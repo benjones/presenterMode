@@ -6,30 +6,61 @@
 //
 
 import SwiftUI
-
+import ScreenCaptureKit
+import OSLog
 
 @main
 struct presenterModeApp: App {
     @State var globalViewModel = GlobalViewModel()
     @State var avDeviceManager = AVDeviceManager()
     
+    @Environment(\.openWindow) private var openWindowEnv
     
+    @State var pickerManager = ScreenPickerManager()
+    
+//    @State private var screenRecorder: ScreenRecorder
+//    
+//    init(){
+//        screenRecorder = ScreenRecorder()
+//    }
+    
+    private var logger = Logger()
+    
+    func openWindow(){
+        DispatchQueue.main.sync {
+            openWindowEnv(id: "mirror")
+        }
+    }
     
     var body: some Scene {
+        
+
         Window("Window Picker", id: "picker") {
             ContentView()
+                .environmentObject(pickerManager)
                 .environmentObject(globalViewModel)
                 .environmentObject(avDeviceManager)
+                .onAppear(){
+                    pickerManager.setApp(app:self)
+                    Task{
+                        do {
+                            // If the app doesn't have screen recording permission, this call generates an exception.
+                            try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+                            logger.debug("Have sharing permissions")
+                        } catch {
+                            logger.debug("DO NOT have sharing permissions")
+                        }
+                    }
+                }
         }
         
         Window(globalViewModel.title, id: "mirror"){
-            MirrorView()
-                .environmentObject(globalViewModel)
-                .environmentObject(avDeviceManager)
-
+//            MirrorView()
+//                .environmentObject(globalViewModel)
+//                .environmentObject(avDeviceManager)
+            StreamView()
+                .environmentObject(pickerManager)
         }
-        
-        
     }
 }
 
