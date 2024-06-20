@@ -12,11 +12,11 @@ import OSLog
 import ScreenCaptureKit
 
 struct ContentView: View {
-    @State private var windowPreviews : [WindowPreview] = []
+    //@State private var windowPreviews : [WindowPreview] = []
     
     //@Binding var screenRecorder : ScreenRecorder
     @EnvironmentObject var pickerManager: ScreenPickerManager
-    @EnvironmentObject var globalViewModel : GlobalViewModel
+    //@EnvironmentObject var globalViewModel : GlobalViewModel
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     
     @Environment(\.openWindow) private var openWindow
@@ -24,14 +24,14 @@ struct ContentView: View {
     private let logger = Logger()
     
 
-    var stopSharingButtonDisabled: Bool {
-        switch globalViewModel.mirrorStatus {
-        case .notSharing:
-            return true
-        default:
-            return false
-        }
-    }
+//    var stopSharingButtonDisabled: Bool {
+//        switch globalViewModel.mirrorStatus {
+//        case .notSharing:
+//            return true
+//        default:
+//            return false
+//        }
+//    }
     
     var body: some View {
         Button(action: {
