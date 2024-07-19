@@ -25,20 +25,21 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         return conf
     }()
     
-    private var layer: CALayer?
+    private var streamView: StreamViewImpl?
     private var scDelegate: SCStreamDelegate?
     private let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
     private var runningStream: SCStream?
     private var app: presenterModeApp?
+    private var frameCaptureTask: Task<Void, Never>?
     
     
     
     
     
-    func attachTo(surface contentLayer: CALayer) {
+    func registerView(_ view: StreamViewImpl) {
         //TODO: Do we need to clear the old one?
-        self.layer = contentLayer
-        logger.debug("attaching picker manager to layer: \(self.layer)")
+        self.streamView = view
+        logger.debug("attaching view to picker manager: \(self.streamView)")
     }
     
     func setApp(app:presenterModeApp){
@@ -59,23 +60,35 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
             logger.debug("TODO: Stream is not nil")
             return
         }
+        self.frameCaptureTask?.cancel()
         
-        Task {
-            let frameStream = frameSequenceFromFilter(filter: filter)
+        self.frameCaptureTask = Task {
             do {
                 var frameCount = 0
-                for try await frame in frameStream {
+                let startTime = Date()
+                for try await frame in frameSequenceFromFilter(filter: filter) {
                     //logger.debug("Got frame from the stream")
-                    self.layer?.contents = frame
+                    
+                    //commenting this out doesn't improve things, so this is probably not the bottleneck!!!
+
+                    await self.streamView?.updateFrame(frame)
+
+                    
                     frameCount += 1
                     if(frameCount % 100 == 0){
                         logger.debug("updated \(frameCount) frames")
+                        let now = Date()
+                        let elapsed = now.timeIntervalSince(startTime)
+                        logger.info("for loop running at \(Double(frameCount)/elapsed) FPS")
+                        
                     }
                 }
             } catch {
                 logger.error("Error with stream: \(error)")
             }
         }
+    
+
         
 //        do {
 //            self.runningStream = SCStream(filter: filter, configuration: scConfig, delegate: scDelegate!)
@@ -116,14 +129,28 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                 private var droppedFrameCount = 0
                 private var invalidFrameCount = 0
                 private var validFrames = 0
+                private var totalFrameCount = 0
+                private let startTime = Date()
                 
                 private var continuation: AsyncThrowingStream<IOSurface, Error>.Continuation
                 
                 init(continuation: AsyncThrowingStream<IOSurface, Error>.Continuation){
                     self.continuation = continuation
+                    logger.info("Created stream delegate")
                 }
                 
                 func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of: SCStreamOutputType){
+                    self.totalFrameCount += 1
+                    if(self.totalFrameCount % 100 == 0){
+                        logger.debug("stream FPS: \(Double(self.totalFrameCount)/(Date().timeIntervalSince(self.startTime)))")
+                    }
+                    guard buffer.isValid else {
+                        invalidFrameCount += 1
+                        if(invalidFrameCount % 100 == 0){
+                            logger.debug("invalid frames so far \(self.invalidFrameCount)")
+                        }
+                        return
+                    }
                     //get the sample buffer attachments for some reason?
                     guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(buffer,
                                                                                          createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
@@ -142,13 +169,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                     
                     
                     //logger.debug("got a stream frame!")
-                    guard buffer.isValid else {
-                        invalidFrameCount += 1
-                        if(invalidFrameCount % 100 == 0){
-                            logger.debug("invalid frames so far \(self.invalidFrameCount)")
-                        }
-                        return
-                    }
+                    
                     guard of == SCStreamOutputType.screen else { return }
                     
                     //extract the image
