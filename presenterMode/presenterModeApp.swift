@@ -61,6 +61,7 @@ struct presenterModeApp: App {
 //                .environmentObject(avDeviceManager)
             StreamView()
                 .environmentObject(pickerManager)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
