@@ -35,8 +35,25 @@ struct StreamView: NSViewRepresentable {
     }
     
     private var frameSize = CGSize(width: 0, height: 0)
-    mutating func updateFrame(_ cgImage : CGImage){
-        self.contentLayer.contents = cgImage
+    private var croppedFrames = 0
+    private var uncroppedFrames = 0
+    mutating func updateFrame(_ cgImage : FrameType){
+        switch(cgImage){
+        case .uncropped(let iosurf):
+            self.contentLayer.contents = iosurf
+            self.uncroppedFrames += 1
+            let uf = self.uncroppedFrames
+            if(uf % 100 == 0){
+                logger.debug(" \(uf) uncropped frames")
+            }
+        case .cropped(let cgImage):
+            self.contentLayer.contents = cgImage
+            self.croppedFrames += 1
+            let cf = self.croppedFrames
+            if(cf % 100 == 0){
+                logger.debug(" \(cf) cropped frames")
+            }
+        }
         let framesize = self.contentLayer.frame.size
         if(framesize != self.frameSize){
             self.frameSize = framesize
@@ -44,22 +61,22 @@ struct StreamView: NSViewRepresentable {
         }
     }
 }
-    class StreamViewImpl : NSView {
+class StreamViewImpl : NSView {
+    
+    init(layer: CALayer) {
+        super.init(frame: .zero)
+        self.layer = layer
+        self.wantsLayer = true
+        self.layerContentsPlacement = .scaleProportionallyToFit
         
-        init(layer: CALayer) {
-            super.init(frame: .zero)
-            self.layer = layer
-            self.wantsLayer = true
-            self.layerContentsPlacement = .scaleProportionallyToFit
-            
-            Logger().debug("Created NSView")
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        
+        Logger().debug("Created NSView")
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+}
+
 

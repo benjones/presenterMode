@@ -9,12 +9,51 @@ import ScreenCaptureKit
 import OSLog
 import SwiftUI
 
+//triggered by an update of some sort, but we want to delay firing until the updates stop
+//since they'll be coming frequently
+struct ConservativeTrigger {
+    let framesToWait = 10 // after we hit the trigger, wait this many frames of no-change before firing
+    var updateNeededEventually = false
+    var framesWithoutChange = 0
+    
+    //returns if we trigger
+    mutating func tick(updateOccurred: Bool) -> Bool {
+        if(updateOccurred){
+            updateNeededEventually = true
+            framesWithoutChange = 0
+            return false
+        } else {
+            if(updateNeededEventually){
+                framesWithoutChange += 1
+                if(framesWithoutChange >= framesToWait){
+                    updateNeededEventually = false
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    func updateUpcoming() -> Bool {updateNeededEventually}
+
+}
+
+private func rectsApproxEqual(_ r1: CGSize, _ r2: CGSize) -> Bool{
+    return (abs(r1.width - r2.width) + abs(r1.height - r2.height)) < 5 //+/- ~ 2 pixels in each dimension seems fine
+}
+
+enum FrameType {
+    case uncropped(IOSurface)
+    case cropped(CGImage)
+}
+
+let FrameScaling = 2
 
 private func getStreamConfig(_ streamDimensions: CGSize) -> SCStreamConfiguration {
     let conf = SCStreamConfiguration()
     conf.capturesAudio = false
-    conf.width = 2*Int(streamDimensions.width)
-    conf.height = 2*Int(streamDimensions.height)
+    conf.width = FrameScaling*Int(streamDimensions.width)
+    conf.height = FrameScaling*Int(streamDimensions.height)
     //when false, if the window shrinks, the unused part of the frame is black
     conf.scalesToFit = true
     //60FPS
@@ -60,7 +99,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     
     func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
         logger.debug("Updated!")
-        logger.debug("Filter rect: \(filter.contentRect.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
+        logger.debug("Filter rect: \(filter.contentRect.debugDescription) size: \(filter.contentRect.size.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
         
         app?.openWindow()
         logger.debug("Stream? : \(stream)")
@@ -128,8 +167,8 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         
     }
     
-    func frameSequenceFromFilter(filter: SCContentFilter) -> AsyncThrowingStream<CGImage, Error> {
-        return AsyncThrowingStream<CGImage, Error> { continuation in
+    func frameSequenceFromFilter(filter: SCContentFilter) -> AsyncThrowingStream<FrameType, Error> {
+        return AsyncThrowingStream<FrameType, Error> { continuation in
             
             class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput {
                 var logger = Logger()
@@ -140,13 +179,17 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                 private var totalFrameCount = 0
                 private let startTime = Date()
                 
-                private var streamDimensions = CGSize(width: 1920, height: 1080)
-                private var continuation: AsyncThrowingStream<CGImage, Error>.Continuation
-                private var screenPickerManager: ScreenPickerManager
+                private var trigger = ConservativeTrigger()
                 
-                init(screenPickerManager: ScreenPickerManager, continuation: AsyncThrowingStream<CGImage, Error>.Continuation){
+                private var streamDimensions = CGSize(width: 1920, height: 1080)
+                private var continuation: AsyncThrowingStream<FrameType, Error>.Continuation
+                private var screenPickerManager: ScreenPickerManager
+                private var filter: SCContentFilter
+                
+                init(screenPickerManager: ScreenPickerManager, continuation: AsyncThrowingStream<FrameType, Error>.Continuation, filter: SCContentFilter){
                     self.continuation = continuation
                     self.screenPickerManager = screenPickerManager
+                    self.filter = filter
                     logger.info("Created stream delegate")
                 }
                 
@@ -185,15 +228,8 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                         logger.error("Couldn't get contectRect!")
                         return
                     }
-                    var sizeChanged = false
-                    if(contentRect.size != self.streamDimensions){
-                        self.streamDimensions = contentRect.size
-                        logger.debug("new size: content rect: \(contentRect.debugDescription) contentScale: \(contentScale) scaleFactor: \(scaleFactor)")
-                        //                        Task { @MainActor in
-                        //                            self.screenPickerManager.streamAspectRatio = self.streamDimensions
-                        //                        }
-                        sizeChanged = true
-                    }
+                    let scaledSize = CGSize(width: contentRect.size.width*scaleFactor, height: contentRect.size.height*scaleFactor)
+                    let unscaledContentSize = CGSize(width: contentRect.size.width/contentScale, height: contentRect.size.height/contentScale)
                     
                     //logger.debug("got a stream frame!")
                     
@@ -201,10 +237,6 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                     
                     //extract the image
                     guard let pixelBuffer = buffer.imageBuffer else {
-                        //                        droppedFrameCount += 1
-                        //                        if((droppedFrameCount % 100) == 0){
-                        //                            logger.error("dropped \(self.droppedFrameCount) frames so far")
-                        //                        }
                         return
                     }
                     
@@ -212,15 +244,43 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                         logger.error("Couldn't get IOSurface")
                         return
                     }
-                    //                    validFrames += 1
-                    //                    if(validFrames % 100 == 0){
-                    //                        logger.debug("valid frames so far: \(self.validFrames)")
-                    //                    }
+                   
                     let surface = unsafeBitCast(surfaceRef, to: IOSurface.self)
+                    
+                    let croppingRequired = !rectsApproxEqual(scaledSize, CGSize(width:surface.width, height: surface.height))
+                    //if we don't need to crop then the size couldn't have changed
+                    let sizeChanged = croppingRequired && self.streamDimensions != scaledSize
+                    if(sizeChanged){
+                        //logger.debug("size changed from \(self.streamDimensions.debugDescription) to \(scaledSize.debugDescription) cropping required? \(croppingRequired)")
+                        //logger.debug("surface size: \(surface.width) x \(surface.height)")
+                        //logger.debug("filter size: \(self.filter.contentRect.size.debugDescription)")
+                        self.streamDimensions = scaledSize
+                    }
+                    
+                    let triggered = trigger.tick(updateOccurred: sizeChanged)
+                    if(triggered){
+                        //update the stream config
+                        Task {
+                            do {
+                                //filter is not updated...
+                                logger.debug("updating config with dimensions: \(unscaledContentSize.debugDescription)")
+                                try await stream.updateConfiguration(getStreamConfig(unscaledContentSize))
+                                logger.debug("stream config updated")
+                            } catch {
+                                logger.error("couldn't update stream: \(error)")
+                            }
+                        }
+                    }
+                    //after the config update happens we should be able to do this
+                    if(!croppingRequired){
+                        continuation.yield(FrameType.uncropped(surface))
+                        return
+                    }
+                    
                     //crop it to the content rect size
                     let cii = CIImage(ioSurface: surface)
                     let ciContext = CIContext()
-                    let scaledSize = CGSize(width: contentRect.size.width*scaleFactor, height: contentRect.size.height*scaleFactor)
+                    
 
                     //the origin for CGImages is the bottom left, not the top left, so we need to update the Y to take that into account
                     
@@ -230,36 +290,36 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                             ciContext.createCGImage(cii,
                                                     from: CGRect(origin: CGPoint(x: 0, y: surface.height - Int(scaledSize.height)),
                                                                  size: scaledSize)) else {
-                        logger.error("Coulnd't make CGImage")
+                        logger.error("Couldn't make CGImage")
                         return
                     }
                     
-                    if(sizeChanged){
-                        Task {
-                            do {
-                                logger.debug("scaled size: \(scaledSize.debugDescription)")
-                                logger.log("Surface size: \(surface.width) x \(surface.height)")
-                                let nowString = Date().timeIntervalSince1970
-                                let url = URL.temporaryDirectory.appending(path:"\(nowString).png", directoryHint: .notDirectory)
-                                
-                                let dest = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil)!
-                                CGImageDestinationAddImage(dest, cgImage, nil)
-                                CGImageDestinationFinalize(dest)
-                                
-                                let urlIoSurf = URL.temporaryDirectory.appending(path:"\(nowString)_iosurf.png", directoryHint: .notDirectory)
-                                try ciContext.writePNGRepresentation(of: cii, to: urlIoSurf, format: CIFormat.ABGR8, colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!)
-                                
-                                logger.debug("wrote image to \(url)")
-                                
-                            } catch {
-                                logger.debug("couldn't save file: \(error)")
-                            }
-                        }
-                    }
+//                    if(sizeChanged){
+//                        Task {
+//                            do {
+//                                logger.debug("scaled size: \(scaledSize.debugDescription)")
+//                                logger.log("Surface size: \(surface.width) x \(surface.height)")
+//                                let nowString = Date().timeIntervalSince1970
+//                                let url = URL.temporaryDirectory.appending(path:"\(nowString).png", directoryHint: .notDirectory)
+//                                
+//                                let dest = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil)!
+//                                CGImageDestinationAddImage(dest, cgImage, nil)
+//                                CGImageDestinationFinalize(dest)
+//                                
+//                                let urlIoSurf = URL.temporaryDirectory.appending(path:"\(nowString)_iosurf.png", directoryHint: .notDirectory)
+//                                try ciContext.writePNGRepresentation(of: cii, to: urlIoSurf, format: CIFormat.ABGR8, colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!)
+//                                
+//                                logger.debug("wrote image to \(url)")
+//                                
+//                            } catch {
+//                                logger.debug("couldn't save file: \(error)")
+//                            }
+//                        }
+//                    }
                     
                     
                     
-                    continuation.yield(cgImage)
+                    continuation.yield(FrameType.cropped(cgImage))
                     
                 }
                 
@@ -269,7 +329,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                     continuation.finish(throwing: error)
                 }
             }
-            let delegate = StreamToFramesDelegate(screenPickerManager: self, continuation: continuation)
+            let delegate = StreamToFramesDelegate(screenPickerManager: self, continuation: continuation, filter: filter)
             self.scDelegate = delegate
             self.runningStream = SCStream(filter: filter, configuration: getStreamConfig(filter.contentRect.size), delegate: self.scDelegate!)
             do {
