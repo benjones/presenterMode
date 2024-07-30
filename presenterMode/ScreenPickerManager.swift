@@ -101,40 +101,58 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         logger.debug("Updated!")
         logger.debug("Filter rect: \(filter.contentRect.debugDescription) size: \(filter.contentRect.size.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
         
+
+        
         app?.openWindow()
         logger.debug("Stream? : \(stream)")
-        guard stream == nil else {
-            logger.debug("TODO: Stream is not nil")
-            return
-        }
-        self.frameCaptureTask?.cancel()
+
+        //cancel the existing capture if it exists and start a new one
+        //TODO just update the filter?
         
-        self.frameCaptureTask = Task {
-            do {
-                var frameCount = 0
-                let startTime = Date()
-                for try await frame in frameSequenceFromFilter(filter: filter) {
-                    //logger.debug("Got frame from the stream")
-                    
-                    //commenting this out doesn't improve things, so this is probably not the bottleneck!!!
-                    
-                    await self.streamView?.updateFrame(frame)
-                    
-                    
-                    //                    frameCount += 1
-                    //                    if(frameCount % 100 == 0){
-                    //                        logger.debug("updated \(frameCount) frames")
-                    //                        let now = Date()
-                    //                        let elapsed = now.timeIntervalSince(startTime)
-                    //                        logger.info("for loop running at \(Double(frameCount)/elapsed) FPS")
-                    //
-                    //                    }
+        //TODO update the stream filter + configuration, don't cancel/restart it
+        if(frameCaptureTask != nil){
+            //currently recording, figure out what's running now
+            //let allWindows = await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+            
+            Task {
+                do {
+                    try await self.runningStream?.updateContentFilter(filter)
+                    try await self.runningStream?.updateConfiguration(getStreamConfig(filter.contentRect.size))
+                } catch {
+                    logger.error("Couldn't update stream on picker change: \(error)")
                 }
-            } catch {
-                logger.error("Error with stream: \(error)")
+            }
+            
+            
+        } else {
+            
+            
+            self.frameCaptureTask = Task {
+                do {
+                    var frameCount = 0
+                    let startTime = Date()
+                    for try await frame in frameSequenceFromFilter(filter: filter) {
+                        //logger.debug("Got frame from the stream")
+                        
+                        //commenting this out doesn't improve things, so this is probably not the bottleneck!!!
+                        
+                        await self.streamView?.updateFrame(frame)
+                        
+                        
+                        //                    frameCount += 1
+                        //                    if(frameCount % 100 == 0){
+                        //                        logger.debug("updated \(frameCount) frames")
+                        //                        let now = Date()
+                        //                        let elapsed = now.timeIntervalSince(startTime)
+                        //                        logger.info("for loop running at \(Double(frameCount)/elapsed) FPS")
+                        //
+                        //                    }
+                    }
+                } catch {
+                    logger.error("Error with stream: \(error)")
+                }
             }
         }
-        
         
         
         //        do {
