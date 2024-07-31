@@ -77,6 +77,9 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     private var runningStream: SCStream?
     private var app: presenterModeApp?
     private var frameCaptureTask: Task<Void, Never>?
+    private var currentContentRectSize: CGSize = CGSizeZero
+    
+    @Published var history = [SCWindow]()
     
     
     @Published var streamAspectRatio = CGSize(width: 1920, height: 1080)
@@ -112,9 +115,25 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         //TODO update the stream filter + configuration, don't cancel/restart it
         if(frameCaptureTask != nil){
             //currently recording, figure out what's running now
-            //let allWindows = await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+
             
             Task {
+                do {
+                    
+                    //Try to figure out window is about to get swapped out
+                    let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+                    let allWindows = allContent.windows
+                    let windowFrames = allWindows.map{ window in window.frame}
+                    let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == currentContentRectSize}
+                    //TODO Elminate duplicates
+                    DispatchQueue.main.async {
+                        self.history.append(contentsOf: matchingWindows)
+                    }
+                    let windowDebug = matchingWindows.map{window in window.title ?? "no title"}.joined(separator: ", ")
+                    logger.debug("active windows: \(windowDebug)")
+                } catch {
+                    logger.debug("failed figuring out what the old window was: \(error)")
+                }
                 do {
                     try await self.runningStream?.updateContentFilter(filter)
                     try await self.runningStream?.updateConfiguration(getStreamConfig(filter.contentRect.size))
@@ -248,7 +267,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                     }
                     let scaledSize = CGSize(width: contentRect.size.width*scaleFactor, height: contentRect.size.height*scaleFactor)
                     let unscaledContentSize = CGSize(width: contentRect.size.width/contentScale, height: contentRect.size.height/contentScale)
-                    
+                    self.screenPickerManager.currentContentRectSize = contentRect.size
                     //logger.debug("got a stream frame!")
                     
                     guard of == SCStreamOutputType.screen else { return }

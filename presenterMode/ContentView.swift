@@ -34,11 +34,16 @@ struct ContentView: View {
 //    }
     
     var body: some View {
-        Button(action: {
-            logger.debug("Clicked button")
-            pickerManager.present()
-        }){
-            Text("Open picker")
+        VStack{
+            Button(action: {
+                logger.debug("Clicked button")
+                pickerManager.present()
+            }){
+                Text("Open picker")
+            }
+            ForEach(pickerManager.history, id: \.self.windowID){ window in
+                Text("Title: \(window.title ?? "Untitled")")
+            }
         }
     }
     
