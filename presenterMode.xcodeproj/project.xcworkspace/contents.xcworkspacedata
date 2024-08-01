@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/ben/projects/presenterView/presenterMode.xcodeproj">
+      location = "self:">
    </FileRef>
 </Workspace>

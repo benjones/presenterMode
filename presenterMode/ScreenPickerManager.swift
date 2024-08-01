@@ -8,6 +8,7 @@
 import ScreenCaptureKit
 import OSLog
 import SwiftUI
+import CollectionConcurrencyKit
 
 //triggered by an update of some sort, but we want to delay firing until the updates stop
 //since they'll be coming frequently
@@ -69,7 +70,6 @@ private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
         //Try to figure out window is about to get swapped out
         let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
         let allWindows = allContent.windows
-        let windowFrames = allWindows.map{ window in window.frame}
         let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == size}
         return matchingWindows
         
@@ -77,6 +77,11 @@ private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
         Logger().debug("failed figuring out what the old window was: \(error)")
         return []
     }
+}
+
+struct HistoryEntry {
+    let scWindow : SCWindow
+    var preview: CGImage?
 }
 
 class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
@@ -95,7 +100,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     private var frameCaptureTask: Task<Void, Never>?
     private var currentContentRectSize: CGSize = CGSizeZero
     
-    @Published var history = [SCWindow]()
+    @Published var history = [HistoryEntry]()
     
     
     @Published var streamAspectRatio = CGSize(width: 1920, height: 1080)
@@ -125,13 +130,24 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         app?.openWindow()
         logger.debug("Stream? : \(stream)")
         
-        Task {
+        Task { @MainActor in
             //hack to get the window being shared
             let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
-            DispatchQueue.main.async {
-                self.history.removeAll{ window in matchingWindows.contains(window)}
-                self.history.append(contentsOf: matchingWindows)
-            }
+            self.history.removeAll{ window in matchingWindows.contains(window.scWindow)}
+            await self.history.append(contentsOf: matchingWindows.concurrentCompactMap{window in
+                let config = SCStreamConfiguration()
+                config.width = Int(window.frame.width)
+                config.height = Int(window.frame.height)
+                config.scalesToFit = true
+                do {
+                    let screenshot = try await SCScreenshotManager.captureImage(contentFilter: SCContentFilter(desktopIndependentWindow: window), configuration: config)
+                    return HistoryEntry(scWindow: window, preview: screenshot)
+                } catch {
+                    self.logger.debug("history entry add failed: \(error)")
+                }
+                return nil
+            })
+            
         }
 
         //cancel the existing capture if it exists and start a new one
