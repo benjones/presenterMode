@@ -189,7 +189,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         return AsyncThrowingStream<FrameType, Error> { continuation in
             
             
-            let delegate = StreamToFramesDelegate(screenPickerManager: self, continuation: continuation, filter: filter)
+            let delegate = StreamToFramesDelegate(continuation: continuation, filter: filter)
             self.scDelegate = delegate
             self.runningStream = SCStream(filter: filter, configuration: getStreamConfig(filter.contentRect.size), delegate: self.scDelegate!)
             do {
@@ -211,12 +211,10 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput {
     
     private var streamDimensions = CGSize(width: 1920, height: 1080)
     private var continuation: AsyncThrowingStream<FrameType, Error>.Continuation
-    private var screenPickerManager: ScreenPickerManager
     private var filter: SCContentFilter
     
-    init(screenPickerManager: ScreenPickerManager, continuation: AsyncThrowingStream<FrameType, Error>.Continuation, filter: SCContentFilter){
+    init(continuation: AsyncThrowingStream<FrameType, Error>.Continuation, filter: SCContentFilter){
         self.continuation = continuation
-        self.screenPickerManager = screenPickerManager
         self.filter = filter
         logger.info("Created stream delegate")
     }
