@@ -63,6 +63,22 @@ private func getStreamConfig(_ streamDimensions: CGSize) -> SCStreamConfiguratio
     return conf
 }
 
+private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
+    do {
+        
+        //Try to figure out window is about to get swapped out
+        let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+        let allWindows = allContent.windows
+        let windowFrames = allWindows.map{ window in window.frame}
+        let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == size}
+        return matchingWindows
+        
+    } catch {
+        Logger().debug("failed figuring out what the old window was: \(error)")
+        return []
+    }
+}
+
 class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
     
     private let logger = Logger()
@@ -118,21 +134,10 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
 
             
             Task {
-                do {
-                    
-                    //Try to figure out window is about to get swapped out
-                    let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
-                    let allWindows = allContent.windows
-                    let windowFrames = allWindows.map{ window in window.frame}
-                    let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == currentContentRectSize}
-                    //TODO Elminate duplicates
-                    DispatchQueue.main.async {
-                        self.history.append(contentsOf: matchingWindows)
-                    }
-                    let windowDebug = matchingWindows.map{window in window.title ?? "no title"}.joined(separator: ", ")
-                    logger.debug("active windows: \(windowDebug)")
-                } catch {
-                    logger.debug("failed figuring out what the old window was: \(error)")
+                let matchingWindows = await getCurrentlySharedWindow(size: self.currentContentRectSize)
+                DispatchQueue.main.async {
+                    self.history.removeAll{ window in matchingWindows.contains(window)}
+                    self.history.append(contentsOf: matchingWindows)
                 }
                 do {
                     try await self.runningStream?.updateContentFilter(filter)
