@@ -41,7 +41,7 @@ struct ContentView: View {
             }){
                 Text("Open picker")
             }
-            ForEach(pickerManager.history, id: \.self.windowID){ window in
+            ForEach(pickerManager.history.reversed(), id: \.self.windowID){ window in
                 Text("Title: \(window.title ?? "Untitled")")
             }
         }

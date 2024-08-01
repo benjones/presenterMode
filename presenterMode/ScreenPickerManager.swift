@@ -124,6 +124,15 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         
         app?.openWindow()
         logger.debug("Stream? : \(stream)")
+        
+        Task {
+            //hack to get the window being shared
+            let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
+            DispatchQueue.main.async {
+                self.history.removeAll{ window in matchingWindows.contains(window)}
+                self.history.append(contentsOf: matchingWindows)
+            }
+        }
 
         //cancel the existing capture if it exists and start a new one
         //TODO just update the filter?
@@ -134,11 +143,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
 
             
             Task {
-                let matchingWindows = await getCurrentlySharedWindow(size: self.currentContentRectSize)
-                DispatchQueue.main.async {
-                    self.history.removeAll{ window in matchingWindows.contains(window)}
-                    self.history.append(contentsOf: matchingWindows)
-                }
+
                 do {
                     try await self.runningStream?.updateContentFilter(filter)
                     try await self.runningStream?.updateConfiguration(getStreamConfig(filter.contentRect.size))
