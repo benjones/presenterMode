@@ -41,18 +41,18 @@ struct StreamView: NSViewRepresentable {
         switch(cgImage){
         case .uncropped(let iosurf):
             self.contentLayer.contents = iosurf
-            self.uncroppedFrames += 1
-            let uf = self.uncroppedFrames
-            if(uf % 100 == 0){
-                logger.debug(" \(uf) uncropped frames")
-            }
+//            self.uncroppedFrames += 1
+//            let uf = self.uncroppedFrames
+//            if(uf % 100 == 0){
+//                logger.debug(" \(uf) uncropped frames")
+//            }
         case .cropped(let cgImage):
             self.contentLayer.contents = cgImage
-            self.croppedFrames += 1
-            let cf = self.croppedFrames
-            if(cf % 100 == 0){
-                logger.debug(" \(cf) cropped frames")
-            }
+//            self.croppedFrames += 1
+//            let cf = self.croppedFrames
+//            if(cf % 100 == 0){
+//                logger.debug(" \(cf) cropped frames")
+//            }
         }
         let framesize = self.contentLayer.frame.size
         if(framesize != self.frameSize){

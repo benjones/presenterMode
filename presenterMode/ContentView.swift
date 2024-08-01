@@ -41,15 +41,17 @@ struct ContentView: View {
             }){
                 Text("Open picker")
             }
-            ForEach(pickerManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
-                if(historyEntry.preview != nil){
-                    Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 300, height: 300, alignment: .center)
-                        .border(Color.white)
+            ScrollView{
+                ForEach(pickerManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
+                    if(historyEntry.preview != nil){
+                        Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 300, height: 300, alignment: .center)
+                            .border(Color.white)
+                    }
+                    Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
                 }
-                Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
             }
         }
     }
