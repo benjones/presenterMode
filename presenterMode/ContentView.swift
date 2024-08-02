@@ -43,14 +43,18 @@ struct ContentView: View {
             }
             ScrollView{
                 ForEach(pickerManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
-                    if(historyEntry.preview != nil){
-                        Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 300, height: 300, alignment: .center)
-                            .border(Color.white)
+                    VStack {
+                        if(historyEntry.preview != nil){
+                            Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 300, height: 300, alignment: .center)
+                                .border(Color.white)
+                        }
+                        Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
+                    }.onTapGesture {
+                        pickerManager.startStreamingFromFilter(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
                     }
-                    Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
                 }
             }
         }

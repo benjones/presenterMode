@@ -117,13 +117,16 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     }
     
     func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
-        logger.debug("Updated!")
+        
+        logger.debug("Updated from picker!")
         logger.debug("Filter rect: \(filter.contentRect.debugDescription) size: \(filter.contentRect.size.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
         
-
+        startStreamingFromFilter(filter: filter)
         
+    }
+    
+    func startStreamingFromFilter(filter: SCContentFilter) {
         app?.openWindow()
-        logger.debug("Stream? : \(stream)")
         
         Task { @MainActor in
             //hack to get the window being shared
@@ -169,7 +172,6 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                 }
             }
         }
-
     }
     
     func contentSharingPickerStartDidFailWithError(_ error: any Error) {

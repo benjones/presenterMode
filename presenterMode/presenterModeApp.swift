@@ -27,7 +27,7 @@ struct presenterModeApp: App {
     private var logger = Logger()
     
     func openWindow(){
-        DispatchQueue.main.sync {
+        DispatchQueue.main.async {
             openWindowEnv(id: "mirror")
         }
     }
