@@ -12,7 +12,7 @@ import OSLog
 @main
 struct presenterModeApp: App {
     //@State var globalViewModel = GlobalViewModel()
-    //@State var avDeviceManager = AVDeviceManager()
+    @State var avDeviceManager = AVDeviceManager()
     
     @Environment(\.openWindow) private var openWindowEnv
     
@@ -39,7 +39,7 @@ struct presenterModeApp: App {
             ContentView()
                 .environmentObject(pickerManager)
                 //.environmentObject(globalViewModel)
-                //.environmentObject(avDeviceManager)
+                .environmentObject(avDeviceManager)
                 .onAppear(){
                     logger.debug("ContenView appearing")
                     pickerManager.setApp(app:self)
@@ -58,9 +58,9 @@ struct presenterModeApp: App {
         Window("Mirror window", id: "mirror"){
 //            MirrorView()
 //                .environmentObject(globalViewModel)
-//                .environmentObject(avDeviceManager)
             StreamView()
                 .environmentObject(pickerManager)
+                .environmentObject(avDeviceManager)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }

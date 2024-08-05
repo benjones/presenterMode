@@ -34,14 +34,37 @@ struct ContentView: View {
 //    }
     
     var body: some View {
-        VStack{
+        HStack{
             Button(action: {
                 logger.debug("Clicked button")
                 pickerManager.present()
             }){
                 Text("Open picker")
             }
+            
             ScrollView{
+                Text("Devices")
+                ForEach(avDeviceManager.avCaptureDevices) {avWrapper in
+                    VStack {
+                        Image(GlobalViewModel.noPreviewAvailableImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(avWrapper.device.localizedName))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 300, height: 300, alignment: .center)
+                            .border(Color.white)
+                        Text("\(maybeTruncate( str: avWrapper.device.localizedName))")
+                        
+                        
+                    }.onTapGesture {
+                        openWindow(id: "mirror")
+                        let _ = avDeviceManager.setupCaptureSession(device: avWrapper.device)
+                        pickerManager.streamAVDevice(captureSession: avDeviceManager.avCaptureSession!)
+                        //shareAVDevice(device: avWrapper.device)
+                    }
+                    
+                }
+            }
+            ScrollView{
+                Text("History")
                 ForEach(pickerManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
                     VStack {
                         if(historyEntry.preview != nil){

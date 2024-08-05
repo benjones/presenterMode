@@ -9,6 +9,7 @@ import ScreenCaptureKit
 import OSLog
 import SwiftUI
 import CollectionConcurrencyKit
+import AVFoundation
 
 //triggered by an update of some sort, but we want to delay firing until the updates stop
 //since they'll be coming frequently
@@ -93,6 +94,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     
     
     private var streamView: StreamView?
+    private var streamViewImpl: StreamViewImpl?
     private var scDelegate: SCStreamDelegate?
     private let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
     private var runningStream: SCStream?
@@ -101,10 +103,18 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     
     @Published var history = [HistoryEntry]()
     
-    func registerView(_ view: StreamView) {
+    func registerView(_ streamView: StreamView, _ streamViewImpl: StreamViewImpl) {
         //TODO: Do we need to clear the old one?
-        self.streamView = view
+        self.streamView = streamView
+        self.streamViewImpl = streamViewImpl
         logger.debug("attaching view to picker manager")
+    }
+    
+    //TODO MOVE OUT OF THIS BIG CLASS!
+    func streamAVDevice(captureSession: AVCaptureSession){
+        frameCaptureTask?.cancel()
+        runningStream?.stopCapture()
+        streamView?.streamAVDevice(streamViewImpl: streamViewImpl!, captureSession: captureSession)
     }
     
     func setApp(app:presenterModeApp){
@@ -131,6 +141,9 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         Task { @MainActor in
             //hack to get the window being shared
             let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
+            
+            //TODO, remove any history entries which aren't in matchingwindows anymore
+            
             self.history.removeAll{ window in matchingWindows.contains(window.scWindow)}
             await self.history.append(contentsOf: matchingWindows.concurrentCompactMap{window in
                 let config = SCStreamConfiguration()

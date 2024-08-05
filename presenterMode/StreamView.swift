@@ -7,6 +7,7 @@
 
 import SwiftUI
 import OSLog
+import AVFoundation
 
 struct StreamView: NSViewRepresentable {
     
@@ -14,16 +15,28 @@ struct StreamView: NSViewRepresentable {
     @EnvironmentObject var pickerManager: ScreenPickerManager
     private let logger = Logger()
     
-    private let contentLayer = CALayer()
+    //TODO REPLACE WITH AVVideoCapturePreviewLayer when necessary
     
+    private let contentLayer = CALayer()
+    private var avLayer: AVCaptureVideoPreviewLayer?
     init() {
         contentLayer.contentsGravity = .resizeAspectFill
+    }
+    
+    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, captureSession: AVCaptureSession){
+        logger.debug("starting to stream AV device!")
+        self.avLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        self.avLayer!.contentsGravity = .resizeAspect
+        self.avLayer!.videoGravity = .resizeAspect
+                
+        streamViewImpl.layer = self.avLayer
+        logger.debug("set streaming layer to AV")
     }
     
     func makeNSView(context: Context) -> some NSView {
         logger.debug("Making my NSView with layer \(contentLayer)")
         let viewImpl = StreamViewImpl(layer:contentLayer)
-        pickerManager.registerView(self)
+        pickerManager.registerView(self, viewImpl)
         return viewImpl
     }
     
