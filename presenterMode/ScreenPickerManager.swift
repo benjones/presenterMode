@@ -91,6 +91,12 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     private let screenPicker = SCContentSharingPicker.shared
     
     
+    private let avDeviceManager: AVDeviceManager
+    
+    init(avManager: AVDeviceManager) {
+        self.avDeviceManager = avManager
+    }
+    
     
     
     private var streamView: StreamView?
@@ -111,10 +117,11 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     }
     
     //TODO MOVE OUT OF THIS BIG CLASS!
-    func streamAVDevice(captureSession: AVCaptureSession){
+    func streamAVDevice(device: AVCaptureDevice){
         frameCaptureTask?.cancel()
         runningStream?.stopCapture()
-        streamView?.streamAVDevice(streamViewImpl: streamViewImpl!, captureSession: captureSession)
+        frameCaptureTask = nil
+        streamView?.streamAVDevice(streamViewImpl: streamViewImpl!, device: device)
     }
     
     func setApp(app:presenterModeApp){
@@ -136,9 +143,13 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     }
     
     func startStreamingFromFilter(filter: SCContentFilter) {
-        app?.openWindow()
-        
+        avDeviceManager.stopSharing()
         Task { @MainActor in
+            
+            //open up the window
+            await app?.openWindow()
+            self.streamView!.streamWindow(streamViewImpl: self.streamViewImpl!)
+            
             //hack to get the window being shared
             let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
             
@@ -160,6 +171,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
             })
             
         }
+        
 
         if(frameCaptureTask != nil){
             Task {

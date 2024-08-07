@@ -13,6 +13,7 @@ struct StreamView: NSViewRepresentable {
     
     
     @EnvironmentObject var pickerManager: ScreenPickerManager
+    @EnvironmentObject var avDeviceManager: AVDeviceManager
     private let logger = Logger()
     
     //TODO REPLACE WITH AVVideoCapturePreviewLayer when necessary
@@ -23,15 +24,21 @@ struct StreamView: NSViewRepresentable {
         contentLayer.contentsGravity = .resizeAspectFill
     }
     
-    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, captureSession: AVCaptureSession){
+    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice){
         logger.debug("starting to stream AV device!")
-        self.avLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        self.avDeviceManager.setupCaptureSession(device: device)
+        self.avLayer = AVCaptureVideoPreviewLayer(session: avDeviceManager.avCaptureSession!)
         self.avLayer!.contentsGravity = .resizeAspect
         self.avLayer!.videoGravity = .resizeAspect
                 
         streamViewImpl.layer = self.avLayer
         logger.debug("set streaming layer to AV")
     }
+    
+    mutating func streamWindow(streamViewImpl: StreamViewImpl){
+        streamViewImpl.layer = self.contentLayer
+    }
+    
     
     func makeNSView(context: Context) -> some NSView {
         logger.debug("Making my NSView with layer \(contentLayer)")

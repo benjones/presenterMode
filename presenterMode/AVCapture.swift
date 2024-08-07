@@ -10,6 +10,7 @@ import AVFoundation
 import CoreMediaIO
 import Combine
 import SwiftUI
+import OSLog
 
 class AVDeviceManager : NSObject, ObservableObject {
     
@@ -56,7 +57,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         AVCaptureDevice.requestAccess(for: .video) { granted in
             if granted {
                 let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
-                                                                            [.externalUnknown, .builtInWideAngleCamera], mediaType: .video, position: .unspecified)
+                                                                            [.external, .builtInWideAngleCamera], mediaType: .video, position: .unspecified)
                 self.avCaptureDevices = discoverySession.devices.map({device -> AVWrapper in
                     return AVWrapper(dev: device)
                 })
@@ -65,31 +66,36 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    func setupCaptureSession(device: AVCaptureDevice) -> Bool{
+    func setupCaptureSession(device: AVCaptureDevice) {
+        Logger().debug("setup capture session for \(device.localizedName)")
         if avCaptureSession == nil {
             avCaptureSession = AVCaptureSession();
         }
         
         avCaptureSession = avCaptureSession //trigger the publisher?
-        avCaptureSession!.beginConfiguration()
-        
-        do {
-            try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
-            avCaptureSession!.commitConfiguration();
-            avCaptureSession!.startRunning();
-
-            return true
-        } catch {
-            print("Error setting up cature session: \(error)")
-            return false
+        Task {
+            avCaptureSession!.beginConfiguration()
+            
+            do {
+                try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
+                avCaptureSession!.commitConfiguration();
+                avCaptureSession!.startRunning();
+            } catch {
+                print("Error setting up cature session: \(error)")
+            }
         }
     }
     
     func stopSharing(){
         if avCaptureSession != nil{
-            avCaptureSession!.stopRunning()
-            for input in avCaptureSession!.inputs {
-                avCaptureSession!.removeInput(input);
+            if(avCaptureSession!.isRunning){
+                avCaptureSession!.stopRunning()
+                let inputs = avCaptureSession!.inputs
+                for input in inputs {
+                    avCaptureSession!.removeInput(input);
+                }
+            } else {
+                Logger().debug("called av stopSharing when it wasn't running")
             }
         }
     }

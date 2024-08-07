@@ -44,7 +44,7 @@ struct ContentView: View {
             
             ScrollView{
                 Text("Devices")
-                ForEach(avDeviceManager.avCaptureDevices) {avWrapper in
+                ForEach(avDeviceManager.avCaptureDevices, id: \.id) {avWrapper in
                     VStack {
                         Image(GlobalViewModel.noPreviewAvailableImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(avWrapper.device.localizedName))
                             .resizable()
@@ -56,8 +56,7 @@ struct ContentView: View {
                         
                     }.onTapGesture {
                         openWindow(id: "mirror")
-                        let _ = avDeviceManager.setupCaptureSession(device: avWrapper.device)
-                        pickerManager.streamAVDevice(captureSession: avDeviceManager.avCaptureSession!)
+                        pickerManager.streamAVDevice(device: avWrapper.device)
                         //shareAVDevice(device: avWrapper.device)
                     }
                     
@@ -76,6 +75,7 @@ struct ContentView: View {
                         }
                         Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
                     }.onTapGesture {
+                        avDeviceManager.stopSharing()
                         pickerManager.startStreamingFromFilter(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
                     }
                 }

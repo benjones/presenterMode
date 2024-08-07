@@ -12,24 +12,29 @@ import OSLog
 @main
 struct presenterModeApp: App {
     //@State var globalViewModel = GlobalViewModel()
-    @State var avDeviceManager = AVDeviceManager()
+    @State var avDeviceManager: AVDeviceManager
     
     @Environment(\.openWindow) private var openWindowEnv
     
-    @State var pickerManager = ScreenPickerManager()
+    @State var pickerManager: ScreenPickerManager
+    
+    init() {
+        let deviceManager = AVDeviceManager()
+        self.avDeviceManager = deviceManager
+        self.pickerManager = ScreenPickerManager(avManager: deviceManager)
+    }
     
 //    @State private var screenRecorder: ScreenRecorder
 //    
+    
 //    init(){
 //        screenRecorder = ScreenRecorder()
 //    }
     
     private var logger = Logger()
     
-    func openWindow(){
-        DispatchQueue.main.async {
-            openWindowEnv(id: "mirror")
-        }
+    @MainActor func openWindow() async {
+        openWindowEnv(id: "mirror")
     }
     
     var body: some Scene {
@@ -38,7 +43,6 @@ struct presenterModeApp: App {
         Window("Window Picker", id: "picker") {
             ContentView()
                 .environmentObject(pickerManager)
-                //.environmentObject(globalViewModel)
                 .environmentObject(avDeviceManager)
                 .onAppear(){
                     logger.debug("ContenView appearing")
