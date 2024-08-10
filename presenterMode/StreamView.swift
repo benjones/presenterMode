@@ -24,15 +24,17 @@ struct StreamView: NSViewRepresentable {
         contentLayer.contentsGravity = .resizeAspectFill
     }
     
-    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice){
-        logger.debug("starting to stream AV device!")
-        self.avDeviceManager.setupCaptureSession(device: device)
-        self.avLayer = AVCaptureVideoPreviewLayer(session: avDeviceManager.avCaptureSession!)
-        self.avLayer!.contentsGravity = .resizeAspect
-        self.avLayer!.videoGravity = .resizeAspect
-                
+    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice) {
+        var layer: AVCaptureVideoPreviewLayer?
+        DispatchQueue.global(qos:.background).sync {
+            logger.debug("starting to stream AV device!")
+            
+            layer = self.avDeviceManager.setupCaptureSession(device: device)
+        }
+        self.avLayer = layer
         streamViewImpl.layer = self.avLayer
         logger.debug("set streaming layer to AV")
+        
     }
     
     mutating func streamWindow(streamViewImpl: StreamViewImpl){

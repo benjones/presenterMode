@@ -118,9 +118,12 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     
     //TODO MOVE OUT OF THIS BIG CLASS!
     func streamAVDevice(device: AVCaptureDevice){
-        frameCaptureTask?.cancel()
-        runningStream?.stopCapture()
-        frameCaptureTask = nil
+        logger.debug("want to stream device: \(device.localizedName)")
+        if(frameCaptureTask != nil){
+            frameCaptureTask!.cancel()
+            runningStream!.stopCapture()
+            frameCaptureTask = nil
+        }
         streamView?.streamAVDevice(streamViewImpl: streamViewImpl!, device: device)
     }
     

@@ -24,6 +24,8 @@ class AVDeviceManager : NSObject, ObservableObject {
     private var connectedSubscriptionHandle : AnyCancellable? = nil
     private var disconnectedSubscriptionHandle : AnyCancellable? = nil
     
+    private var avLayer: AVCaptureVideoPreviewLayer?
+    
     override init(){
         super.init()
         //without this ipads won't show up as capture dvices
@@ -66,23 +68,37 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    func setupCaptureSession(device: AVCaptureDevice) {
+    func setupCaptureSession(device: AVCaptureDevice) -> AVCaptureVideoPreviewLayer? {
         Logger().debug("setup capture session for \(device.localizedName)")
         if avCaptureSession == nil {
             avCaptureSession = AVCaptureSession();
         }
         
-        avCaptureSession = avCaptureSession //trigger the publisher?
-        Task {
-            avCaptureSession!.beginConfiguration()
+        avCaptureSession!.beginConfiguration()
+        
+        do {
+            removeAllInputs()
+            try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
+            avCaptureSession!.commitConfiguration();
+            avCaptureSession!.startRunning();
             
-            do {
-                try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
-                avCaptureSession!.commitConfiguration();
-                avCaptureSession!.startRunning();
-            } catch {
-                print("Error setting up cature session: \(error)")
+            if(avLayer == nil){
+                avLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession!)
+                avLayer!.contentsGravity = .resizeAspect
+                avLayer!.videoGravity = .resizeAspect
             }
+            return avLayer!
+        } catch {
+            print("Error setting up cature session: \(error)")
+            return nil
+        }
+        
+    }
+    
+    fileprivate func removeAllInputs() {
+        let inputs = avCaptureSession!.inputs
+        for input in inputs {
+            avCaptureSession!.removeInput(input);
         }
     }
     
@@ -90,10 +106,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         if avCaptureSession != nil{
             if(avCaptureSession!.isRunning){
                 avCaptureSession!.stopRunning()
-                let inputs = avCaptureSession!.inputs
-                for input in inputs {
-                    avCaptureSession!.removeInput(input);
-                }
+                removeAllInputs()
             } else {
                 Logger().debug("called av stopSharing when it wasn't running")
             }
