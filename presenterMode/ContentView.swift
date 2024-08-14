@@ -36,23 +36,19 @@ struct ContentView: View {
     
     var body: some View {
         HStack{
-            Button(action: {
-                logger.debug("Clicked button")
-                pickerManager.present()
-            }){
-                Text("Open picker")
-            }
-            
             ScrollView{
                 Text("Devices")
                 ForEach(avDeviceManager.avCaptureDevices, id: \.id) {avWrapper in
                     VStack {
-                        Image(GlobalViewModel.noPreviewAvailableImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(avWrapper.device.localizedName))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 300, height: 300, alignment: .center)
-                            .border(Color.white)
+//                        Image(GlobalViewModel.noPreviewAvailableImage, scale: 1.0, orientation: Image.Orientation.up, label: Text(avWrapper.device.localizedName))
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
+//                            .frame(width: 320, height: 180, alignment: .center)
+//                            .border(Color.white)
                         Text("\(maybeTruncate( str: avWrapper.device.localizedName))")
+                            .frame(width: 320, height: 60)
+                            .background(Color.secondary)
+                            .border(Color.accentColor)
                         
                         
                     }.onTapGesture {
@@ -66,14 +62,14 @@ struct ContentView: View {
                 }
             }
             ScrollView{
-                Text("History")
+                Text("Screen History")
                 ForEach(pickerManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
                     VStack {
                         if(historyEntry.preview != nil){
                             Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 300, height: 300, alignment: .center)
+                                .frame(width: 320, height: 180, alignment: .center)
                                 .border(Color.white)
                         }
                         Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
@@ -86,6 +82,9 @@ struct ContentView: View {
                     }
                 }
             }
+        }
+        .onAppear(){
+            pickerManager.present()
         }
     }
     

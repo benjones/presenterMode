@@ -68,17 +68,9 @@ struct presenterModeApp: App {
                 .onAppear(){
                     logger.debug("ContenView appearing")
                     pickerManager.setApp(app:self)
-                    //                    Task{
-                    //                        do {
-                    //                            // If the app doesn't have screen recording permission, this call generates an exception.
-                    //                            try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
-                    //                            logger.debug("Have sharing permissions")
-                    //                        } catch {
-                    //                            logger.debug("DO NOT have sharing permissions")
-                    //                        }
-                    //                    }
                 }
         }
+        .defaultSize(width: 720, height: 480)
         
         //This and the windowOpener is a hack because the second Window cannot be maximized
         //by default
