@@ -18,6 +18,7 @@ struct ContentView: View {
     @EnvironmentObject var pickerManager: ScreenPickerManager
     //@EnvironmentObject var globalViewModel : GlobalViewModel
     @EnvironmentObject var avDeviceManager : AVDeviceManager
+    @EnvironmentObject var windowOpener: WindowOpener
     
     @Environment(\.openWindow) private var openWindow
     
@@ -55,8 +56,10 @@ struct ContentView: View {
                         
                         
                     }.onTapGesture {
-                        openWindow(id: "mirror")
-                        pickerManager.streamAVDevice(device: avWrapper.device)
+                        Task {
+                            await windowOpener.openWindow()
+                            pickerManager.streamAVDevice(device: avWrapper.device)
+                        }
                         //shareAVDevice(device: avWrapper.device)
                     }
                     
@@ -75,8 +78,11 @@ struct ContentView: View {
                         }
                         Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
                     }.onTapGesture {
-                        avDeviceManager.stopSharing()
-                        pickerManager.startStreamingFromFilter(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
+                        Task {
+                            await windowOpener.openWindow()
+                            avDeviceManager.stopSharing()
+                            pickerManager.startStreamingFromFilter(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
+                        }
                     }
                 }
             }
