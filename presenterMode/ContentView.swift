@@ -53,7 +53,7 @@ struct ContentView: View {
                         
                     }.onTapGesture {
                         Task {
-                            await windowOpener.openWindow()
+                            await windowOpener.openWindow(action: openWindow)
                             pickerManager.streamAVDevice(device: avWrapper.device)
                         }
                         //shareAVDevice(device: avWrapper.device)
@@ -75,7 +75,7 @@ struct ContentView: View {
                         Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
                     }.onTapGesture {
                         Task {
-                            await windowOpener.openWindow()
+                            await windowOpener.openWindow(action: openWindow)
                             avDeviceManager.stopSharing()
                             pickerManager.startStreamingFromFilter(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
                         }

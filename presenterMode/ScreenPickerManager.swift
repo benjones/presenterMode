@@ -153,26 +153,38 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
             await app?.openWindow()
             self.streamView!.streamWindow(streamViewImpl: self.streamViewImpl!)
             
-            //hack to get the window being shared
-            let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
-            
-            //TODO, remove any history entries which aren't in matchingwindows anymore
-            
-            self.history.removeAll{ window in matchingWindows.contains(window.scWindow)}
-            await self.history.append(contentsOf: matchingWindows.concurrentCompactMap{window in
-                let config = SCStreamConfiguration()
-                config.width = Int(window.frame.width)
-                config.height = Int(window.frame.height)
-                config.scalesToFit = true
-                do {
-                    let screenshot = try await SCScreenshotManager.captureImage(contentFilter: SCContentFilter(desktopIndependentWindow: window), configuration: config)
-                    return HistoryEntry(scWindow: window, preview: screenshot)
-                } catch {
-                    self.logger.debug("history entry add failed: \(error)")
-                }
-                return nil
-            })
-            
+            switch(filter.style){
+            case .window:
+                
+                //hack to get the window being shared
+                let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
+                
+                //TODO, remove any history entries which aren't in matchingwindows anymore
+                
+                self.history.removeAll{ window in matchingWindows.contains(window.scWindow)}
+                await self.history.append(contentsOf: matchingWindows.concurrentCompactMap{window in
+                    let config = SCStreamConfiguration()
+                    config.width = Int(window.frame.width)
+                    config.height = Int(window.frame.height)
+                    config.scalesToFit = true
+                    do {
+                        let screenshot = try await SCScreenshotManager.captureImage(contentFilter: SCContentFilter(desktopIndependentWindow: window), configuration: config)
+                        return HistoryEntry(scWindow: window, preview: screenshot)
+                    } catch {
+                        self.logger.debug("history entry add failed: \(error)")
+                    }
+                    return nil
+                })
+            case .none:
+                logger.error("Filter has no style (type)")
+                return
+            case .display:
+                logger.debug("sharing a full display, not adding to history")
+            case .application:
+                logger.debug("sharing an application, not adding to history")
+            @unknown default:
+                logger.error("Filter has unknown style (type)")
+            }
         }
         
 
@@ -212,6 +224,17 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
             screenPicker.add(self)
         }
         //TODO present for if stream is already running
+        
+        //You can't currently set the picker to support single app or single window
+        //You can either allow multiple of everything too, or only windows/only apps
+        //Thanks apple!
+        
+//        let configuration = {
+//            var configuration = SCContentSharingPickerConfiguration()
+//            configuration.allowedPickerModes = .singleApplication | .singleWindow
+//            
+//        }
+
         screenPicker.present()
     }
     

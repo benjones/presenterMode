@@ -12,12 +12,11 @@ import OSLog
 //THIS IS A HACK BECAUSE THE SECOND WINDOW OBJECT
 //CAN'T BE MAXIMIZED
 class WindowOpener: NSObject, ObservableObject {
-    @Environment(\.openWindow) private var openWindowEnv
     private var isWindowOpen = false
-    @MainActor func openWindow() async {
+    @MainActor func openWindow(action: OpenWindowAction) async {
         if(!isWindowOpen){
             Logger().debug("opening a new window")
-            openWindowEnv(id: "mirror")
+            action(id: "mirror")
         } else {
             Logger().debug("skipping openWindow... already open")
         }
@@ -31,6 +30,7 @@ class WindowOpener: NSObject, ObservableObject {
 struct presenterModeApp: App {
     //@State var globalViewModel = GlobalViewModel()
     @State var avDeviceManager: AVDeviceManager
+    @Environment(\.openWindow) private var openWindowEnv
     
     @State var pickerManager: ScreenPickerManager
     @State var windowOpener = WindowOpener()
@@ -49,8 +49,8 @@ struct presenterModeApp: App {
 //    }
     
     //TODO: pass this as an enviornment object
-    func openWindow() async {
-        await windowOpener.openWindow()
+    @MainActor func openWindow() async {
+        await windowOpener.openWindow(action: openWindowEnv)
     }
     
     private var logger = Logger()
