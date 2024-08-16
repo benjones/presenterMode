@@ -10,9 +10,6 @@
 		B513C23B2C1B8519009AD1C1 /* StreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23A2C1B8519009AD1C1 /* StreamView.swift */; };
 		B513C23D2C1B9DFC009AD1C1 /* ScreenPickerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */; };
 		B522F6F72C5C3611004D5451 /* CollectionConcurrencyKit in Frameworks */ = {isa = PBXBuildFile; productRef = B522F6F62C5C3611004D5451 /* CollectionConcurrencyKit */; };
-		B52A807F2706618F009691A6 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A807E2706618F009691A6 /* Capture.swift */; };
-		B52A80812707C809009691A6 /* MirrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A80802707C809009691A6 /* MirrorView.swift */; };
-		B52A80852707FD93009691A6 /* GlobalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A80842707FD93009691A6 /* GlobalViewModel.swift */; };
 		B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385C26F527CE00D022C9 /* presenterModeApp.swift */; };
 		B531385F26F527CE00D022C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385E26F527CE00D022C9 /* ContentView.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
@@ -24,9 +21,6 @@
 /* Begin PBXFileReference section */
 		B513C23A2C1B8519009AD1C1 /* StreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamView.swift; sourceTree = "<group>"; };
 		B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenPickerManager.swift; sourceTree = "<group>"; };
-		B52A807E2706618F009691A6 /* Capture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Capture.swift; sourceTree = "<group>"; };
-		B52A80802707C809009691A6 /* MirrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirrorView.swift; sourceTree = "<group>"; };
-		B52A80842707FD93009691A6 /* GlobalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewModel.swift; sourceTree = "<group>"; };
 		B531385926F527CE00D022C9 /* presenterMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presenterMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B531385C26F527CE00D022C9 /* presenterModeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presenterModeApp.swift; sourceTree = "<group>"; };
 		B531385E26F527CE00D022C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -70,15 +64,12 @@
 		B531385B26F527CE00D022C9 /* presenterMode */ = {
 			isa = PBXGroup;
 			children = (
-				B52A807E2706618F009691A6 /* Capture.swift */,
 				B531385C26F527CE00D022C9 /* presenterModeApp.swift */,
 				B531385E26F527CE00D022C9 /* ContentView.swift */,
 				B531386026F527CF00D022C9 /* Assets.xcassets */,
 				B531386526F527D000D022C9 /* Info.plist */,
 				B531386626F527D000D022C9 /* presenterMode.entitlements */,
 				B531386226F527CF00D022C9 /* Preview Content */,
-				B52A80802707C809009691A6 /* MirrorView.swift */,
-				B52A80842707FD93009691A6 /* GlobalViewModel.swift */,
 				B5B680BB278A246F004BBBDB /* AVCapture.swift */,
 				B513C23A2C1B8519009AD1C1 /* StreamView.swift */,
 				B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */,
@@ -171,11 +162,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B52A807F2706618F009691A6 /* Capture.swift in Sources */,
 				B513C23B2C1B8519009AD1C1 /* StreamView.swift in Sources */,
 				B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */,
-				B52A80852707FD93009691A6 /* GlobalViewModel.swift in Sources */,
-				B52A80812707C809009691A6 /* MirrorView.swift in Sources */,
 				B513C23D2C1B9DFC009AD1C1 /* ScreenPickerManager.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,
