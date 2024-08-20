@@ -1,0 +1,13 @@
+{
+  "data" : [
+    {
+      "filename" : "sharingStopped.png",
+      "idiom" : "universal",
+      "universal-type-identifier" : "public.png"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

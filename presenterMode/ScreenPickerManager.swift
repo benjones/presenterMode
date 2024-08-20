@@ -97,7 +97,8 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         self.avDeviceManager = avManager
     }
     
-    
+    public static let sharingStoppedImage: CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+
     
     private var streamView: StreamView?
     private var streamViewImpl: StreamViewImpl?
@@ -211,6 +212,7 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                     logger.error("Error with stream: \(error)")
                 }
                 //so the stream can restart in the future
+                await self.streamView?.updateFrame(FrameType.cropped(ScreenPickerManager.sharingStoppedImage))
                 self.frameCaptureTask = nil
             }
         }
