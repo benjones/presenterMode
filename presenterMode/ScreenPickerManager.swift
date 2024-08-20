@@ -210,6 +210,8 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                 } catch {
                     logger.error("Error with stream: \(error)")
                 }
+                //so the stream can restart in the future
+                self.frameCaptureTask = nil
             }
         }
     }
@@ -354,6 +356,7 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput {
     
     func stream(_ stream: SCStream, didStopWithError error: Error) {
         logger.debug("STREAM STOPPED WITH ERROR: \(error)")
-        continuation.finish(throwing: error)
+        continuation.finish()
+        
     }
 }
