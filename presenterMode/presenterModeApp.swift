@@ -26,6 +26,17 @@ class WindowOpener: NSObject, ObservableObject {
     }
 }
 
+struct MirrorCommands : Commands {
+    
+    @Binding var mirrorAVDevice: Bool
+    var body: some Commands {
+        CommandGroup(before: CommandGroupPlacement.toolbar){
+            Toggle("Mirror AV Devices", isOn: $mirrorAVDevice)
+                .keyboardShortcut("m")
+        }
+    }
+}
+
 @main
 struct presenterModeApp: App {
     //@State var globalViewModel = GlobalViewModel()
@@ -55,13 +66,14 @@ struct presenterModeApp: App {
     
     private var logger = Logger()
     
+    @State private var avMirroring = false
     
     
     var body: some Scene {
         
         
         Window("Window Picker", id: "picker") {
-            ContentView()
+            ContentView(avMirroring: $avMirroring)
                 .environmentObject(pickerManager)
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
@@ -71,6 +83,13 @@ struct presenterModeApp: App {
                 }
         }
         .defaultSize(width: 720, height: 480)
+        .commands{
+            MirrorCommands(mirrorAVDevice: $avMirroring)
+        }.onChange(of: avMirroring, initial: false){
+            pickerManager.updateAVMirroring(avMirroring: avMirroring)
+        }
+        
+        
         
         //This and the windowOpener is a hack because the second Window cannot be maximized
         //by default
@@ -86,6 +105,7 @@ struct presenterModeApp: App {
                 .onDisappear(perform: { windowOpener.updateWindowStatus(opened: false)})
         }
         .defaultSize(width: 1920, height: 1080)
+        
 
         
         // in future version: .restorationBehavior(.disabled)

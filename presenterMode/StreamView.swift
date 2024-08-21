@@ -24,7 +24,7 @@ struct StreamView: NSViewRepresentable {
         contentLayer.contentsGravity = .resizeAspectFill
     }
     
-    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice) {
+    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice, avMirroring: Bool) {
         var layer: AVCaptureVideoPreviewLayer?
         DispatchQueue.global(qos:.background).sync {
             logger.debug("starting to stream AV device!")
@@ -33,8 +33,16 @@ struct StreamView: NSViewRepresentable {
         }
         self.avLayer = layer
         streamViewImpl.layer = self.avLayer
+        setAVMirroring(mirroring: avMirroring)
         logger.debug("set streaming layer to AV")
         
+    }
+    
+    func setAVMirroring(mirroring: Bool){
+        //https://stackoverflow.com/questions/41885927/unable-to-mirror-avcapturevideopreviewlayer-on-macos
+        logger.debug("updating mirroring: \(mirroring)")
+        avLayer?.connection!.automaticallyAdjustsVideoMirroring = false
+        avLayer?.connection!.isVideoMirrored = mirroring
     }
     
     mutating func streamWindow(streamViewImpl: StreamViewImpl){

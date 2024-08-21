@@ -28,6 +28,8 @@ struct ContentView: View {
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     @EnvironmentObject var windowOpener: WindowOpener
     
+    @Binding var avMirroring: Bool
+    
     @Environment(\.openWindow) private var openWindow
     
     private let logger = Logger()
@@ -62,7 +64,8 @@ struct ContentView: View {
                     }.onTapGesture {
                         Task {
                             await windowOpener.openWindow(action: openWindow)
-                            pickerManager.streamAVDevice(device: avWrapper.device)
+                            pickerManager.streamAVDevice(device: avWrapper.device,
+                                                         avMirroring: avMirroring)
                         }
                         //shareAVDevice(device: avWrapper.device)
                     }
