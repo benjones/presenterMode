@@ -15,11 +15,8 @@ class WindowOpener: NSObject, ObservableObject {
     private var isWindowOpen = false
     @MainActor func openWindow(action: OpenWindowAction) async {
         if(!isWindowOpen){
-            Logger().debug("opening a new window")
             action(id: "mirror")
-        } else {
-            Logger().debug("skipping openWindow... already open")
-        }
+        } 
     }
     func updateWindowStatus(opened: Bool){
         self.isWindowOpen = opened
@@ -32,14 +29,13 @@ struct MirrorCommands : Commands {
     var body: some Commands {
         CommandGroup(before: CommandGroupPlacement.toolbar){
             Toggle("Mirror AV Devices", isOn: $mirrorAVDevice)
-                .keyboardShortcut("m")
         }
     }
 }
 
 @main
 struct presenterModeApp: App {
-    //@State var globalViewModel = GlobalViewModel()
+
     @State var avDeviceManager: AVDeviceManager
     @Environment(\.openWindow) private var openWindowEnv
     
@@ -52,12 +48,6 @@ struct presenterModeApp: App {
         self.pickerManager = ScreenPickerManager(avManager: deviceManager)
     }
     
-//    @State private var screenRecorder: ScreenRecorder
-//    
-    
-//    init(){
-//        screenRecorder = ScreenRecorder()
-//    }
     
     //TODO: pass this as an enviornment object
     @MainActor func openWindow() async {
@@ -78,7 +68,6 @@ struct presenterModeApp: App {
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .onAppear(){
-                    logger.debug("ContenView appearing")
                     pickerManager.setApp(app:self)
                 }
         }

@@ -14,6 +14,7 @@
 		B531385F26F527CE00D022C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385E26F527CE00D022C9 /* ContentView.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
 		B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386326F527CF00D022C9 /* Preview Assets.xcassets */; };
+		B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */; };
 		B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B680BB278A246F004BBBDB /* AVCapture.swift */; };
 		B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B5C99D4D270E4E66007FBA84 /* Credits.rtf */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 		B531386326F527CF00D022C9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B531386526F527D000D022C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B531386626F527D000D022C9 /* presenterMode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = presenterMode.entitlements; sourceTree = "<group>"; };
+		B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConservativeTrigger.swift; sourceTree = "<group>"; };
 		B5B680BB278A246F004BBBDB /* AVCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCapture.swift; sourceTree = "<group>"; };
 		B5C99D4D270E4E66007FBA84 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -73,6 +75,7 @@
 				B5B680BB278A246F004BBBDB /* AVCapture.swift */,
 				B513C23A2C1B8519009AD1C1 /* StreamView.swift */,
 				B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */,
+				B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */,
 			);
 			path = presenterMode;
 			sourceTree = "<group>";
@@ -165,6 +168,7 @@
 				B513C23B2C1B8519009AD1C1 /* StreamView.swift in Sources */,
 				B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */,
 				B513C23D2C1B9DFC009AD1C1 /* ScreenPickerManager.swift in Sources */,
+				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,
 			);
@@ -315,8 +319,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.03alpha;
-				PRODUCT_BUNDLE_IDENTIFIER = whatever.presenterMode;
+				MARKETING_VERSION = 2;
+				PRODUCT_BUNDLE_IDENTIFIER = benjones.presenterMode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -343,8 +347,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.03alpha;
-				PRODUCT_BUNDLE_IDENTIFIER = whatever.presenterMode;
+				MARKETING_VERSION = 2;
+				PRODUCT_BUNDLE_IDENTIFIER = benjones.presenterMode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};

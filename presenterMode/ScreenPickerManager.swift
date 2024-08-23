@@ -11,73 +11,9 @@ import SwiftUI
 import CollectionConcurrencyKit
 import AVFoundation
 
-//triggered by an update of some sort, but we want to delay firing until the updates stop
-//since they'll be coming frequently
-struct ConservativeTrigger {
-    let framesToWait = 10 // after we hit the trigger, wait this many frames of no-change before firing
-    var updateNeededEventually = false
-    var framesWithoutChange = 0
-    
-    //returns if we trigger
-    mutating func tick(updateOccurred: Bool) -> Bool {
-        if(updateOccurred){
-            updateNeededEventually = true
-            framesWithoutChange = 0
-            return false
-        } else {
-            if(updateNeededEventually){
-                framesWithoutChange += 1
-                if(framesWithoutChange >= framesToWait){
-                    updateNeededEventually = false
-                    return true
-                }
-            }
-        }
-        return false
-    }
-    
-    func updateUpcoming() -> Bool {updateNeededEventually}
-
-}
-
-private func rectsApproxEqual(_ r1: CGSize, _ r2: CGSize) -> Bool{
-    return (abs(r1.width - r2.width) + abs(r1.height - r2.height)) < 5 //+/- ~ 2 pixels in each dimension seems fine
-}
-
 enum FrameType {
     case uncropped(IOSurface)
     case cropped(CGImage)
-}
-
-let FrameScaling = 2
-
-private func getStreamConfig(_ streamDimensions: CGSize) -> SCStreamConfiguration {
-    let conf = SCStreamConfiguration()
-    conf.capturesAudio = false
-    conf.width = FrameScaling*Int(streamDimensions.width)
-    conf.height = FrameScaling*Int(streamDimensions.height)
-    //when false, if the window shrinks, the unused part of the frame is black
-    conf.scalesToFit = true
-    //60FPS
-    conf.minimumFrameInterval = CMTime(value:1, timescale: 60)
-    conf.queueDepth = 5 //wait to process up to 5 frames
-    Logger().debug("configuration width: \(conf.width) height: \(conf.height)")
-    return conf
-}
-
-private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
-    do {
-        
-        //Try to figure out window is about to get swapped out
-        let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
-        let allWindows = allContent.windows
-        let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == size}
-        return matchingWindows
-        
-    } catch {
-        Logger().debug("failed figuring out what the old window was: \(error)")
-        return []
-    }
 }
 
 struct HistoryEntry {
@@ -90,22 +26,20 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     private let logger = Logger()
     private let screenPicker = SCContentSharingPicker.shared
     
-    
     private let avDeviceManager: AVDeviceManager
-    
     init(avManager: AVDeviceManager) {
         self.avDeviceManager = avManager
     }
     
     public static let sharingStoppedImage: CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
 
-    
+    //seems hacky to store both the view and the impl here
+    private var app: presenterModeApp?
     private var streamView: StreamView?
     private var streamViewImpl: StreamViewImpl?
     private var scDelegate: SCStreamDelegate?
     private let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
     private var runningStream: SCStream?
-    private var app: presenterModeApp?
     private var frameCaptureTask: Task<Void, Never>?
     
     @Published var history = [HistoryEntry]()
@@ -367,3 +301,40 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput {
         
     }
 }
+
+
+private func rectsApproxEqual(_ r1: CGSize, _ r2: CGSize) -> Bool{
+    return (abs(r1.width - r2.width) + abs(r1.height - r2.height)) < 5 //+/- ~ 2 pixels in each dimension seems fine
+}
+
+let FrameScaling = 2
+
+private func getStreamConfig(_ streamDimensions: CGSize) -> SCStreamConfiguration {
+    let conf = SCStreamConfiguration()
+    conf.capturesAudio = false
+    conf.width = FrameScaling*Int(streamDimensions.width)
+    conf.height = FrameScaling*Int(streamDimensions.height)
+    //when false, if the window shrinks, the unused part of the frame is black
+    conf.scalesToFit = true
+    //60FPS
+    conf.minimumFrameInterval = CMTime(value:1, timescale: 60)
+    conf.queueDepth = 5 //wait to process up to 5 frames
+    Logger().debug("configuration width: \(conf.width) height: \(conf.height)")
+    return conf
+}
+
+private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
+    do {
+        
+        //Try to figure out window is about to get swapped out
+        let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+        let allWindows = allContent.windows
+        let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == size}
+        return matchingWindows
+        
+    } catch {
+        Logger().debug("failed figuring out what the old window was: \(error)")
+        return []
+    }
+}
+

@@ -1,6 +1,6 @@
 //
 //  StreamView.swift
-//  presenterMode
+//  presenterMode: UI for the mirror window
 //
 //  Created by Ben Jones on 6/13/24.
 //
@@ -16,10 +16,8 @@ struct StreamView: NSViewRepresentable {
     @EnvironmentObject var avDeviceManager: AVDeviceManager
     private let logger = Logger()
     
-    //TODO REPLACE WITH AVVideoCapturePreviewLayer when necessary
-    
-    private let contentLayer = CALayer()
-    private var avLayer: AVCaptureVideoPreviewLayer?
+    private let contentLayer = CALayer() //layer for SCKit stuff
+    private var avLayer: AVCaptureVideoPreviewLayer? //layer for AV devices
     init() {
         contentLayer.contentsGravity = .resizeAspectFill
     }
@@ -28,19 +26,15 @@ struct StreamView: NSViewRepresentable {
         var layer: AVCaptureVideoPreviewLayer?
         DispatchQueue.global(qos:.background).sync {
             logger.debug("starting to stream AV device!")
-            
             layer = self.avDeviceManager.setupCaptureSession(device: device)
         }
         self.avLayer = layer
         streamViewImpl.layer = self.avLayer
         setAVMirroring(mirroring: avMirroring)
-        logger.debug("set streaming layer to AV")
-        
     }
     
     func setAVMirroring(mirroring: Bool){
         //https://stackoverflow.com/questions/41885927/unable-to-mirror-avcapturevideopreviewlayer-on-macos
-        logger.debug("updating mirroring: \(mirroring)")
         avLayer?.connection!.automaticallyAdjustsVideoMirroring = false
         avLayer?.connection!.isVideoMirrored = mirroring
     }
@@ -51,43 +45,23 @@ struct StreamView: NSViewRepresentable {
     
     
     func makeNSView(context: Context) -> some NSView {
-        logger.debug("Making my NSView with layer \(contentLayer)")
         let viewImpl = StreamViewImpl(layer:contentLayer)
         pickerManager.registerView(self, viewImpl)
         return viewImpl
     }
     
-    //func updateFrame(_ frame: TODO ){}
-    
     func updateNSView(_ nsView: NSViewType, context: Context) {
-        let viewsize = nsView.frame.size
-        logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
+        //ignored
+//        let viewsize = nsView.frame.size
+//        logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
     }
-    
-    private var frameSize = CGSize(width: 0, height: 0)
-    private var croppedFrames = 0
-    private var uncroppedFrames = 0
+
     mutating func updateFrame(_ cgImage : FrameType){
         switch(cgImage){
         case .uncropped(let iosurf):
             self.contentLayer.contents = iosurf
-//            self.uncroppedFrames += 1
-//            let uf = self.uncroppedFrames
-//            if(uf % 100 == 0){
-//                logger.debug(" \(uf) uncropped frames")
-//            }
         case .cropped(let cgImage):
             self.contentLayer.contents = cgImage
-//            self.croppedFrames += 1
-//            let cf = self.croppedFrames
-//            if(cf % 100 == 0){
-//                logger.debug(" \(cf) cropped frames")
-//            }
-        }
-        let framesize = self.contentLayer.frame.size
-        if(framesize != self.frameSize){
-            self.frameSize = framesize
-            logger.debug("new layer frame size: \(framesize.width) x \(framesize.height)")
         }
     }
 }
@@ -98,8 +72,6 @@ class StreamViewImpl : NSView {
         self.layer = layer
         self.wantsLayer = true
         self.layerContentsPlacement = .scaleProportionallyToFit
-        
-        Logger().debug("Created NSView")
     }
     
     required init?(coder: NSCoder) {
