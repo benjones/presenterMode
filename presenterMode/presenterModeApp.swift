@@ -46,6 +46,7 @@ struct presenterModeApp: App {
         let deviceManager = AVDeviceManager()
         self.avDeviceManager = deviceManager
         self.pickerManager = ScreenPickerManager(avManager: deviceManager)
+        self.pickerManager.setupTask()
     }
     
     

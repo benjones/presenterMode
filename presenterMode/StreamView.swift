@@ -26,7 +26,7 @@ struct StreamView: NSViewRepresentable {
         var layer: AVCaptureVideoPreviewLayer?
         DispatchQueue.global(qos:.background).sync {
             logger.debug("starting to stream AV device!")
-            layer = self.avDeviceManager.setupCaptureSession(device: device)
+            layer = self.avDeviceManager.setupCaptureSession(device: device, screenPickerManager: pickerManager)
         }
         self.avLayer = layer
         streamViewImpl.layer = self.avLayer

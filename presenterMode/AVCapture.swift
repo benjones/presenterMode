@@ -25,6 +25,8 @@ class AVDeviceManager : NSObject, ObservableObject {
     private var disconnectedSubscriptionHandle : AnyCancellable? = nil
     
     private var avLayer: AVCaptureVideoPreviewLayer?
+    private var avOutput = AVCaptureVideoDataOutput()
+    
     
     override init(){
         super.init()
@@ -68,7 +70,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    func setupCaptureSession(device: AVCaptureDevice) -> AVCaptureVideoPreviewLayer? {
+    func setupCaptureSession(device: AVCaptureDevice, screenPickerManager: ScreenPickerManager) -> AVCaptureVideoPreviewLayer? {
         Logger().debug("setup capture session for \(device.localizedName)")
         if avCaptureSession == nil {
             avCaptureSession = AVCaptureSession();
@@ -79,15 +81,21 @@ class AVDeviceManager : NSObject, ObservableObject {
         do {
             removeAllInputs()
             try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
+            avOutput.setSampleBufferDelegate(screenPickerManager.scDelegate, queue: screenPickerManager.videoSampleBufferQueue)
+            if(!(avCaptureSession!.canAddOutput(avOutput))){
+                Logger().debug("Can't add output for some reason!")
+            }
+            avCaptureSession!.addOutput(avOutput)
+            Logger().debug("video settings \(self.avOutput.videoSettings)")
             avCaptureSession!.commitConfiguration();
             avCaptureSession!.startRunning();
             
             if(avLayer == nil){
-                avLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession!)
-                avLayer!.contentsGravity = .resizeAspect
-                avLayer!.videoGravity = .resizeAspect
+//                avLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession!)
+//                avLayer!.contentsGravity = .resizeAspect
+//                avLayer!.videoGravity = .resizeAspect
             }
-            return avLayer!
+            return avLayer
         } catch {
             print("Error setting up cature session: \(error)")
             return nil

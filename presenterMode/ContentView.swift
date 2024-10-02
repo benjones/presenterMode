@@ -76,7 +76,7 @@ struct ContentView: View {
                             Task {
                                 await windowOpener.openWindow(action: openWindow)
                                 avDeviceManager.stopSharing()
-                                pickerManager.startStreamingFromFilter(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
+                                pickerManager.setFilterForStream(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
                             }
                         }
                     }
