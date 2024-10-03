@@ -73,13 +73,12 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     //TODO MOVE OUT OF THIS BIG CLASS!
     func streamAVDevice(device: AVCaptureDevice, avMirroring: Bool){
         logger.debug("want to stream device: \(device.localizedName)")
-        if(frameCaptureTask != nil){
-            frameCaptureTask!.cancel()
-            runningStream!.stopCapture()
-            frameCaptureTask = nil
-        }
+        runningStream?.stopCapture()
+        runningStream = nil
+
         streamView?.streamAVDevice(streamViewImpl: streamViewImpl!, device: device,
         avMirroring: avMirroring)
+        
     }
     
     func updateAVMirroring(avMirroring: Bool){
@@ -325,38 +324,15 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
         
     }
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer,
+    func captureOutput(_ output: AVCaptureOutput, didOutput buffer: CMSampleBuffer,
                        from connection: AVCaptureConnection ){
-        logger.debug("got AV frame")
-        guard sampleBuffer.isValid else {
+
+        guard buffer.isValid else {
+            logger.debug("inavlid AV Buffer")
             return
         }
-        //get the sample buffer attachments for some reason?
-        let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer,
-                                                                             createIfNecessary: false)
-        
-        
-        // Validate the status of the frame. If it isn't `.complete`, return nil.
-        /*guard let statusRawValue = attachments[SCStreamFrameInfo.status] as? Int,
-              let status = SCFrameStatus(rawValue: statusRawValue),
-              status == .complete else {
-            return
-        }
-        
-        guard let contentRectDict = attachments[.contentRect],
-              let contentScale = attachments[.contentScale] as? CGFloat,
-              let scaleFactor = attachments[.scaleFactor] as? CGFloat,
-              let contentRect = CGRect(dictionaryRepresentation: contentRectDict as! CFDictionary) else {
-            logger.error("Couldn't get contectRect!")
-            return
-        }
-        let scaledSize = CGSize(width: contentRect.size.width*scaleFactor, height: contentRect.size.height*scaleFactor)
-        let unscaledContentSize = CGSize(width: contentRect.size.width/contentScale, height: contentRect.size.height/contentScale)
-        
-        guard of == SCStreamOutputType.screen else { return }
-        
-        //extract the image
         guard let pixelBuffer = buffer.imageBuffer else {
+            logger.debug("couldn't get AV Pixel buffer")
             return
         }
         
@@ -366,46 +342,7 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
         }
        
         let surface = unsafeBitCast(surfaceRef, to: IOSurface.self)
-        
-        let croppingRequired = !rectsApproxEqual(scaledSize, CGSize(width:surface.width, height: surface.height))
-        //if we don't need to crop then the size couldn't have changed
-        let sizeChanged = croppingRequired && self.streamDimensions != scaledSize
-        if(sizeChanged){
-            self.streamDimensions = scaledSize
-        }
-        
-        let triggered = trigger.tick(updateOccurred: sizeChanged)
-        if(triggered){
-            //update the stream config
-            Task {
-                do {
-                    //filter is not updated...
-                    logger.debug("updating config with dimensions: \(unscaledContentSize.debugDescription)")
-                    try await stream.updateConfiguration(getStreamConfig(unscaledContentSize))
-                    logger.debug("stream config updated")
-                } catch {
-                    logger.error("couldn't update stream: \(error)")
-                }
-            }
-        }
-        //after the config update happens we should be able to do this
-        if(!croppingRequired){
-            continuation.yield(FrameType.uncropped(surface))
-            return
-        }
-        
-        //crop it to the content rect size
-        let cii = CIImage(ioSurface: surface)
-        let ciContext = CIContext()
-        guard let cgImage =
-                ciContext.createCGImage(cii,
-                                        from: CGRect(origin: CGPoint(x: 0, y: surface.height - Int(scaledSize.height)),
-                                                     size: scaledSize)) else {
-            logger.error("Couldn't make CGImage")
-            return
-        }
-        continuation.yield(FrameType.cropped(cgImage))
-        */
+        continuation.yield(FrameType.uncropped(surface))
     }
     
     func captureOutput(_: AVCaptureOutput, didDrop: CMSampleBuffer, from: AVCaptureConnection){

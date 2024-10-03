@@ -23,13 +23,14 @@ struct StreamView: NSViewRepresentable {
     }
     
     mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice, avMirroring: Bool) {
-        var layer: AVCaptureVideoPreviewLayer?
-        DispatchQueue.global(qos:.background).sync {
-            logger.debug("starting to stream AV device!")
-            layer = self.avDeviceManager.setupCaptureSession(device: device, screenPickerManager: pickerManager)
-        }
-        self.avLayer = layer
-        streamViewImpl.layer = self.avLayer
+//        var layer: AVCaptureVideoPreviewLayer?
+//        DispatchQueue.global(qos:.background).sync {
+//            logger.debug("starting to stream AV device!")
+//            layer = self.avDeviceManager.setupCaptureSession(device: device, screenPickerManager: pickerManager)
+//        }
+//        self.avLayer = layer
+//        streamViewImpl.layer = self.avLayer
+        let _ = self.avDeviceManager.setupCaptureSession(device: device, screenPickerManager: pickerManager)
         setAVMirroring(mirroring: avMirroring)
     }
     
