@@ -126,7 +126,6 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
             
             //open up the window
             await app?.openWindow()
-            self.streamView!.streamWindow(streamViewImpl: self.streamViewImpl!)
             await updateHistory(filter: filter)
             
         }
@@ -314,16 +313,13 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
         continuation.yield(FrameType.cropped(cgImage))
     }
     
-    func processBuffer(_ sampleBuffer: CMSampleBuffer){
-        
-    }
-    
     func stream(_ stream: SCStream, didStopWithError error: Error) {
         logger.debug("STREAM STOPPED WITH ERROR: \(error)")
         continuation.finish()
         
     }
     
+    // like stream methods above, but for AV devices
     func captureOutput(_ output: AVCaptureOutput, didOutput buffer: CMSampleBuffer,
                        from connection: AVCaptureConnection ){
 
