@@ -14,7 +14,10 @@ import OSLog
 
 class AVDeviceManager : NSObject, ObservableObject {
     
+    //video devices to mirror
     @Published var avCaptureDevices : [AVWrapper] = []
+    //audio devices to record to video with
+    @Published var avAudioDevices: [AVWrapper] = []
     @Published var avCaptureSession : AVCaptureSession?
     
     private let connectionPublisher = NotificationCenter.default
@@ -44,14 +47,23 @@ class AVDeviceManager : NSObject, ObservableObject {
         
         connectedSubscriptionHandle = connectionPublisher.sink { (message) in
             let device : AVCaptureDevice = message.object as! AVCaptureDevice;
-            self.avCaptureDevices.append(AVWrapper(dev: device))
+            Logger().debug("connected device: \(device.localizedName)")
+            Task { @MainActor in
+                if(device.deviceType == .microphone){
+                    self.avAudioDevices.append(AVWrapper(dev : device))
+                } else {
+                    self.avCaptureDevices.append(AVWrapper(dev: device))
+                }
+            }
            
         }
         
         disconnectedSubscriptionHandle = disconnectionPublisher.sink { (message) in
             let device : AVCaptureDevice = message.object as! AVCaptureDevice;
-            self.avCaptureDevices.removeAll(where: { $0.device == device})
-           
+            Task { @MainActor in
+                self.avCaptureDevices.removeAll(where: { $0.device == device})
+                self.avAudioDevices.removeAll(where: { $0.device == device})
+            }
         }
     }
     
@@ -60,11 +72,27 @@ class AVDeviceManager : NSObject, ObservableObject {
             if granted {
                 let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
                                                                             [.external, .builtInWideAngleCamera], mediaType: .video, position: .unspecified)
-                self.avCaptureDevices = discoverySession.devices.map({device -> AVWrapper in
-                    return AVWrapper(dev: device)
-                })
+                Task { @MainActor in
+                    self.avCaptureDevices = discoverySession.devices.map({device -> AVWrapper in
+                        return AVWrapper(dev: device)
+                    })
+                    Logger().debug("capture devices from discovery session: \(self.avCaptureDevices)");
+                }
             }
-            print(self.avCaptureDevices);
+            
+        }
+        
+        AVCaptureDevice.requestAccess(for: .audio){ granted in
+            if granted {
+                let discoverySession = AVCaptureDevice.DiscoverySession(
+                    deviceTypes: [.microphone],
+                    mediaType: .audio, position: .unspecified)
+                Task { @MainActor in
+                    self.avAudioDevices = discoverySession.devices.map({device -> AVWrapper in
+                        return AVWrapper(dev: device)})
+                    Logger().debug("audio devices from discovery session: \(self.avAudioDevices)");
+                }
+            }
         }
     }
     
@@ -116,13 +144,16 @@ class AVDeviceManager : NSObject, ObservableObject {
     }
 }
 
-struct AVWrapper : Identifiable {
+struct AVWrapper : Identifiable, Hashable {
     let device: AVCaptureDevice
     let id: ObjectIdentifier
     
     init(dev: AVCaptureDevice){
         device = dev
         id = ObjectIdentifier(device)
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
