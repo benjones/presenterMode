@@ -28,7 +28,7 @@ struct MirrorCommands : Commands {
     @Binding var mirrorAVDevice: Bool
     var body: some Commands {
         CommandGroup(before: CommandGroupPlacement.toolbar){
-            Toggle("Mirror AV Devices", isOn: $mirrorAVDevice)
+            Toggle("Flip Content Horizontally", isOn: $mirrorAVDevice)
         }
     }
 }

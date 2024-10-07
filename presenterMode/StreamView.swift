@@ -34,10 +34,12 @@ struct StreamView: NSViewRepresentable {
     }
     
     func setAVMirroring(mirroring: Bool){
-        //https://stackoverflow.com/questions/41885927/unable-to-mirror-avcapturevideopreviewlayer-on-macos
-//        avLayer?.connection!.automaticallyAdjustsVideoMirroring = false
-//        avLayer?.connection!.isVideoMirrored = mirroring
-        logger.debug("Ignoring call to setMirroring.  Will reimplement later")
+        //contentLayer.anchorPoint = CGPoint(x:0.5, y:0.5)
+        contentLayer.transform = if mirroring {
+            CATransform3DConcat(CATransform3DMakeScale(  -1, 1, 1),CATransform3DMakeTranslation( contentLayer.bounds.width,0,0)) }
+            //CATransform3DTranslate( CATransform3DMakeScale(-1, 1, 1), 1, 0, 0)}
+        else { CATransform3DIdentity }
+        
     }
 
     
@@ -49,8 +51,8 @@ struct StreamView: NSViewRepresentable {
     
     func updateNSView(_ nsView: NSViewType, context: Context) {
         //ignored
-//        let viewsize = nsView.frame.size
-//        logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
+        let viewsize = nsView.frame.size
+        logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
     }
 
     mutating func updateFrame(_ cgImage : FrameType){
