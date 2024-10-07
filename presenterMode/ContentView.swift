@@ -20,7 +20,7 @@ func maybeTruncate(str: String, limit: Int = 20) -> String {
 }
 
 struct ContentView: View {
-
+    
     @EnvironmentObject var pickerManager: ScreenPickerManager
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     @EnvironmentObject var windowOpener: WindowOpener
@@ -125,6 +125,15 @@ func showSavePanel() -> URL? {
     savePanel.title = "Video Recording"
     savePanel.message = "Choose filename for video recording"
     savePanel.nameFieldLabel = "File name:"
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy_MM_dd_HH_mm"
+        return formatter
+    }()
+    let dateString = dateFormatter.string(from: Date.now)
+    
+    savePanel.nameFieldStringValue = "\(dateString).mp4"
     let response = savePanel.runModal()
     return response == .OK ? savePanel.url : nil
 }
