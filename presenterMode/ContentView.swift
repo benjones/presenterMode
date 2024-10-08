@@ -107,7 +107,7 @@ struct ContentView: View {
                     Button(action: {
                         streamManager.stopRecording()
                     }){
-                        Image(systemName: "stop.circle.fill")
+                        Image(systemName: "stop")
                             .foregroundStyle(.red)
                     }
                 }

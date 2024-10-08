@@ -9,6 +9,8 @@ import Foundation
 import AVFoundation
 import OSLog
 
+//based on sample code from https://img.ly/blog/how-to-make-videos-from-still-images-with-avfoundation-and-swift/
+
 class AVRecorder {
     
     private var assetWriter: AVAssetWriter?

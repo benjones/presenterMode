@@ -314,14 +314,25 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
         //crop it to the content rect size
         let cii = CIImage(ioSurface: surface)
         let ciContext = CIContext()
+        //the CVPixelBuffer doesn't support the default format which is RGBA8, so specify that we want it as BGRA8 here
         guard let cgImage =
                 ciContext.createCGImage(cii,
                                         from: CGRect(origin: CGPoint(x: 0, y: surface.height - Int(scaledSize.height)),
-                                                     size: scaledSize)) else {
+                                                     size: scaledSize),
+                                        format: .BGRA8,
+                                        colorSpace: CGColorSpace(name: CGColorSpace.sRGB)) else {
             logger.error("Couldn't make CGImage")
             return
         }
         continuation.yield(FrameType.cropped(cgImage))
+        if(recorder.recording){
+            let pb = pixelBufferFromCGImage(image: cgImage)
+            if(pb != nil){
+                recorder.writeFrame(frame: pb!)
+            } else {
+                logger.debug("CG to CVPixelBuf conversion failed")
+            }
+        }
     }
     
     func stream(_ stream: SCStream, didStopWithError error: Error) {
@@ -396,3 +407,33 @@ private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
     }
 }
 
+
+//from https://stackoverflow.com/questions/38318387/swift-cgimage-to-cvpixelbuffer
+private func pixelBufferFromCGImage(image: CGImage) -> CVPixelBuffer? {
+    var pxbuffer: CVPixelBuffer? = nil
+    let options: NSDictionary = [:]
+
+    let width =  image.width
+    let height = image.height
+    let bytesPerRow = image.bytesPerRow
+
+    let dataFromImageDataProvider = CFDataCreateMutableCopy(kCFAllocatorDefault, 0, image.dataProvider!.data)
+    let x = CFDataGetMutableBytePtr(dataFromImageDataProvider)!
+
+    let status = CVPixelBufferCreateWithBytes(
+        kCFAllocatorDefault,
+        width,
+        height,
+        kCVPixelFormatType_32BGRA,
+        x,
+        bytesPerRow,
+        nil,
+        nil,
+        options,
+        &pxbuffer
+    )
+    if(status != kCVReturnSuccess){
+        Logger().debug("cvpbcwb failed \(status)")
+    }
+    return pxbuffer
+}
