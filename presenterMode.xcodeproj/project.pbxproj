@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B513C23B2C1B8519009AD1C1 /* StreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23A2C1B8519009AD1C1 /* StreamView.swift */; };
-		B513C23D2C1B9DFC009AD1C1 /* ScreenPickerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */; };
+		B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */; };
 		B522F6F72C5C3611004D5451 /* CollectionConcurrencyKit in Frameworks */ = {isa = PBXBuildFile; productRef = B522F6F62C5C3611004D5451 /* CollectionConcurrencyKit */; };
 		B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385C26F527CE00D022C9 /* presenterModeApp.swift */; };
 		B531385F26F527CE00D022C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385E26F527CE00D022C9 /* ContentView.swift */; };
@@ -22,7 +22,7 @@
 
 /* Begin PBXFileReference section */
 		B513C23A2C1B8519009AD1C1 /* StreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamView.swift; sourceTree = "<group>"; };
-		B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenPickerManager.swift; sourceTree = "<group>"; };
+		B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamManager.swift; sourceTree = "<group>"; };
 		B531385926F527CE00D022C9 /* presenterMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presenterMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B531385C26F527CE00D022C9 /* presenterModeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presenterModeApp.swift; sourceTree = "<group>"; };
 		B531385E26F527CE00D022C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -76,7 +76,7 @@
 				B531386226F527CF00D022C9 /* Preview Content */,
 				B5B680BB278A246F004BBBDB /* AVCapture.swift */,
 				B513C23A2C1B8519009AD1C1 /* StreamView.swift */,
-				B513C23C2C1B9DFC009AD1C1 /* ScreenPickerManager.swift */,
+				B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */,
 				B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */,
 				B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */,
 			);
@@ -171,7 +171,7 @@
 				B513C23B2C1B8519009AD1C1 /* StreamView.swift in Sources */,
 				B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */,
 				B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */,
-				B513C23D2C1B9DFC009AD1C1 /* ScreenPickerManager.swift in Sources */,
+				B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */,
 				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,

@@ -21,7 +21,10 @@ struct HistoryEntry {
     var preview: CGImage?
 }
 
-class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
+class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
+    
+    @Published var history = [HistoryEntry]()
+    @Published var recording = false
     
     private let logger = Logger()
     private let screenPicker = SCContentSharingPicker.shared
@@ -29,18 +32,20 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     private let avDeviceManager: AVDeviceManager
     
     
-    public static let sharingStoppedImage: CGImage = CGImage(pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!, decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+    public static let sharingStoppedImage: CGImage = CGImage(
+        pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!,
+        decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
 
-    //seems hacky to store both the view and the impl here
     private var app: presenterModeApp?
     private var streamView: StreamView?
-    private var streamViewImpl: StreamViewImpl?
     public var scDelegate: StreamToFramesDelegate?
     public let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
     private var runningStream: SCStream?
     private var frameCaptureTask: Task<Void, Never>?
     
-    @Published var history = [HistoryEntry]()
+    private let avRecorder = AVRecorder()
+    
+
     
     init(avManager: AVDeviceManager) {
         self.avDeviceManager = avManager
@@ -57,16 +62,24 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
                 logger.error("Error with stream: \(error)")
             }
             //so the stream can restart in the future
-            await self.streamView?.updateFrame(FrameType.cropped(ScreenPickerManager.sharingStoppedImage))
+            await self.streamView?.updateFrame(FrameType.cropped(StreamManager.sharingStoppedImage))
             self.frameCaptureTask = nil
         }
     }
     
     
-    func registerView(_ streamView: StreamView, _ streamViewImpl: StreamViewImpl) {
+    func startRecording(url: URL){
+        recording = avRecorder.startRecording(url: url)
+    }
+    
+    func stopRecording(){
+        avRecorder.finishRecording()
+        recording = false
+    }
+    
+    func registerView(_ streamView: StreamView) {
         //TODO: Do we need to clear the old one?
         self.streamView = streamView
-        self.streamViewImpl = streamViewImpl
         logger.debug("attaching view to picker manager")
     }
     
@@ -76,9 +89,8 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
         runningStream?.stopCapture()
         runningStream = nil
 
-        streamView?.streamAVDevice(streamViewImpl: streamViewImpl!, device: device,
-        avMirroring: avMirroring)
-        
+        avDeviceManager.setupCaptureSession(device: device, screenPickerManager: self)
+        updateAVMirroring(avMirroring: avMirroring)
     }
     
     func updateAVMirroring(avMirroring: Bool){
@@ -192,8 +204,6 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
             screenPicker.isActive = true
             screenPicker.add(self)
         }
-        //TODO present for if stream is already running
-        
         //You can't currently set the picker to support single app or single window
         //You can either allow multiple of everything too, or only windows/only apps
         //Thanks apple!
@@ -209,13 +219,9 @@ class ScreenPickerManager: NSObject, ObservableObject, SCContentSharingPickerObs
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
         return AsyncThrowingStream<FrameType, Error> { continuation in
-            
-            
-            self.scDelegate = StreamToFramesDelegate(continuation: continuation)
-            
+            self.scDelegate = StreamToFramesDelegate(continuation: continuation, recorder: avRecorder)
         }
     }
-    
 }
 
 
@@ -227,9 +233,11 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
     private var streamDimensions = CGSize(width: 1920, height: 1080)
     private var continuation: AsyncThrowingStream<FrameType, Error>.Continuation
     private var filter: SCContentFilter?
+    private var recorder: AVRecorder
     
-    init(continuation: AsyncThrowingStream<FrameType, Error>.Continuation){
+    init(continuation: AsyncThrowingStream<FrameType, Error>.Continuation, recorder: AVRecorder){
         self.continuation = continuation
+        self.recorder = recorder
         logger.info("Created stream delegate")
     }
     
@@ -297,6 +305,9 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
         //after the config update happens we should be able to do this
         if(!croppingRequired){
             continuation.yield(FrameType.uncropped(surface))
+            if(recorder.recording){
+                recorder.writeFrame(frame: pixelBuffer)
+            }
             return
         }
         

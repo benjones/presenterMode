@@ -39,13 +39,13 @@ struct presenterModeApp: App {
     @State var avDeviceManager: AVDeviceManager
     @Environment(\.openWindow) private var openWindowEnv
     
-    @State var pickerManager: ScreenPickerManager
+    @State var pickerManager: StreamManager
     @State var windowOpener = WindowOpener()
     
     init() {
         let deviceManager = AVDeviceManager()
         self.avDeviceManager = deviceManager
-        self.pickerManager = ScreenPickerManager(avManager: deviceManager)
+        self.pickerManager = StreamManager(avManager: deviceManager)
         self.pickerManager.setupTask()
     }
     

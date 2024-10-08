@@ -67,7 +67,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    func getCaptureDevices() -> Void {
+    private func getCaptureDevices() -> Void {
         AVCaptureDevice.requestAccess(for: .video) { granted in
             if granted {
                 let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
@@ -96,7 +96,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    func setupCaptureSession(device: AVCaptureDevice, screenPickerManager: ScreenPickerManager){
+    func setupCaptureSession(device: AVCaptureDevice, screenPickerManager: StreamManager){
         Logger().debug("setup capture session for \(device.localizedName)")
         if avCaptureSession == nil {
             avCaptureSession = AVCaptureSession();

@@ -12,7 +12,7 @@ import AVFoundation
 struct StreamView: NSViewRepresentable {
     
     
-    @EnvironmentObject var pickerManager: ScreenPickerManager
+    @EnvironmentObject var pickerManager: StreamManager
     @EnvironmentObject var avDeviceManager: AVDeviceManager
     private let logger = Logger()
     
@@ -21,23 +21,9 @@ struct StreamView: NSViewRepresentable {
         contentLayer.contentsGravity = .resizeAspectFill
     }
     
-    mutating func streamAVDevice(streamViewImpl: StreamViewImpl, device: AVCaptureDevice, avMirroring: Bool) {
-//        var layer: AVCaptureVideoPreviewLayer?
-//        DispatchQueue.global(qos:.background).sync {
-//            logger.debug("starting to stream AV device!")
-//            layer = self.avDeviceManager.setupCaptureSession(device: device, screenPickerManager: pickerManager)
-//        }
-//        self.avLayer = layer
-//        streamViewImpl.layer = self.avLayer
-        self.avDeviceManager.setupCaptureSession(device: device, screenPickerManager: pickerManager)
-        setAVMirroring(mirroring: avMirroring)
-    }
-    
     func setAVMirroring(mirroring: Bool){
-        //contentLayer.anchorPoint = CGPoint(x:0.5, y:0.5)
         contentLayer.transform = if mirroring {
             CATransform3DConcat(CATransform3DMakeScale(  -1, 1, 1),CATransform3DMakeTranslation( contentLayer.bounds.width,0,0)) }
-            //CATransform3DTranslate( CATransform3DMakeScale(-1, 1, 1), 1, 0, 0)}
         else { CATransform3DIdentity }
         
     }
@@ -45,7 +31,7 @@ struct StreamView: NSViewRepresentable {
     
     func makeNSView(context: Context) -> some NSView {
         let viewImpl = StreamViewImpl(layer:contentLayer)
-        pickerManager.registerView(self, viewImpl)
+        pickerManager.registerView(self)
         return viewImpl
     }
     

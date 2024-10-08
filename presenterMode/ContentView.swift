@@ -21,7 +21,7 @@ func maybeTruncate(str: String, limit: Int = 20) -> String {
 
 struct ContentView: View {
     
-    @EnvironmentObject var pickerManager: ScreenPickerManager
+    @EnvironmentObject var streamManager: StreamManager
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     @EnvironmentObject var windowOpener: WindowOpener
     @Environment(\.openWindow) private var openWindow
@@ -47,7 +47,7 @@ struct ContentView: View {
                             }.onTapGesture {
                                 Task {
                                     await windowOpener.openWindow(action: openWindow)
-                                    pickerManager.streamAVDevice(device: avWrapper.device,
+                                    streamManager.streamAVDevice(device: avWrapper.device,
                                                                  avMirroring: avMirroring)
                                 }
                             }
@@ -64,7 +64,7 @@ struct ContentView: View {
                             .frame(idealWidth:320)
                             .font(.title)
                         
-                        ForEach(pickerManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
+                        ForEach(streamManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
                             VStack {
                                 if(historyEntry.preview != nil){
                                     Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
@@ -78,7 +78,7 @@ struct ContentView: View {
                                 Task {
                                     await windowOpener.openWindow(action: openWindow)
                                     avDeviceManager.stopSharing()
-                                    pickerManager.setFilterForStream(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
+                                    streamManager.setFilterForStream(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
                                 }
                             }
                         }
@@ -91,13 +91,25 @@ struct ContentView: View {
                 Text("Video Recording")
                     .font(.title2)
                 Divider()
-                Button(action: {
-                    let url = showSavePanel()
-                    let str: String = url?.absoluteString ?? "nil"
-                    logger.debug("URL: \(str)")
-                }){
-                    Image(systemName: "record.circle.fill")
-                        .foregroundStyle(.red)
+                if(!streamManager.recording){
+                    Button(action: {
+                        let url = showSavePanel()
+                        let str: String = url?.absoluteString ?? "nil"
+                        logger.debug("URL: \(str)")
+                        if(url != nil){
+                            streamManager.startRecording(url: url!)
+                        }
+                    }){
+                        Image(systemName: "record.circle.fill")
+                            .foregroundStyle(.red)
+                    }
+                } else {
+                    Button(action: {
+                        streamManager.stopRecording()
+                    }){
+                        Image(systemName: "stop.circle.fill")
+                            .foregroundStyle(.red)
+                    }
                 }
                 Picker("Audio input", selection: $selectedAudio){
                     ForEach(avDeviceManager.avAudioDevices, id: \.self){ dev in
@@ -110,7 +122,7 @@ struct ContentView: View {
             }.frame(maxHeight: 80)
         }
         .onAppear(){
-            pickerManager.present()
+            streamManager.present()
         }
     }
 }
