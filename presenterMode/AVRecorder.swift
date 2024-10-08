@@ -39,7 +39,11 @@ class AVRecorder {
     
     func writeFrame(frame: CVPixelBuffer){
         assert(recording)
-        assetWriterAdaptor!.append(frame, withPresentationTime: clock.time)
+        if assetWriterInput!.isReadyForMoreMediaData {
+            assetWriterAdaptor!.append(frame, withPresentationTime: clock.time)
+        } else {
+            Logger().debug("not ready for more input data")
+        }
     }
     
     func finishRecording(){

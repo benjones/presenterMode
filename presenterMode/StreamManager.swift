@@ -350,6 +350,9 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
        
         let surface = unsafeBitCast(surfaceRef, to: IOSurface.self)
         continuation.yield(FrameType.uncropped(surface))
+        if(recorder.recording){
+            recorder.writeFrame(frame: pixelBuffer)
+        }
     }
     
     func captureOutput(_: AVCaptureOutput, didDrop: CMSampleBuffer, from: AVCaptureConnection){
