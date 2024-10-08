@@ -118,6 +118,12 @@ struct ContentView: View {
                     Text("None").tag(nil as AVWrapper?)
                 }
                 .pickerStyle(.menu)
+                //seems happy but makes sure we auto-select the internal microphone instead of "None" on load
+                .onChange(of: avDeviceManager.avAudioDevices){ oldVal, newVal in
+                    if(oldVal.isEmpty){
+                        selectedAudio = newVal[0]
+                    }
+                }
                 
             }.frame(maxHeight: 80)
         }
