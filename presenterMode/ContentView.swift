@@ -97,7 +97,7 @@ struct ContentView: View {
                         let str: String = url?.absoluteString ?? "nil"
                         logger.debug("URL: \(str)")
                         if(url != nil){
-                            streamManager.startRecording(url: url!)
+                            streamManager.startRecording(url: url!, audioDevice: selectedAudio?.device)
                         }
                     }){
                         Image(systemName: "record.circle.fill")

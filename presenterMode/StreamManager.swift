@@ -68,8 +68,8 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     }
     
     
-    func startRecording(url: URL){
-        recording = avRecorder.startRecording(url: url)
+    func startRecording(url: URL, audioDevice: AVCaptureDevice?){
+        recording = avRecorder.startRecording(url: url, audioDevice: audioDevice, delegate: scDelegate!)
     }
     
     func stopRecording(){
@@ -224,8 +224,11 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     }
 }
 
-
-class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCaptureVideoDataOutputSampleBufferDelegate {
+//manage streaming data from SCKit, AV Video devices (camera, ipad), and audio devices
+// video frames will get sent to the continuation parameter
+// video + audio will get sent to the recorder if we're recording
+class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
+                                AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     var logger = Logger()
 
     private var trigger = ConservativeTrigger()
@@ -344,25 +347,34 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput, AVCap
     // like stream methods above, but for AV devices
     func captureOutput(_ output: AVCaptureOutput, didOutput buffer: CMSampleBuffer,
                        from connection: AVCaptureConnection ){
-
         guard buffer.isValid else {
             logger.debug("inavlid AV Buffer")
             return
         }
-        guard let pixelBuffer = buffer.imageBuffer else {
-            logger.debug("couldn't get AV Pixel buffer")
-            return
-        }
         
-        guard let surfaceRef = CVPixelBufferGetIOSurface(pixelBuffer)?.takeUnretainedValue() else {
-            logger.error("Couldn't get IOSurface")
-            return
-        }
-       
-        let surface = unsafeBitCast(surfaceRef, to: IOSurface.self)
-        continuation.yield(FrameType.uncropped(surface))
-        if(recorder.recording){
-            recorder.writeFrame(frame: pixelBuffer)
+        if(buffer.formatDescription?.mediaType == .video){
+            
+            guard let pixelBuffer = buffer.imageBuffer else {
+                logger.debug("couldn't get AV Pixel buffer")
+                return
+            }
+            
+            guard let surfaceRef = CVPixelBufferGetIOSurface(pixelBuffer)?.takeUnretainedValue() else {
+                logger.error("Couldn't get IOSurface")
+                return
+            }
+            
+            let surface = unsafeBitCast(surfaceRef, to: IOSurface.self)
+            continuation.yield(FrameType.uncropped(surface))
+            if(recorder.recording){
+                recorder.writeFrame(frame: pixelBuffer)
+            }
+        } else if(buffer.formatDescription?.mediaType == .audio){
+            if(recorder.recording){
+                recorder.writeAudioSample(buffer:buffer)
+            }
+        } else {
+            logger.debug("unknown format: \(buffer.formatDescription.debugDescription)")
         }
     }
     
