@@ -21,6 +21,10 @@ struct HistoryEntry {
     var preview: CGImage?
 }
 
+
+let sharingStoppedImage: CGImage = CGImage(
+    pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!,
+    decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
 class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
     
     @Published var history = [HistoryEntry]()
@@ -32,9 +36,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     private let avDeviceManager: AVDeviceManager
     
     
-    public static let sharingStoppedImage: CGImage = CGImage(
-        pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!,
-        decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+    
 
     private var app: presenterModeApp?
     private var streamView: StreamView?
@@ -62,7 +64,8 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
                 logger.error("Error with stream: \(error)")
             }
             //so the stream can restart in the future
-            await self.streamView?.updateFrame(FrameType.cropped(StreamManager.sharingStoppedImage))
+            //TODO FIXME!!!
+            await self.streamView?.updateFrame(FrameType.cropped(sharingStoppedImage))
             self.frameCaptureTask = nil
         }
     }
@@ -219,7 +222,11 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
         return AsyncThrowingStream<FrameType, Error> { continuation in
-            self.scDelegate = StreamToFramesDelegate(continuation: continuation, recorder: avRecorder)
+            self.scDelegate =
+            StreamToFramesDelegate(continuation: continuation,
+                                   recorder: avRecorder){
+                self.runningStream = nil
+            }
         }
     }
 }
@@ -228,19 +235,22 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
 // video frames will get sent to the continuation parameter
 // video + audio will get sent to the recorder if we're recording
 class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
-                                AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+                               AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     var logger = Logger()
-
+    
     private var trigger = ConservativeTrigger()
     
     private var streamDimensions = CGSize(width: 1920, height: 1080)
     private var continuation: AsyncThrowingStream<FrameType, Error>.Continuation
-    private var filter: SCContentFilter?
     private var recorder: AVRecorder
+    private var onStreamStop: () -> () = {}
     
-    init(continuation: AsyncThrowingStream<FrameType, Error>.Continuation, recorder: AVRecorder){
+    init(continuation: AsyncThrowingStream<FrameType, Error>.Continuation,
+         recorder: AVRecorder,
+         onStreamStop: @escaping ()->()){
         self.continuation = continuation
         self.recorder = recorder
+        self.onStreamStop = onStreamStop
         logger.info("Created stream delegate")
     }
     
@@ -340,7 +350,14 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
     
     func stream(_ stream: SCStream, didStopWithError error: Error) {
         logger.debug("STREAM STOPPED WITH ERROR: \(error)")
-        continuation.finish()
+        //continuation.finish()
+        continuation.yield(FrameType.cropped(sharingStoppedImage))
+        if(recorder.recording){
+            recorder.writeFrame(frame: pixelBufferFromCGImage(image: sharingStoppedImage)!)
+        }
+        onStreamStop()
+        
+        
         
     }
     
