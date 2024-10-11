@@ -14,7 +14,7 @@ With Presenter Mode, I extend my desktop to the projector and maxmize the Presen
 
 ## User Manual
 
-The UI is pretty basic.  When you open it, it will open the "picker window" and trigger Macos's screen sharing picker widget in the menu bar.  **Note, Apple has chanced the UI of the sharing picker in MacOS 15, so it will look different!**
+The UI is pretty basic.  When you open it, it will open the "picker window" and trigger Macos's screen sharing picker widget in the menu bar.  **Note, Apple has changed the UI of the sharing picker in MacOS 15, so it will look different!**
 
 From the screen sharing widget, you can select a window, app, or display to share.  When you select a window, it will open Presenter Mode's mirror window which will show the live content from the window you're sharing.  You can switch between windows/apps/displays using the menubar widget.
 
