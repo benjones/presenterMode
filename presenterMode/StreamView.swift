@@ -22,12 +22,17 @@ struct StreamView: NSViewRepresentable {
     }
     
     func setAVMirroring(mirroring: Bool){
-        contentLayer.transform = if mirroring {
-            CATransform3DConcat(CATransform3DMakeScale(  -1, 1, 1),CATransform3DMakeTranslation( contentLayer.bounds.width,0,0)) }
+        contentLayer.transform =
+        if mirroring {
+            CATransform3DConcat(
+                CATransform3DMakeScale(  -1, 1, 1),
+                CATransform3DMakeTranslation( contentLayer.bounds.width,0,0)
+            )
+        }
         else { CATransform3DIdentity }
         
     }
-
+    
     
     func makeNSView(context: Context) -> some NSView {
         let viewImpl = StreamViewImpl(layer:contentLayer)
@@ -40,7 +45,7 @@ struct StreamView: NSViewRepresentable {
         let viewsize = nsView.frame.size
         logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
     }
-
+    
     mutating func updateFrame(_ cgImage : FrameType){
         switch(cgImage){
         case .uncropped(let iosurf):

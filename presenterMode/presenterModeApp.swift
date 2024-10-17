@@ -93,6 +93,17 @@ struct presenterModeApp: App {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear(perform: {windowOpener.updateWindowStatus(opened: true)})
                 .onDisappear(perform: { windowOpener.updateWindowStatus(opened: false)})
+                .onGeometryChange(for: CGSize.self){proxy in
+                    
+                    return proxy.size
+                }  action: { newSize in
+                    //if the size changes, turn off mirroring
+                    //BUG: mirroring doesn't seem to work properly during resize
+                    //and without this you'd have to turn it off and then on again
+                    //after resize
+                    avMirroring = false
+                }
+            
         }
         .defaultSize(width: 1920, height: 1080)
         
