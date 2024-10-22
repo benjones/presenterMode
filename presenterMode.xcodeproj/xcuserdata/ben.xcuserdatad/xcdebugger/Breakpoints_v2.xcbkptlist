@@ -74,8 +74,8 @@
             filePath = "presenterMode/StreamManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "70"
-            endingLineNumber = "70"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
             landmarkName = "setupTask()"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,13 +90,13 @@
             filePath = "presenterMode/StreamManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "69"
-            endingLineNumber = "69"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
             landmarkName = "setupTask()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 361ed69ac817b77"
+                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 361ed69ac817ac8"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -106,11 +106,11 @@
                   urlString = "file:///Users/ben/projects/presenterMode/presenterMode/StreamManager.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "69"
-                  endingLineNumber = "69">
+                  startingLineNumber = "72"
+                  endingLineNumber = "72">
                </Location>
                <Location
-                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 353224ed397ff37b"
+                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 353224ed397ff2c4"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -120,11 +120,11 @@
                   urlString = "file:///Users/ben/projects/presenterMode/presenterMode/StreamManager.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "69"
-                  endingLineNumber = "69">
+                  startingLineNumber = "72"
+                  endingLineNumber = "72">
                </Location>
                <Location
-                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 4159d14e66164d7a"
+                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 4159d14e66164cc5"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -134,10 +134,58 @@
                   urlString = "file:///Users/ben/projects/presenterMode/presenterMode/StreamManager.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "69"
-                  endingLineNumber = "69">
+                  startingLineNumber = "72"
+                  endingLineNumber = "72">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4A8C91AD-4966-4E9E-BDDA-71901B088B6D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "presenterMode/PowerMeter.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "112"
+            endingLineNumber = "112"
+            landmarkName = "process(buffer:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1C532893-04FB-484C-843A-522941BADCEC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "presenterMode/PowerMeter.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "95"
+            endingLineNumber = "95"
+            landmarkName = "process(buffer:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EA78912F-AF7F-42D9-B6E0-66CAEA38A4DE"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "presenterMode/PowerMeter.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "100"
+            endingLineNumber = "100"
+            landmarkName = "process(buffer:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

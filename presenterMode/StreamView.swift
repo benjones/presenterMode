@@ -42,8 +42,8 @@ struct StreamView: NSViewRepresentable {
     
     func updateNSView(_ nsView: NSViewType, context: Context) {
         //ignored
-        let viewsize = nsView.frame.size
-        logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
+        //let viewsize = nsView.frame.size
+        //logger.debug("updatensview with its framesize: \(viewsize.width) x \(viewsize.height)")
     }
     
     mutating func updateFrame(_ cgImage : FrameType){

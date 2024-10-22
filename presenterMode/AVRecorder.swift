@@ -13,6 +13,10 @@ import OSLog
 
 class AVRecorder {
     
+
+    private var powerMeter = PowerMeter()
+    var audioLevels: AudioLevels { powerMeter.levels}
+    
     private var assetWriter: AVAssetWriter?
     private var assetWriterVideoAdaptor: AVAssetWriterInputPixelBufferAdaptor?
     private var assetWriterVideoInput: AVAssetWriterInput?
@@ -34,6 +38,7 @@ class AVRecorder {
             assetWriter = try AVAssetWriter(outputURL: url, fileType: .mp4)
             let settingsAssistant = AVOutputSettingsAssistant(preset: .preset1920x1080)?.videoSettings
             assetWriterVideoInput = AVAssetWriterInput(mediaType: .video, outputSettings: settingsAssistant)
+            assetWriterVideoInput?.expectsMediaDataInRealTime = true
             assetWriterVideoAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: assetWriterVideoInput!, sourcePixelBufferAttributes: nil)
             assetWriter!.add(assetWriterVideoInput!)
 
@@ -46,9 +51,23 @@ class AVRecorder {
                 avCaptureSession.commitConfiguration()
                 avCaptureSession.startRunning()
                 
+
+                
                 let audioSettings = audioCaptureOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mp4)
+                Logger().debug("recording audio settings: \(audioSettings!.debugDescription)")
                 assetWriterAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+                assetWriterAudioInput?.expectsMediaDataInRealTime = true
                 assetWriter!.add(assetWriterAudioInput!)
+                
+                NotificationCenter.default.addObserver(forName: AVCaptureInput.Port.formatDescriptionDidChangeNotification, object: nil, queue: nil) { notification in
+                    Logger().debug("format changed: \(notification)")
+                    
+                }
+                
+                NotificationCenter.default.addObserver(forName: AVCaptureSession.runtimeErrorNotification, object: nil, queue: nil) { notification in
+                    Logger().debug("runtime error: \(notification)")
+                    
+                }
 
                 
             }
@@ -68,6 +87,7 @@ class AVRecorder {
     }
     
     func writeFrame(frame: CVPixelBuffer){
+        //TODO: mirror frames here, maybe?
         assert(recording)
         if assetWriterVideoInput!.isReadyForMoreMediaData {
             assetWriterVideoAdaptor!.append(frame, withPresentationTime: clock.time)
@@ -77,19 +97,25 @@ class AVRecorder {
     }
     
     func writeAudioSample(buffer: CMSampleBuffer){
+        //Logger().debug("buffer: \(buffer.formatDescription.debugDescription)")
         if(assetWriterAudioInput != nil){
             if assetWriterAudioInput!.isReadyForMoreMediaData {
                 assetWriterAudioInput!.append(buffer)
+                
             } else {
                 Logger().debug("audio writer not ready for sample")
             }
+            powerMeter.process(buffer: buffer)
         }
     }
     
     func finishRecording(){
         assetWriterVideoInput!.markAsFinished()
         avCaptureSession.stopRunning()
-        avCaptureSession.removeInput(avCaptureSession.inputs.first!)
+        powerMeter.processSilence()
+        if !avCaptureSession.inputs.isEmpty{
+            avCaptureSession.removeInput(avCaptureSession.inputs.first!)
+        }
         avCaptureSession.removeOutput(avCaptureSession.outputs.first!)
         assetWriter!.finishWriting {
             Logger().debug("finished writing video file!")

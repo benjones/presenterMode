@@ -24,6 +24,14 @@ When you run it the first time, you'll probably have to OK to run code that's do
 
 Presenter Mode will request some permissions (for screen recording, and camera which is needed for ipad mirroring).  The app does not use the network or touch any files.  You may also need to set your ipad up to trust your laptop.
 
+## Known Bugs
+
+* If you resize the mirror window, the content gets un-mirrored and you have to reselect horizontal mirroring
+* Video recording is in beta.  It seems to work pretty well with the built in mic on my mac, but doesn't work at all with the mic in my pixel buds.  This may be a macos bug?
+* Not super important given :points up: but you can't switch the audio device while you're recording (yet)
+* Video recording doesn't mirror the shared content, even though the window does (yet)
+* This probably break in strange ways if you close the mirror window while recording
+
 ## Contact
 
 Feel free to use Github Issues for bug reports or feature requests, and/or contact me via email.  My name is Ben Jones and I teach in the University of Utah School of Computing.

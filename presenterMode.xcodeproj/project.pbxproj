@@ -15,6 +15,8 @@
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
 		B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386326F527CF00D022C9 /* Preview Assets.xcassets */; };
 		B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */; };
+		B56D9A4F2CC1A60600FCCE43 /* PowerMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */; };
+		B56D9A512CC8116000FCCE43 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = B56D9A502CC8115A00FCCE43 /* TODO.md */; };
 		B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */; };
 		B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B680BB278A246F004BBBDB /* AVCapture.swift */; };
 		B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B5C99D4D270E4E66007FBA84 /* Credits.rtf */; };
@@ -31,6 +33,8 @@
 		B531386526F527D000D022C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B531386626F527D000D022C9 /* presenterMode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = presenterMode.entitlements; sourceTree = "<group>"; };
 		B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConservativeTrigger.swift; sourceTree = "<group>"; };
+		B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerMeter.swift; sourceTree = "<group>"; };
+		B56D9A502CC8115A00FCCE43 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVRecorder.swift; sourceTree = "<group>"; };
 		B5B680BB278A246F004BBBDB /* AVCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCapture.swift; sourceTree = "<group>"; };
 		B5C99D4D270E4E66007FBA84 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
@@ -51,6 +55,7 @@
 		B531385026F527CE00D022C9 = {
 			isa = PBXGroup;
 			children = (
+				B56D9A502CC8115A00FCCE43 /* TODO.md */,
 				B5C99D4D270E4E66007FBA84 /* Credits.rtf */,
 				B531385B26F527CE00D022C9 /* presenterMode */,
 				B531385A26F527CE00D022C9 /* Products */,
@@ -68,6 +73,7 @@
 		B531385B26F527CE00D022C9 /* presenterMode */ = {
 			isa = PBXGroup;
 			children = (
+				B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */,
 				B531385C26F527CE00D022C9 /* presenterModeApp.swift */,
 				B531385E26F527CE00D022C9 /* ContentView.swift */,
 				B531386026F527CF00D022C9 /* Assets.xcassets */,
@@ -155,6 +161,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B56D9A512CC8116000FCCE43 /* TODO.md in Resources */,
 				B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */,
 				B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */,
 				B531386126F527CF00D022C9 /* Assets.xcassets in Resources */,
@@ -173,6 +180,7 @@
 				B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */,
 				B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */,
 				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
+				B56D9A4F2CC1A60600FCCE43 /* PowerMeter.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,
 			);

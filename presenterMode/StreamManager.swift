@@ -10,6 +10,7 @@ import OSLog
 import SwiftUI
 import CollectionConcurrencyKit
 import AVFoundation
+import Combine
 
 enum FrameType {
     case uncropped(IOSurface)
@@ -45,9 +46,11 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     private var runningStream: SCStream?
     private var frameCaptureTask: Task<Void, Never>?
     
-    private let avRecorder = AVRecorder()
+    let avRecorder = AVRecorder()
+    @Published var audioLevel: Float = 0
     
-
+    private var audioMeterTask: AnyCancellable?
+    
     
     init(avManager: AVDeviceManager) {
         self.avDeviceManager = avManager
@@ -73,10 +76,17 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     
     func startRecording(url: URL, audioDevice: AVCaptureDevice?){
         recording = avRecorder.startRecording(url: url, audioDevice: audioDevice, delegate: scDelegate!)
+        
+        audioMeterTask = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in
+            guard let self = self else { return }
+            self.audioLevel = avRecorder.audioLevels.peakLevel
+        }
     }
     
     func stopRecording(){
         avRecorder.finishRecording()
+        self.audioLevel = 0
+        audioMeterTask?.cancel()
         recording = false
     }
     
@@ -319,6 +329,7 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
         if(!croppingRequired){
             continuation.yield(FrameType.uncropped(surface))
             if(recorder.recording){
+                //TODO mirror frame here, maybe
                 recorder.writeFrame(frame: pixelBuffer)
             }
             return
@@ -384,6 +395,7 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
             let surface = unsafeBitCast(surfaceRef, to: IOSurface.self)
             continuation.yield(FrameType.uncropped(surface))
             if(recorder.recording){
+                //TODO mirror frame here, maybe
                 recorder.writeFrame(frame: pixelBuffer)
             }
         } else if(buffer.formatDescription?.mediaType == .audio){

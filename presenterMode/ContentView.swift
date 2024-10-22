@@ -124,6 +124,13 @@ struct ContentView: View {
                         selectedAudio = newVal[0]
                     }
                 }
+
+                Gauge(value: streamManager.audioLevel, in: Float(0)...Float(1)){
+                    Text("dB")
+                }
+                .gaugeStyle(AccessoryCircularGaugeStyle())
+                .tint(Gradient(colors: [.green, .yellow, .orange, .red]))
+                .scaleEffect(0.5) //no better way to resize it apparently
                 
             }.frame(maxHeight: 80)
         }
@@ -151,7 +158,7 @@ func showSavePanel() -> URL? {
     }()
     let dateString = dateFormatter.string(from: Date.now)
     
-    savePanel.nameFieldStringValue = "\(dateString).mp4"
+    savePanel.nameFieldStringValue = "PMRecording_\(dateString).mp4"
     let response = savePanel.runModal()
     return response == .OK ? savePanel.url : nil
 }
