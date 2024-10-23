@@ -106,6 +106,7 @@ class PowerMeter: AudioLevelProvider {
                 //TODO, just ignore this?
                 //assert(false, "Unknown audio format!")
                 return [Float]()
+
             
         }
 
