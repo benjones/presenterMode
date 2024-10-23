@@ -21,6 +21,7 @@
 		B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B680BB278A246F004BBBDB /* AVCapture.swift */; };
 		B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B5C99D4D270E4E66007FBA84 /* Credits.rtf */; };
 		B5D2D7A32CC96A7E009A0469 /* ConservativeTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */; };
+		B5D2D7A72CC99E8E009A0469 /* RecordingControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D2D7A62CC99E8E009A0469 /* RecordingControlsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		B5B680BB278A246F004BBBDB /* AVCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCapture.swift; sourceTree = "<group>"; };
 		B5C99D4D270E4E66007FBA84 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		B5D2D79A2CC963D5009A0469 /* presenterModeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = presenterModeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5D2D7A62CC99E8E009A0469 /* RecordingControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingControlsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -101,6 +103,7 @@
 				B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */,
 				B531385C26F527CE00D022C9 /* presenterModeApp.swift */,
 				B531385E26F527CE00D022C9 /* ContentView.swift */,
+				B5D2D7A62CC99E8E009A0469 /* RecordingControlsView.swift */,
 				B531386026F527CF00D022C9 /* Assets.xcassets */,
 				B531386526F527D000D022C9 /* Info.plist */,
 				B531386626F527D000D022C9 /* presenterMode.entitlements */,
@@ -241,6 +244,7 @@
 				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
 				B56D9A4F2CC1A60600FCCE43 /* PowerMeter.swift in Sources */,
 				B531385F26F527CE00D022C9 /* ContentView.swift in Sources */,
+				B5D2D7A72CC99E8E009A0469 /* RecordingControlsView.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
