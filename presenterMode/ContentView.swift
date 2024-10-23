@@ -65,16 +65,10 @@ struct ContentView: View {
                             .font(.title)
                         
                         ForEach(streamManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
-                            VStack {
-                                if(historyEntry.preview != nil){
-                                    Image(historyEntry.preview!, scale: 1.0, orientation: Image.Orientation.up, label: Text("label"))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 320, height: 180, alignment: .center)
-                                        .border(Color.white)
-                                }
-                                Text("Title: \(historyEntry.scWindow.title ?? "Untitled")")
-                            }.onTapGesture {
+                            HistoryEntryView(
+                                windowTitle: historyEntry.scWindow.title,
+                                previewImage: historyEntry.preview)
+                            .onTapGesture {
                                 Task {
                                     await windowOpener.openWindow(action: openWindow)
                                     avDeviceManager.stopSharing()

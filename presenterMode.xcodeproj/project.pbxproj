@@ -22,6 +22,7 @@
 		B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B5C99D4D270E4E66007FBA84 /* Credits.rtf */; };
 		B5D2D7A32CC96A7E009A0469 /* ConservativeTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */; };
 		B5D2D7A72CC99E8E009A0469 /* RecordingControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D2D7A62CC99E8E009A0469 /* RecordingControlsView.swift */; };
+		B5D2D7A92CC9A7B7009A0469 /* HistoryEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D2D7A82CC9A7B3009A0469 /* HistoryEntryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 		B5C99D4D270E4E66007FBA84 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		B5D2D79A2CC963D5009A0469 /* presenterModeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = presenterModeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D2D7A62CC99E8E009A0469 /* RecordingControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingControlsView.swift; sourceTree = "<group>"; };
+		B5D2D7A82CC9A7B3009A0469 /* HistoryEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -100,6 +102,7 @@
 		B531385B26F527CE00D022C9 /* presenterMode */ = {
 			isa = PBXGroup;
 			children = (
+				B5D2D7A82CC9A7B3009A0469 /* HistoryEntryView.swift */,
 				B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */,
 				B531385C26F527CE00D022C9 /* presenterModeApp.swift */,
 				B531385E26F527CE00D022C9 /* ContentView.swift */,
@@ -237,6 +240,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5D2D7A92CC9A7B7009A0469 /* HistoryEntryView.swift in Sources */,
 				B513C23B2C1B8519009AD1C1 /* StreamView.swift in Sources */,
 				B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */,
 				B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */,
