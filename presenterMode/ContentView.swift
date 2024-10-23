@@ -124,7 +124,7 @@ struct ContentView: View {
                         selectedAudio = newVal[0]
                     }
                 }
-
+                
                 Gauge(value: streamManager.audioLevel, in: Float(0)...Float(1)){
                     Text("dB")
                 }
@@ -137,6 +137,11 @@ struct ContentView: View {
         .onAppear(){
             streamManager.present()
         }
+        .onReceive(NotificationCenter.default.publisher(
+            for: NSWindow.willCloseNotification)) { _ in
+                logger.debug("stopping recording!")
+                streamManager.stopRecording()
+            }
     }
 }
 

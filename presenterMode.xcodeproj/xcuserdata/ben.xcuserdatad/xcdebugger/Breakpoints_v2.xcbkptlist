@@ -50,6 +50,50 @@
             endingLineNumber = "72"
             landmarkName = "setupTask()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 361ed69ac817ac8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 () async -&gt; () in presenterMode.StreamManager.setupTask() -&gt; ()"
+                  moduleName = "presenterMode.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ben/projects/presenterMode/presenterMode/StreamManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "72"
+                  endingLineNumber = "72">
+               </Location>
+               <Location
+                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 353224ed397ff2c4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(7) suspend resume partial function for closure #1 () async -&gt; () in presenterMode.StreamManager.setupTask() -&gt; ()"
+                  moduleName = "presenterMode.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ben/projects/presenterMode/presenterMode/StreamManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "72"
+                  endingLineNumber = "72">
+               </Location>
+               <Location
+                  uuid = "DFF8C148-AB28-403D-8F68-1EFB89EA9AE8 - 4159d14e66164cc5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(8) suspend resume partial function for closure #1 () async -&gt; () in presenterMode.StreamManager.setupTask() -&gt; ()"
+                  moduleName = "presenterMode.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ben/projects/presenterMode/presenterMode/StreamManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "72"
+                  endingLineNumber = "72">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

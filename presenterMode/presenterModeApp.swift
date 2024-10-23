@@ -78,6 +78,7 @@ struct presenterModeApp: App {
         }.onChange(of: avMirroring, initial: false){
             pickerManager.updateAVMirroring(avMirroring: avMirroring)
         }
+
         
         
         

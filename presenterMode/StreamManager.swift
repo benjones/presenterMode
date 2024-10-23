@@ -84,10 +84,12 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     }
     
     func stopRecording(){
-        avRecorder.finishRecording()
-        self.audioLevel = 0
-        audioMeterTask?.cancel()
-        recording = false
+        if(recording) {
+            avRecorder.finishRecording()
+            self.audioLevel = 0
+            audioMeterTask?.cancel()
+            recording = false
+        }
     }
     
     func registerView(_ streamView: StreamView) {
