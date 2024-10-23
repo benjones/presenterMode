@@ -6,11 +6,26 @@
 //
 
 import Testing
+@testable import presenterMode
 
 struct presenterModeTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    @Test func CTSingleUpdate() {
+        var trigger = ConservativeTrigger()
+        var result = trigger.updateUpcoming()
+        #expect(!result)
+        result = trigger.tick(updateOccurred: true)
+        #expect(!result)
+        #expect(trigger.updateUpcoming())
+        for _ in 1..<trigger.framesToWait {
+            let result = trigger.tick(updateOccurred: false)
+            #expect(!result)
+            #expect(trigger.updateUpcoming())
+        }
+        
+        result = trigger.tick(updateOccurred: false)
+        #expect(result)
+        
     }
 
 }
