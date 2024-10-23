@@ -27,7 +27,7 @@ Presenter Mode will request some permissions (for screen recording, and camera w
 ## Known Bugs
 
 * If you resize the mirror window, the content gets un-mirrored and you have to reselect horizontal mirroring
-* Video recording is in beta.  It seems to work pretty well with the built in mic on my mac, but doesn't work at all with the mic in my pixel buds.  This may be a macos bug?
+* Video recording is in beta.  It seems to work pretty well with the built in mic on my mac and wired external mics, but doesn't work at all with the mic in my pixel buds.  This may be a macos bug?
 * Not super important given :points up: but you can't switch the audio device while you're recording (yet)
 * Video recording doesn't mirror the shared content, even though the window does (yet)
 * This probably break in strange ways if you close the mirror window while recording

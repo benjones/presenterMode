@@ -10,3 +10,5 @@
 * Do mirroring in video
 * Unittests for conservative trigger
 * Previews
+* Auto-stop recording when quitting
+
