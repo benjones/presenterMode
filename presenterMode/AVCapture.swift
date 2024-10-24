@@ -18,6 +18,7 @@ class AVDeviceManager : NSObject, ObservableObject {
     @Published var avCaptureDevices : [AVWrapper] = []
     //audio devices to record to video with
     @Published var avAudioDevices: [AVWrapper] = []
+    
     private let avCaptureSession = AVCaptureSession()
     
     private let connectionPublisher = NotificationCenter.default
@@ -70,8 +71,10 @@ class AVDeviceManager : NSObject, ObservableObject {
     private func getCaptureDevices() -> Void {
         AVCaptureDevice.requestAccess(for: .video) { granted in
             if granted {
-                let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
-                                                                            [.external, .builtInWideAngleCamera], mediaType: .video, position: .unspecified)
+                let discoverySession =
+                AVCaptureDevice.DiscoverySession(
+                    deviceTypes: [.external, .builtInWideAngleCamera],
+                    mediaType: .video, position: .unspecified)
                 Task { @MainActor in
                     self.avCaptureDevices = discoverySession.devices.map({device -> AVWrapper in
                         return AVWrapper(dev: device)
@@ -117,7 +120,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    fileprivate func removeAllInputsAndOutputs() {
+    private func removeAllInputsAndOutputs() {
         let inputs = avCaptureSession.inputs
         for input in inputs {
             avCaptureSession.removeInput(input);

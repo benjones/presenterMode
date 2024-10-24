@@ -26,6 +26,7 @@ struct HistoryEntry {
 let sharingStoppedImage: CGImage = CGImage(
     pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!,
     decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
+
 class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
     
     @Published var history = [HistoryEntry]()
@@ -38,8 +39,8 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     
     
     
-
-    private var app: presenterModeApp?
+    //only used to open a window... seems like a bad design
+    private let windowOpener: WindowOpener
     private var streamView: StreamView?
     public var scDelegate: StreamToFramesDelegate?
     public let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
@@ -52,8 +53,9 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     private var audioMeterTask: AnyCancellable?
     
     
-    init(avManager: AVDeviceManager) {
+    init(avManager: AVDeviceManager, windowOpener: WindowOpener) {
         self.avDeviceManager = avManager
+        self.windowOpener = windowOpener
     }
     
     func setupTask(){
@@ -112,11 +114,6 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         streamView?.setAVMirroring(mirroring: avMirroring)
     }
     
-    func setApp(app:presenterModeApp){
-        self.app = app
-    }
-    
-    
     func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
         logger.debug("Cancelled!!")
     }
@@ -151,8 +148,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         avDeviceManager.stopSharing()
         Task { @MainActor in
             
-            //open up the window
-            await app?.openWindow()
+            await windowOpener.openWindow()
             await updateHistory(filter: filter)
             
         }

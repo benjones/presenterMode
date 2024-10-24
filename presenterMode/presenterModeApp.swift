@@ -13,13 +13,19 @@ import OSLog
 //CAN'T BE MAXIMIZED
 class WindowOpener: NSObject, ObservableObject {
     private var isWindowOpen = false
-    @MainActor func openWindow(action: OpenWindowAction) async {
+    private var action: OpenWindowAction?
+    
+    @MainActor func openWindow() async {
         if(!isWindowOpen){
-            action(id: "mirror")
-        } 
+            action!(id: "mirror")
+        }
     }
     func updateWindowStatus(opened: Bool){
         self.isWindowOpen = opened
+    }
+    
+    func setAction(action: OpenWindowAction){
+        self.action = action
     }
 }
 
@@ -36,26 +42,22 @@ struct MirrorCommands : Commands {
 @main
 struct presenterModeApp: App {
 
-    @State var avDeviceManager = AVDeviceManager()
+    let avDeviceManager: AVDeviceManager
     @Environment(\.openWindow) private var openWindowEnv
     
-    @State var pickerManager: StreamManager
-    @State var windowOpener = WindowOpener()
+    let streamManager: StreamManager
+    var windowOpener = WindowOpener()
     
     init() {
         let deviceManager = AVDeviceManager()
         self.avDeviceManager = deviceManager
-        self.pickerManager = StreamManager(avManager: deviceManager)
-        self.pickerManager.setupTask()
+
+        self.streamManager = StreamManager(avManager: deviceManager,
+                                           windowOpener: windowOpener)
+        self.streamManager.setupTask()
     }
     
-    
-    //TODO: pass this as an enviornment object
-    @MainActor func openWindow() async {
-        await windowOpener.openWindow(action: openWindowEnv)
-    }
-    
-    private var logger = Logger()
+    private let logger = Logger()
     
     @State private var avMirroring = false
     
@@ -65,18 +67,18 @@ struct presenterModeApp: App {
         
         Window("Window Picker", id: "picker") {
             ContentView(avMirroring: $avMirroring)
-                .environmentObject(pickerManager)
+                .environmentObject(streamManager)
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .onAppear(){
-                    pickerManager.setApp(app:self)
+                    windowOpener.setAction(action: openWindowEnv)
                 }
         }
         .defaultSize(width: 720, height: 480)
         .commands{
             MirrorCommands(mirrorAVDevice: $avMirroring)
         }.onChange(of: avMirroring, initial: false){
-            pickerManager.updateAVMirroring(avMirroring: avMirroring)
+            streamManager.updateAVMirroring(avMirroring: avMirroring)
         }
 
         
@@ -85,10 +87,8 @@ struct presenterModeApp: App {
         //This and the windowOpener is a hack because the second Window cannot be maximized
         //by default
         WindowGroup("Mirror window", id: "mirror"){
-            //            MirrorView()
-            //                .environmentObject(globalViewModel)
             StreamView()
-                .environmentObject(pickerManager)
+                .environmentObject(streamManager)
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

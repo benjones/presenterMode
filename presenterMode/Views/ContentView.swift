@@ -24,7 +24,6 @@ struct ContentView: View {
     @EnvironmentObject var streamManager: StreamManager
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     @EnvironmentObject var windowOpener: WindowOpener
-    @Environment(\.openWindow) private var openWindow
     
     @Binding var avMirroring: Bool
     @State private var selectedAudio: AVWrapper?
@@ -46,7 +45,7 @@ struct ContentView: View {
                                     .border(Color.accentColor)
                             }.onTapGesture {
                                 Task {
-                                    await windowOpener.openWindow(action: openWindow)
+                                    await windowOpener.openWindow()
                                     streamManager.streamAVDevice(device: avWrapper.device,
                                                                  avMirroring: avMirroring)
                                 }
@@ -70,7 +69,7 @@ struct ContentView: View {
                                 previewImage: historyEntry.preview)
                             .onTapGesture {
                                 Task {
-                                    await windowOpener.openWindow(action: openWindow)
+                                    await windowOpener.openWindow()
                                     avDeviceManager.stopSharing()
                                     streamManager.setFilterForStream(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
                                 }
