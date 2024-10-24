@@ -91,6 +91,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
             self.audioLevel = 0
             audioMeterTask?.cancel()
             recording = false
+            logger.debug("finished recording")
         }
     }
     

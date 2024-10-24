@@ -33,51 +33,42 @@ struct ContentView: View {
     var body: some View {
         VStack {
             HStack{
-                ScrollView{
-                    VStack{
-                        Text("Devices")
-                            .font(.title)
-                        ForEach(avDeviceManager.avCaptureDevices, id: \.id) {avWrapper in
-                            VStack {
-                                Text("\(maybeTruncate( str: avWrapper.device.localizedName))")
-                                    .frame(width: 320, height: 60)
-                                    .background(Color.secondary)
-                                    .border(Color.accentColor)
-                            }.onTapGesture {
-                                Task {
-                                    await windowOpener.openWindow()
-                                    streamManager.streamAVDevice(device: avWrapper.device,
-                                                                 avMirroring: avMirroring)
-                                }
-                            }
-                            
-                        }
-                    }.frame(minWidth:340)
+
+                AVDeviceListView(){ device in
+                    Task {
+                        await windowOpener.openWindow()
+                        streamManager.streamAVDevice(
+                            device: device.device,
+                            avMirroring: avMirroring)
+                    }
                 }
+                    .environmentObject(avDeviceManager)
                 
                 Divider()
                 
                 ScrollView{
+                    //list of window history
                     VStack(alignment: .center){
                         Text("Screen History")
                             .frame(idealWidth:320)
                             .font(.title)
                         
-                        ForEach(streamManager.history.reversed(), id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
+                        ForEach(streamManager.history.reversed(),
+                                id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
                             HistoryEntryView(
                                 windowTitle: historyEntry.scWindow.title,
                                 previewImage: historyEntry.preview)
                             .onTapGesture {
                                 Task {
                                     await windowOpener.openWindow()
-                                    avDeviceManager.stopSharing()
-                                    streamManager.setFilterForStream(filter: SCContentFilter(desktopIndependentWindow: historyEntry.scWindow))
+                                    streamManager.setFilterForStream(
+                                        filter: SCContentFilter(
+                                            desktopIndependentWindow: historyEntry.scWindow))
                                 }
                             }
                         }
                     }.frame(minWidth:340)
                 }
-                
             }
             Divider()
             RecordingControlsView(selectedAudio: $selectedAudio,
@@ -89,7 +80,6 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(
             for: NSWindow.willCloseNotification)) { _ in
-                logger.debug("stopping recording!")
                 streamManager.stopRecording()
             }
     }
