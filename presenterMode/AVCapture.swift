@@ -18,7 +18,7 @@ class AVDeviceManager : NSObject, ObservableObject {
     @Published var avCaptureDevices : [AVWrapper] = []
     //audio devices to record to video with
     @Published var avAudioDevices: [AVWrapper] = []
-    @Published var avCaptureSession : AVCaptureSession?
+    private let avCaptureSession = AVCaptureSession()
     
     private let connectionPublisher = NotificationCenter.default
         .publisher(for: NSNotification.Name.AVCaptureDeviceWasConnected)
@@ -28,7 +28,7 @@ class AVDeviceManager : NSObject, ObservableObject {
     private var disconnectedSubscriptionHandle : AnyCancellable? = nil
     
     private var avOutput = AVCaptureVideoDataOutput()
-        
+    
     override init(){
         super.init()
         //without this ipads won't show up as capture dvices
@@ -55,7 +55,7 @@ class AVDeviceManager : NSObject, ObservableObject {
                     self.avCaptureDevices.append(AVWrapper(dev: device))
                 }
             }
-           
+            
         }
         
         disconnectedSubscriptionHandle = disconnectionPublisher.sink { (message) in
@@ -98,48 +98,43 @@ class AVDeviceManager : NSObject, ObservableObject {
     
     func setupCaptureSession(device: AVCaptureDevice, screenPickerManager: StreamManager){
         Logger().debug("setup capture session for \(device.localizedName)")
-        if avCaptureSession == nil {
-            avCaptureSession = AVCaptureSession();
-        }
         
-        avCaptureSession!.beginConfiguration()
+        avCaptureSession.beginConfiguration()
         
         do {
             removeAllInputsAndOutputs()
-            try avCaptureSession!.addInput(AVCaptureDeviceInput(device: device));
+            try avCaptureSession.addInput(AVCaptureDeviceInput(device: device));
             avOutput.setSampleBufferDelegate(screenPickerManager.scDelegate, queue: screenPickerManager.videoSampleBufferQueue)
-            if(!(avCaptureSession!.canAddOutput(avOutput))){
+            if(!(avCaptureSession.canAddOutput(avOutput))){
                 Logger().debug("Can't add output for some reason!")
             }
-            avCaptureSession!.addOutput(avOutput)
+            avCaptureSession.addOutput(avOutput)
             Logger().debug("video settings \(self.avOutput.videoSettings)")
-            avCaptureSession!.commitConfiguration();
-            avCaptureSession!.startRunning();
+            avCaptureSession.commitConfiguration();
+            avCaptureSession.startRunning();
         } catch {
             print("Error setting up cature session: \(error)")
         }
     }
     
     fileprivate func removeAllInputsAndOutputs() {
-        let inputs = avCaptureSession!.inputs
+        let inputs = avCaptureSession.inputs
         for input in inputs {
-            avCaptureSession!.removeInput(input);
+            avCaptureSession.removeInput(input);
         }
-        let outputs = avCaptureSession!.outputs
+        let outputs = avCaptureSession.outputs
         for output in outputs {
-            avCaptureSession!.removeOutput(output)
+            avCaptureSession.removeOutput(output)
         }
     }
     
     func stopSharing(){
-        if avCaptureSession != nil{
-            if(avCaptureSession!.isRunning){
-                avCaptureSession!.stopRunning()
-                removeAllInputsAndOutputs()
-                
-            } else {
-                Logger().debug("called av stopSharing when it wasn't running")
-            }
+        if(avCaptureSession.isRunning){
+            avCaptureSession.stopRunning()
+            removeAllInputsAndOutputs()
+            
+        } else {
+            Logger().debug("called av stopSharing when it wasn't running")
         }
     }
 }

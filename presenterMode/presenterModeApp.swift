@@ -36,7 +36,7 @@ struct MirrorCommands : Commands {
 @main
 struct presenterModeApp: App {
 
-    @State var avDeviceManager: AVDeviceManager
+    @State var avDeviceManager = AVDeviceManager()
     @Environment(\.openWindow) private var openWindowEnv
     
     @State var pickerManager: StreamManager

@@ -18,7 +18,9 @@ struct RecordingControlsView : View {
         HStack {
             Text("Video Recording")
                 .font(.title2)
+            
             Divider()
+            
             if(!streamManager.recording){
                 Button(action: {
                     let url = showSavePanel()
@@ -39,6 +41,7 @@ struct RecordingControlsView : View {
                         .foregroundStyle(.red)
                 }
             }
+            
             Picker("Audio input", selection: $selectedAudio){
                 ForEach(audioDevices, id: \.self){ dev in
                     Text(dev.device.localizedName).tag(dev)
