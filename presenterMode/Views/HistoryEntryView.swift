@@ -25,3 +25,9 @@ struct HistoryEntryView : View {
         }
     }
 }
+
+#Preview {
+    HistoryEntryView(windowTitle: "sample title", previewImage: CGImage(
+        pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sampleCaptureImage")!.data as CFData)!,
+        decode: nil, shouldInterpolate: true, intent: .defaultIntent))
+}
