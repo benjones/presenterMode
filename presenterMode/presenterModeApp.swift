@@ -42,28 +42,21 @@ struct MirrorCommands : Commands {
 @main
 struct presenterModeApp: App {
 
-    let avDeviceManager: AVDeviceManager
+    let avDeviceManager = AVDeviceManager()
     @Environment(\.openWindow) private var openWindowEnv
     
     let streamManager: StreamManager
-    var windowOpener = WindowOpener()
+    let windowOpener = WindowOpener()
     
     init() {
-        let deviceManager = AVDeviceManager()
-        self.avDeviceManager = deviceManager
-
-        self.streamManager = StreamManager(avManager: deviceManager,
+        self.streamManager = StreamManager(avManager: avDeviceManager,
                                            windowOpener: windowOpener)
         self.streamManager.setupTask()
     }
-    
-    private let logger = Logger()
-    
+        
     @State private var avMirroring = false
     
-    
     var body: some Scene {
-        
         
         Window("Window Picker", id: "picker") {
             ContentView(avMirroring: $avMirroring)
