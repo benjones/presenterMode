@@ -52,6 +52,7 @@ struct RecordingControlsView : View {
                     selectedAudio = newVal[0]
                 }
             }
+            .disabled(streamManager.recording)
             
             Gauge(value: streamManager.audioLevel, in: Float(0)...Float(1)){
                 Text("dB")

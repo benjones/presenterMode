@@ -6,9 +6,8 @@
 //
 
 * Handle switching audio inputs while recording
-* Handle other audio formats nicely (ie by doing nothing)
+	* Probably requires unconditionally creating and audio track and writing silence to it unless there's an audio device?  Probably not worth the effort?
 * Do mirroring in video
-* Unittests for conservative trigger
 * Previews for UI components
 
 ## Manual testing operations
