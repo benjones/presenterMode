@@ -81,41 +81,42 @@ class PowerMeter: AudioLevelProvider {
         
         //TODO use with unsafe pointer here
         //the unsafe mutable type lets you actually iterate through them
-        let audioBufferListPtr = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: &audioBufferList))
-        let formatFlags = buffer.formatDescription!.audioStreamBasicDescription?.mFormatFlags
-        let bitsPerSample = buffer.formatDescription!.audioStreamBasicDescription?.mBitsPerChannel
-        let floatArrays = audioBufferListPtr.map{ buffer in
-        
-            //this is the format I get from the internal microphone
-            if((formatFlags! & 1) != 0){//should be 32 bit floats
-                assert(bitsPerSample == 32)
-                //don't care how many channels it is, just get all the samples
-                let floatPtr = buffer.mData!.assumingMemoryBound(to: Float.self)
-                let floatBuffer = UnsafeBufferPointer<Float>(start: floatPtr, count: Int(buffer.mDataByteSize)/MemoryLayout<Float>.size)
-                return Array(floatBuffer)
-            } else if(((formatFlags! & kAudioFormatFlagIsPacked) != 0) && ((formatFlags! & kAudioFormatFlagIsSignedInteger) != 0)){
-                // my pixel buds pro give me format 12 which is
-                // packed | signed integer, 16 bits per sample
+        withUnsafeMutablePointer(to: &audioBufferList){ bufferListPtr in
+            let audioBufferListPtr = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: bufferListPtr))
+            let formatFlags = buffer.formatDescription!.audioStreamBasicDescription?.mFormatFlags
+            let bitsPerSample = buffer.formatDescription!.audioStreamBasicDescription?.mBitsPerChannel
+            let floatArrays = audioBufferListPtr.map{ buffer in
                 
-                if(bitsPerSample == 16){
-                    let shortPtr = buffer.mData!.assumingMemoryBound(to: Int16.self)
-                    let shortBuffer = UnsafeBufferPointer<Int16>(start: shortPtr, count: Int(buffer.mDataByteSize)/MemoryLayout<Int16>.size)
-                    return shortBuffer.map{ i16 in Float(i16)/Float(Int16.max)}
-                } //TODO: check for 32 BPS?
-                
-            }
+                //this is the format I get from the internal microphone
+                if((formatFlags! & 1) != 0){//should be 32 bit floats
+                    assert(bitsPerSample == 32)
+                    //don't care how many channels it is, just get all the samples
+                    let floatPtr = buffer.mData!.assumingMemoryBound(to: Float.self)
+                    let floatBuffer = UnsafeBufferPointer<Float>(start: floatPtr, count: Int(buffer.mDataByteSize)/MemoryLayout<Float>.size)
+                    return Array(floatBuffer)
+                } else if(((formatFlags! & kAudioFormatFlagIsPacked) != 0) && ((formatFlags! & kAudioFormatFlagIsSignedInteger) != 0)){
+                    // my pixel buds pro give me format 12 which is
+                    // packed | signed integer, 16 bits per sample
+                    
+                    if(bitsPerSample == 16){
+                        let shortPtr = buffer.mData!.assumingMemoryBound(to: Int16.self)
+                        let shortBuffer = UnsafeBufferPointer<Int16>(start: shortPtr, count: Int(buffer.mDataByteSize)/MemoryLayout<Int16>.size)
+                        return shortBuffer.map{ i16 in Float(i16)/Float(Int16.max)}
+                    } //TODO: check for 32 BPS?
+                    
+                }
                 //TODO, just ignore this?
                 //assert(false, "Unknown audio format!")
                 return [Float]()
-
+                
+                
+            }
             
+            floatArrays.forEach{floats in
+                powerLevels.append(calculatePowers(data: floats))
+            }
+            self.values = powerLevels
         }
-
-        floatArrays.forEach{floats in
-            powerLevels.append(calculatePowers(data: floats))
-        }
-        self.values = powerLevels
-        
 //        
 //
 //        var data  =  audioBufferList.mBuffers.mData
