@@ -10,7 +10,11 @@ This has been super useful to me as a professor when I want to live code or show
 
 Before Presenter Mode, I could either mirror my laptop display, which means my notes are visible to my students as well me, or I could extend my display to the projector, and try to contort my head to look at the projector while keeping my laptop screen private. 
 
-With Presenter Mode, I extend my desktop to the projector and maxmize the Presenter Mode mirror window onto it.  Then I can share any window I want to the projector and quickly switch between slides, code, terminal, or my iPad screen.  I can also share my mirror window over Zoom so remote students see the same things that in-person students do, and only the window I want is recorded.
+With Presenter Mode, I extend my desktop to the projector and maxmize the Presenter Mode mirror window onto it.  Then I can share any window I want to the projector and quickly switch between slides, code, terminal, or my iPad screen.  
+
+I can also share my mirror window over Zoom so remote students see the same things that in-person students do, and only the window I want is recorded.
+
+Now, in version 3, PresenterMode can record a video of the mirror window voiceover.  Using my mac's built in mic works pretty well, but wired external mics also seem to work fine.  The video files may be relatively large, so you may want to compress them after you're done with your lecture.
 
 ## User Manual
 
@@ -22,15 +26,14 @@ The picker window will show windows you've shared recently so you can quickly sw
 
 When you run it the first time, you'll probably have to OK to run code that's downloaded from the internet.  You can do this by going to system settings -> Privacy and Security.  It should show the presenter mode icon and an "open anyway" button.  
 
-Presenter Mode will request some permissions (for screen recording, and camera which is needed for ipad mirroring).  The app does not use the network or touch any files.  You may also need to set your ipad up to trust your laptop.
+Presenter Mode will request some permissions (for screen recording, and camera which is needed for ipad mirroring).  Since version 3, the app will request microphone and file storage permissions for saving the recordings to video files.  You may also need to set your ipad up to trust your laptop.
 
 ## Known Bugs
 
-* If you resize the mirror window, the content gets un-mirrored and you have to reselect horizontal mirroring
-* Video recording is in beta.  It seems to work pretty well with the built in mic on my mac and wired external mics, but doesn't work at all with the mic in my pixel buds.  This may be a macos bug?
+* If you enable horizontal flipping of the content, then resize the mirror window, the content gets un-flipped and you have to reselect horizontal mirroring
+* Video recording seems to be reliable, but my pixel buds mic produces horrible sounds.  Built in mic, and wired external mics seem to work. 
 * Not super important given :points up: but you can't switch the audio device while you're recording (yet)
 * Video recording doesn't mirror the shared content, even though the window does (yet)
-* This probably break in strange ways if you close the mirror window while recording
 
 ## Contact
 
