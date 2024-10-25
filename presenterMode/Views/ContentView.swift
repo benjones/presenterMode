@@ -59,9 +59,9 @@ struct ContentView: View {
             
             Divider()
             
-            RecordingControlsView(streamManager: streamManager,
-                                  selectedAudio: $selectedAudio,
+            RecordingControlsView(selectedAudio: $selectedAudio,
                                   audioDevices: $avDeviceManager.avAudioDevices)
+            .environmentObject(streamManager)
         }
         .onAppear(){
             streamManager.present()
