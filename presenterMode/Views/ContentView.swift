@@ -10,6 +10,7 @@ import AVFoundation
 import CoreMediaIO
 import OSLog
 import ScreenCaptureKit
+import AppKit
 
 func maybeTruncate(str: String, limit: Int = 20) -> String {
     if str.count < limit {
@@ -66,8 +67,13 @@ struct ContentView: View {
             streamManager.present()
         }
         .onReceive(NotificationCenter.default.publisher(
-            for: NSWindow.willCloseNotification)) { _ in
-                streamManager.stopRecording()
+            for: NSWindow.willCloseNotification)) { notification in
+                let window = notification.object as? NSWindow
+                if(window?.title == presenterModeApp.pickerWindowTitle){
+                    streamManager.stopRecording()
+                } else {
+                    logger.debug("not the main window")
+                }
             }
     }
 }

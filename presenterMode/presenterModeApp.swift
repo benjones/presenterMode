@@ -56,9 +56,11 @@ struct presenterModeApp: App {
         
     @State private var avMirroring = false
     
+    static let pickerWindowTitle = "Window Picker"
+    
     var body: some Scene {
         
-        Window("Window Picker", id: "picker") {
+        Window(presenterModeApp.pickerWindowTitle, id: "picker") {
             ContentView(avMirroring: $avMirroring)
                 .environmentObject(streamManager)
                 .environmentObject(avDeviceManager)
