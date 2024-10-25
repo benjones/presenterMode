@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AVDeviceListView : View {
     
-    @EnvironmentObject var avDeviceManager : AVDeviceManager
+    let captureDevices: [AVWrapper]
     let deviceCallback: (AVWrapper) -> Void
     
     var body : some View {
@@ -17,7 +17,7 @@ struct AVDeviceListView : View {
             VStack{
                 Text("Devices")
                     .font(.title)
-                ForEach(avDeviceManager.avCaptureDevices, id: \.id) {avWrapper in
+                ForEach(captureDevices, id: \.id) {avWrapper in
                     VStack {
                         Text("\(maybeTruncate( str: avWrapper.device.localizedName))")
                             .frame(width: 320, height: 60)

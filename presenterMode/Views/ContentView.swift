@@ -33,8 +33,8 @@ struct ContentView: View {
     var body: some View {
         VStack {
             HStack{
-
-                AVDeviceListView(){ device in
+                
+                AVDeviceListView(captureDevices: avDeviceManager.avCaptureDevices){ device in
                     Task {
                         await windowOpener.openWindow()
                         streamManager.streamAVDevice(
@@ -42,38 +42,25 @@ struct ContentView: View {
                             avMirroring: avMirroring)
                     }
                 }
-                    .environmentObject(avDeviceManager)
+                .environmentObject(avDeviceManager)
                 
                 Divider()
                 
-                ScrollView{
-                    //list of window history
-                    VStack(alignment: .center){
-                        Text("Screen History")
-                            .frame(idealWidth:320)
-                            .font(.title)
-                        
-                        ForEach(streamManager.history.reversed(),
-                                id: \.self.scWindow.windowID){ (historyEntry :HistoryEntry) in
-                            HistoryEntryView(
-                                windowTitle: historyEntry.scWindow.title,
-                                previewImage: historyEntry.preview)
-                            .onTapGesture {
-                                Task {
-                                    await windowOpener.openWindow()
-                                    streamManager.setFilterForStream(
-                                        filter: SCContentFilter(
-                                            desktopIndependentWindow: historyEntry.scWindow))
-                                }
-                            }
-                        }
-                    }.frame(minWidth:340)
+                HistoryView(entries: streamManager.history.reversed()){ entry in
+                    Task {
+                        await windowOpener.openWindow()
+                        streamManager.setFilterForStream(
+                            filter: SCContentFilter(
+                                desktopIndependentWindow: entry.scWindow))
+                    }
                 }
             }
+            
             Divider()
-            RecordingControlsView(selectedAudio: $selectedAudio,
+            
+            RecordingControlsView(streamManager: streamManager,
+                                  selectedAudio: $selectedAudio,
                                   audioDevices: $avDeviceManager.avAudioDevices)
-                .environmentObject(streamManager)
         }
         .onAppear(){
             streamManager.present()

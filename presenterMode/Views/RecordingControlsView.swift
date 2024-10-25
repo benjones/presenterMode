@@ -10,7 +10,7 @@ import OSLog
 
 struct RecordingControlsView : View {
     private let logger = Logger()
-    @EnvironmentObject var streamManager: StreamManager
+    let streamManager: StreamManager
     @Binding var selectedAudio: AVWrapper?
     @Binding var audioDevices: [AVWrapper]
     
