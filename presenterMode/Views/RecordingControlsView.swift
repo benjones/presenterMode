@@ -18,6 +18,7 @@ struct RecordingControlsView : View {
         HStack {
             Text("Video Recording")
                 .font(.title2)
+                .padding(.horizontal, 16)
             
             Divider()
             

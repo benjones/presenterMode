@@ -220,7 +220,7 @@ private struct MeterTable {
             return 1.0
         } else {
             let index = Int(power) * Int(scaleFactor)
-            return meterTable[index]
+            return if index >= 0 && index < meterTable.count{ meterTable[index] } else { 0 }
         }
     }
 }

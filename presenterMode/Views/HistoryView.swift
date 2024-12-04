@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ScreenCaptureKit
 
 struct HistoryView : View {
     
@@ -20,6 +21,14 @@ struct HistoryView : View {
                 Text("Screen History")
                     .frame(idealWidth:320)
                     .font(.title)
+                
+                Text("Launch Window Picker")
+                    .frame(width: 320, height: 60)
+                    .background(Color.secondary)
+                    .border(Color.accentColor)
+                    .onTapGesture {
+                        SCContentSharingPicker.shared.present()
+                    }
                 
                 ForEach(entries,
                         id: \.self.scWindow.windowID){ historyEntry in
