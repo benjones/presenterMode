@@ -49,13 +49,13 @@ class PowerMeter: AudioLevelProvider {
     private var meterTablePeak = MeterTable()
     
     var levels: AudioLevels {
-        if values.isEmpty { return AudioLevels(level: 0.0, peakLevel: 0.0) }
-        return AudioLevels(level: meterTableAverage.valueForPower(values[0].average),
-                           peakLevel: meterTablePeak.valueForPower(values[0].peak))
+        return values.first.map{ x in
+            AudioLevels(level: meterTableAverage.valueForPower(x.average),
+                        peakLevel: meterTablePeak.valueForPower(x.peak))}
+        ?? AudioLevels(level: 0.0, peakLevel: 0.0)
     }
     
     func processSilence() {
-        if values.isEmpty { return }
         values = []
     }
     

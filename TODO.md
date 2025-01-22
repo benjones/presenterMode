@@ -10,6 +10,7 @@
 * Do mirroring in video
 * Previews for UI components
 * Store filters in history, rather than just windows?
+* Unittests for PowerMeter stuff since it's the only part that's ever crashed the app
 
 ## Manual testing operations
 
