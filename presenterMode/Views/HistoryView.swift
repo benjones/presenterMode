@@ -10,8 +10,10 @@ import ScreenCaptureKit
 
 struct HistoryView : View {
     
+    let streamManager: StreamManager
     let entries: [HistoryEntry]
     let historyCallback: (HistoryEntry)->Void
+
     
     var body: some View {
         
@@ -27,7 +29,7 @@ struct HistoryView : View {
                     .background(Color.secondary)
                     .border(Color.accentColor)
                     .onTapGesture {
-                        SCContentSharingPicker.shared.present()
+                        streamManager.present()
                     }
                 
                 ForEach(entries,

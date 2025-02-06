@@ -359,7 +359,11 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
     }
     
     func stream(_ stream: SCStream, didStopWithError error: Error) {
-        logger.debug("STREAM STOPPED WITH ERROR: \(error)")
+
+        logger.debug("STREAM STOPPED WITH ERROR")
+        let nserr: NSError = error as NSError
+        logger.debug("error code \(nserr.code)")
+        
         //continuation.finish()
         continuation.yield(FrameType.cropped(sharingStoppedImage))
         if(recorder.recording){
@@ -375,7 +379,7 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
     func captureOutput(_ output: AVCaptureOutput, didOutput buffer: CMSampleBuffer,
                        from connection: AVCaptureConnection ){
         guard buffer.isValid else {
-            logger.debug("inavlid AV Buffer")
+            logger.debug("invalid AV Buffer")
             return
         }
         
