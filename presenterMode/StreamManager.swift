@@ -45,6 +45,10 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     public var scDelegate: StreamToFramesDelegate?
     public let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
     private var runningStream: SCStream?
+    //used for restarting stopped stream
+    //also in the future, storing previous filters in the history view
+    private var currentFilter: SCContentFilter?
+    
     private var frameCaptureTask: Task<Void, Never>?
     
     let avRecorder = AVRecorder()
@@ -68,6 +72,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
             } catch {
                 logger.error("Error with stream: \(error)")
             }
+            logger.debug("Frame Sequence loop ended for some reason")
             //so the stream can restart in the future
             //TODO FIXME!!!
             await self.streamView?.updateFrame(FrameType.cropped(sharingStoppedImage))
@@ -106,6 +111,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         logger.debug("want to stream device: \(device.localizedName)")
         runningStream?.stopCapture()
         runningStream = nil
+        currentFilter = nil
 
         avDeviceManager.setupCaptureSession(device: device, screenPickerManager: self)
         updateAVMirroring(avMirroring: avMirroring)
@@ -165,6 +171,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
             } catch {
                 logger.error("Couldn't update stream on picker change: \(error)")
             }
+            currentFilter = filter
         }
         
     }
@@ -233,7 +240,9 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         return AsyncThrowingStream<FrameType, Error> { continuation in
             self.scDelegate =
             StreamToFramesDelegate(continuation: continuation,
-                                   recorder: avRecorder){
+                                   recorder: avRecorder,
+                                   getCurrentFilter: { self.currentFilter}
+            ){
                 self.runningStream = nil
             }
         }
@@ -248,23 +257,28 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
     var logger = Logger()
     
     private var trigger = ConservativeTrigger()
+    private let ciContext = CIContext()
     
     private var streamDimensions = CGSize(width: 1920, height: 1080)
     private var continuation: AsyncThrowingStream<FrameType, Error>.Continuation
     private var recorder: AVRecorder
+    private var getCurrentFilter: () -> SCContentFilter?
     private var onStreamStop: () -> () = {}
     
     init(continuation: AsyncThrowingStream<FrameType, Error>.Continuation,
          recorder: AVRecorder,
+         getCurrentFilter: @escaping () -> SCContentFilter?,
          onStreamStop: @escaping ()->()){
         self.continuation = continuation
         self.recorder = recorder
+        self.getCurrentFilter = getCurrentFilter
         self.onStreamStop = onStreamStop
         logger.info("Created stream delegate")
     }
     
     func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of: SCStreamOutputType){
         guard buffer.isValid else {
+            logger.info("invalid buffer in stream")
             return
         }
         //get the sample buffer attachments for some reason?
@@ -276,6 +290,7 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
         guard let statusRawValue = attachments[SCStreamFrameInfo.status] as? Int,
               let status = SCFrameStatus(rawValue: statusRawValue),
               status == .complete else {
+            logger.info("incomplete buffer in stream")
             return
         }
         
@@ -293,11 +308,12 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
         
         //extract the image
         guard let pixelBuffer = buffer.imageBuffer else {
+            logger.info("couldn't get pixel buffer in stream")
             return
         }
         
         guard let surfaceRef = CVPixelBufferGetIOSurface(pixelBuffer)?.takeUnretainedValue() else {
-            logger.error("Couldn't get IOSurface")
+            logger.error("Couldn't get IOSurface in stream")
             return
         }
        
@@ -336,7 +352,6 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
         
         //crop it to the content rect size
         let cii = CIImage(ioSurface: surface)
-        let ciContext = CIContext()
         //the CVPixelBuffer doesn't support the default format which is RGBA8, so specify that we want it as BGRA8 here
         guard let cgImage =
                 ciContext.createCGImage(cii,
@@ -363,14 +378,28 @@ class StreamToFramesDelegate : NSObject, SCStreamDelegate, SCStreamOutput,
         logger.debug("STREAM STOPPED WITH ERROR")
         let nserr: NSError = error as NSError
         logger.debug("error code \(nserr.code)")
-        
-        //continuation.finish()
-        continuation.yield(FrameType.cropped(sharingStoppedImage))
-        if(recorder.recording){
-            recorder.writeFrame(frame: pixelBufferFromCGImage(image: sharingStoppedImage)!)
+        if(nserr.code == SCStreamError.systemStoppedStream.rawValue){
+            logger.debug("System stopped the erorr, restart it!")
+            //TODO store the filter and reenable the stream from it
+            let filter = getCurrentFilter()
+            if(filter != nil){
+                Task {
+                    do{
+                        try await stream.updateContentFilter(filter!)
+                    } catch {
+                        logger.error("couldn't restart the stream: \(error)")
+                    }
+                }
+            }
+            
+        } else {
+            //continuation.finish()
+            continuation.yield(FrameType.cropped(sharingStoppedImage))
+            if(recorder.recording){
+                recorder.writeFrame(frame: pixelBufferFromCGImage(image: sharingStoppedImage)!)
+            }
+            onStreamStop()
         }
-        onStreamStop()
-        
         
         
     }
@@ -454,26 +483,43 @@ private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
 
 //from https://stackoverflow.com/questions/38318387/swift-cgimage-to-cvpixelbuffer
 private func pixelBufferFromCGImage(image: CGImage) -> CVPixelBuffer? {
+    
+    guard let imageData = image.dataProvider?.data,
+        let mutableData = CFDataCreateMutableCopy(
+            kCFAllocatorDefault,
+            0,
+            imageData
+        ),
+        let baseAddress = CFDataGetMutableBytePtr(mutableData)
+    else {
+        return nil
+    }
+    
     var pxbuffer: CVPixelBuffer? = nil
-    let options: NSDictionary = [:]
+    let retainedData = Unmanaged.passRetained(mutableData)
+    let releaseRefCon = retainedData.toOpaque()
+    
+    let releaseCallback: CVPixelBufferReleaseBytesCallback = { releaseRefCon, _ in
+        guard let releaseRefCon else { return }
+        Unmanaged<CFMutableData>.fromOpaque(releaseRefCon).release()
+    }
+    
 
     let width =  image.width
     let height = image.height
     let bytesPerRow = image.bytesPerRow
 
-    let dataFromImageDataProvider = CFDataCreateMutableCopy(kCFAllocatorDefault, 0, image.dataProvider!.data)
-    let x = CFDataGetMutableBytePtr(dataFromImageDataProvider)!
 
     let status = CVPixelBufferCreateWithBytes(
         kCFAllocatorDefault,
         width,
         height,
         kCVPixelFormatType_32BGRA,
-        x,
+        baseAddress,
         bytesPerRow,
+        releaseCallback,
+        releaseRefCon,
         nil,
-        nil,
-        options,
         &pxbuffer
     )
     if(status != kCVReturnSuccess){

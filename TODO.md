@@ -7,10 +7,13 @@
 
 * Handle switching audio inputs while recording
 	* Probably requires unconditionally creating and audio track and writing silence to it unless there's an audio device?  Probably not worth the effort?
+* Add pop-up search box to find windows/apps from PM itself
+    * Custom view + popover attribute
 * Do mirroring in video
 * Previews for UI components
 * Store filters in history, rather than just windows?
 * Unittests for PowerMeter stuff since it's the only part that's ever crashed the app
+
 
 ## Manual testing operations
 
