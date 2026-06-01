@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */; };
 		B522F6F72C5C3611004D5451 /* CollectionConcurrencyKit in Frameworks */ = {isa = PBXBuildFile; productRef = B522F6F62C5C3611004D5451 /* CollectionConcurrencyKit */; };
+		B52601192FCE329A00EFAC38 /* StreamToFramesDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */; };
 		B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385C26F527CE00D022C9 /* presenterModeApp.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
 		B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386326F527CF00D022C9 /* Preview Assets.xcassets */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamManager.swift; sourceTree = "<group>"; };
+		B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamToFramesDelegate.swift; sourceTree = "<group>"; };
 		B531385926F527CE00D022C9 /* presenterMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presenterMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B531385C26F527CE00D022C9 /* presenterModeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presenterModeApp.swift; sourceTree = "<group>"; };
 		B531386026F527CF00D022C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 				B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */,
 				B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */,
 				B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */,
+				B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */,
 			);
 			path = presenterMode;
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 				B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */,
 				B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */,
 				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
+				B52601192FCE329A00EFAC38 /* StreamToFramesDelegate.swift in Sources */,
 				B56D9A4F2CC1A60600FCCE43 /* PowerMeter.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,
 			);
