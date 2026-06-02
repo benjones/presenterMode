@@ -110,18 +110,35 @@ class AVRecorder {
     }
     
     func finishRecording(){
-        assetWriterVideoInput!.markAsFinished()
-        avCaptureSession.stopRunning()
-        powerMeter.processSilence()
-        if !avCaptureSession.inputs.isEmpty{
-            avCaptureSession.removeInput(avCaptureSession.inputs.first!)
+        
+        guard recording else { return }
+        recording = false
+
+        audioCaptureOutput.setSampleBufferDelegate(nil, queue: nil)
+
+        assetWriterVideoInput?.markAsFinished()
+        assetWriterAudioInput?.markAsFinished()
+
+        if avCaptureSession.isRunning {
+            avCaptureSession.stopRunning()
         }
-        avCaptureSession.removeOutput(avCaptureSession.outputs.first!)
-        assetWriter!.finishWriting {
+
+        for input in avCaptureSession.inputs {
+            avCaptureSession.removeInput(input)
+        }
+
+        for output in avCaptureSession.outputs {
+            avCaptureSession.removeOutput(output)
+        }
+
+        powerMeter.processSilence()
+
+        assetWriter?.finishWriting { [weak self] in
             Logger().debug("finished writing video file!")
-            self.recording = false
-            self.assetWriter = nil
-            self.assetWriterAudioInput = nil
+            self?.assetWriter = nil
+            self?.assetWriterVideoInput = nil
+            self?.assetWriterVideoAdaptor = nil
+            self?.assetWriterAudioInput = nil
         }
         
     }

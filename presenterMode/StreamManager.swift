@@ -28,6 +28,7 @@ let sharingStoppedImage: CGImage = CGImage(
     decode: nil, shouldInterpolate: true, intent: .defaultIntent)!
 
 
+@MainActor
 class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
     
     @Published var history = [HistoryEntry]()
@@ -67,7 +68,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         self.frameCaptureTask = Task {
             do {
                 for try await frame in getFrameSequence(){
-                    await self.streamView?.updateFrame(frame)
+                    self.streamView?.updateFrame(frame)
                     
                 }
             } catch {
@@ -76,7 +77,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
             logger.debug("Frame Sequence loop ended for some reason")
             //so the stream can restart in the future
             //TODO FIXME!!!
-            await self.streamView?.updateFrame(FrameType.cropped(sharingStoppedImage))
+            self.streamView?.updateFrame(FrameType.cropped(sharingStoppedImage))
             self.frameCaptureTask = nil
         }
     }
@@ -114,7 +115,11 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         runningStream = nil
         currentFilter = nil
 
-        avDeviceManager.setupCaptureSession(device: device, screenPickerManager: self)
+        avDeviceManager.setupCaptureSession(
+            device: device,
+            delegate: scDelegate,
+            sampleBufferQueue: videoSampleBufferQueue
+        )
         updateAVMirroring(avMirroring: avMirroring)
     }
     
@@ -122,11 +127,23 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         streamView?.setAVMirroring(mirroring: avMirroring)
     }
     
-    func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
+    nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
+        Task { @MainActor in
+            self.handleContentSharingPickerCancel(stream: stream)
+        }
+    }
+    
+    nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
+        Task { @MainActor in
+            self.handleContentSharingPickerUpdate(filter: filter, stream: stream)
+        }
+    }
+    
+    private func handleContentSharingPickerCancel(stream: SCStream?) {
         logger.debug("Cancelled!!")
     }
     
-    func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
+    private func handleContentSharingPickerUpdate(filter: SCContentFilter, stream: SCStream?) {
         
         logger.debug("Updated from picker!")
         logger.debug("Filter rect: \(filter.contentRect.debugDescription) size: \(filter.contentRect.size.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
@@ -215,7 +232,13 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         }
     }
     
-    func contentSharingPickerStartDidFailWithError(_ error: any Error) {
+    nonisolated func contentSharingPickerStartDidFailWithError(_ error: any Error) {
+        Task { @MainActor in
+            self.handleContentSharingPickerStartFailure(error)
+        }
+    }
+    
+    private func handleContentSharingPickerStartFailure(_ error: any Error) {
         logger.debug("Picker start failed failed: \(error)")
     }
     
@@ -243,9 +266,15 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
                 onFrame: { frame in
                     continuation.yield(frame)
                 },
-                getCurrentFilter: { self.currentFilter },
+                getCurrentFilter: { [weak self] in
+                    await MainActor.run {
+                        self?.currentFilter
+                    }
+                },
                 onStreamStop: {
-                    self.runningStream = nil
+                    Task { @MainActor in
+                        self.runningStream = nil
+                    }
                 }
             )
             self.scDelegate = StreamToFramesDelegate(recorder: avRecorder, callbacks: callbacks)

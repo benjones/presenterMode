@@ -99,7 +99,11 @@ class AVDeviceManager : NSObject, ObservableObject {
         }
     }
     
-    func setupCaptureSession(device: AVCaptureDevice, screenPickerManager: StreamManager){
+    func setupCaptureSession(
+        device: AVCaptureDevice,
+        delegate: StreamToFramesDelegate?,
+        sampleBufferQueue: DispatchQueue
+    ){
         Logger().debug("setup capture session for \(device.localizedName)")
         
         avCaptureSession.beginConfiguration()
@@ -107,7 +111,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         do {
             removeAllInputsAndOutputs()
             try avCaptureSession.addInput(AVCaptureDeviceInput(device: device));
-            avOutput.setSampleBufferDelegate(screenPickerManager.scDelegate, queue: screenPickerManager.videoSampleBufferQueue)
+            avOutput.setSampleBufferDelegate(delegate, queue: sampleBufferQueue)
             if(!(avCaptureSession.canAddOutput(avOutput))){
                 Logger().debug("Can't add output for some reason!")
             }
@@ -154,4 +158,3 @@ struct AVWrapper : Identifiable, Hashable {
         hasher.combine(id)
     }
 }
-

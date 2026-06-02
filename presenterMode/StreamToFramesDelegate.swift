@@ -13,7 +13,7 @@ import ScreenCaptureKit
 
 struct StreamFrameCallbacks {
     let onFrame: (FrameType) -> Void
-    let getCurrentFilter: () -> SCContentFilter?
+    let getCurrentFilter: () async -> SCContentFilter?
     let onStreamStop: () -> Void
 }
 
@@ -142,9 +142,9 @@ class StreamToFramesDelegate: NSObject, SCStreamDelegate, SCStreamOutput,
         if(nserr.code == SCStreamError.systemStoppedStream.rawValue){
             logger.debug("System stopped the erorr, restart it!")
             //TODO store the filter and reenable the stream from it
-            let filter = callbacks.getCurrentFilter()
-            if(filter != nil){
-                Task {
+            Task {
+                let filter = await callbacks.getCurrentFilter()
+                if(filter != nil){
                     do{
                         try await stream.updateContentFilter(filter!)
                     } catch {
