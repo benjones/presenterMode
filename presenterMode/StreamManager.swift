@@ -8,7 +8,6 @@
 import ScreenCaptureKit
 import OSLog
 import SwiftUI
-import CollectionConcurrencyKit
 import AVFoundation
 import Combine
 
@@ -16,12 +15,6 @@ enum FrameType {
     case uncropped(IOSurface)
     case cropped(CGImage)
 }
-
-struct HistoryEntry {
-    let scWindow : SCWindow
-    var preview: CGImage?
-}
-
 
 let sharingStoppedImage: CGImage = CGImage(
     pngDataProviderSource: CGDataProvider(data: NSDataAsset(name: "sharingStopped")!.data as CFData)!,
@@ -31,7 +24,10 @@ let sharingStoppedImage: CGImage = CGImage(
 @MainActor
 class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
     
-    @Published var history = [HistoryEntry]()
+    private let historyManager = HistoryManager()
+    var history: [HistoryEntry] {
+        historyManager.entries
+    }
     @Published var recording = false
     
     private let logger = Logger()
@@ -57,11 +53,18 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     @Published var audioLevel: Float = 0
     
     private var audioMeterTask: AnyCancellable?
+    private var historyObservation: AnyCancellable?
     
     
     init(avManager: AVDeviceManager, windowOpener: WindowOpener) {
         self.avDeviceManager = avManager
         self.windowOpener = windowOpener
+        super.init()
+        self.historyObservation = historyManager.objectWillChange.sink { [weak self] _ in
+            Task { @MainActor in
+                self?.objectWillChange.send()
+            }
+        }
     }
     
     func setupTask(){
@@ -184,7 +187,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         Task { @MainActor in
             
             await windowOpener.openWindow()
-            await updateHistory(filter: filter)
+            await historyManager.update(filter: filter)
             
         }
         if(runningStream == nil){
@@ -203,46 +206,6 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         }
         
     }
-    
-    func updateHistory(filter: SCContentFilter) async {
-        switch(filter.style){
-        case .window:
-            
-            //hack to get the window being shared
-            let matchingWindows = await getCurrentlySharedWindow(size: filter.contentRect.size)
-            
-            //TODO, remove any history entries which aren't in matchingwindows anymore
-            Task { @MainActor in
-                self.history.removeAll{ window in matchingWindows.contains(window.scWindow)}
-                await self.history.append(contentsOf: matchingWindows.concurrentCompactMap{ window in
-                    let config = SCStreamConfiguration()
-                    config.width = Int(window.frame.width)
-                    config.height = Int(window.frame.height)
-                    config.scalesToFit = true
-                    do {
-                        let screenshot = try await SCScreenshotManager.captureImage(
-                            contentFilter: SCContentFilter(desktopIndependentWindow: window),
-                            configuration: config)
-                        return HistoryEntry(scWindow: window, preview: screenshot)
-                    } catch {
-                        self.logger.debug("history entry add failed: \(error)")
-                    }
-                    return nil
-                })
-            }
-        case .none:
-            logger.error("Filter has no style (type)")
-            return
-        case .display:
-            logger.debug("sharing a full display, not adding to history")
-        case .application:
-            logger.debug("sharing an application, not adding to history")
-        @unknown default:
-            logger.error("Filter has unknown style (type)")
-        }
-    }
-    
-
     
     private func windowPickerConfiguration() -> SCContentSharingPickerConfiguration {
         var configuration = SCContentSharingPickerConfiguration()
@@ -310,20 +273,4 @@ func getStreamConfig(_ streamDimensions: CGSize) -> SCStreamConfiguration {
     Logger().debug("configuration width: \(conf.width) height: \(conf.height)")
     return conf
 }
-
-private func getCurrentlySharedWindow(size: CGSize) async -> [SCWindow] {
-    do {
-        
-        //Try to figure out window is about to get swapped out
-        let allContent = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
-        let allWindows = allContent.windows
-        let matchingWindows = allWindows.filter {window in window.isActive && window.frame.size == size}
-        return matchingWindows
-        
-    } catch {
-        Logger().debug("failed figuring out what the old window was: \(error)")
-        return []
-    }
-}
-
 

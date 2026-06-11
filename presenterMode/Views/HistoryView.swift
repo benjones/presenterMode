@@ -6,12 +6,11 @@
 //
 
 import SwiftUI
-import ScreenCaptureKit
 
-struct HistoryView : View {
+struct HistoryView<Entries: RandomAccessCollection> : View where Entries.Element == HistoryEntry {
     
-    let streamManager: StreamManager
-    let entries: [HistoryEntry]
+    let entries: Entries
+    let launchWindowPicker: () -> Void
     let historyCallback: (HistoryEntry)->Void
 
     
@@ -29,11 +28,11 @@ struct HistoryView : View {
                     .background(Color.secondary)
                     .border(Color.accentColor)
                     .onTapGesture {
-                        streamManager.present()
+                        launchWindowPicker()
                     }
                 
                 ForEach(entries,
-                        id: \.self.scWindow.windowID){ historyEntry in
+                        id: \.scWindow.windowID){ historyEntry in
                     HistoryEntryView(
                         windowTitle: historyEntry.scWindow.title,
                         previewImage: historyEntry.preview)

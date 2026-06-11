@@ -48,8 +48,10 @@ struct ContentView: View {
                 Divider()
                 
                 HistoryView(
-                    streamManager: streamManager,
-                    entries: streamManager.history.reversed()){ entry in
+                    entries: streamManager.history.reversed(),
+                    launchWindowPicker: {
+                        streamManager.present()
+                    }){ entry in
                     Task {
                         await windowOpener.openWindow()
                         streamManager.setFilterForStream(
