@@ -127,10 +127,12 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         streamView?.setAVMirroring(mirroring: avMirroring)
     }
     
+    //ContentSharingPickerObserver methods
+    
+    //force these to run on MainActor
+    
     nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
-        Task { @MainActor in
-            self.handleContentSharingPickerCancel(stream: stream)
-        }
+            //do nothing . User cancelled while selecting content, but we don't care
     }
     
     nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
@@ -139,9 +141,14 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         }
     }
     
-    private func handleContentSharingPickerCancel(stream: SCStream?) {
-        logger.debug("Cancelled!!")
+    nonisolated func contentSharingPickerStartDidFailWithError(_ error: any Error) {
+        Task { @MainActor in
+            //not sure when/how this could happen
+            logger.debug("Picker start failed failed: \(error)")
+        }
     }
+    
+    
     
     private func handleContentSharingPickerUpdate(filter: SCContentFilter, stream: SCStream?) {
         
@@ -153,7 +160,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         if(stream == nil && runningStream != nil){
             logger.debug("CSP stream is nil, but not the running stream! \(self.runningStream)")
         } else if(stream != self.runningStream){
-            logger.debug("CSP stream and self.runnign stream are different! cspStream: \(stream) self.stream: \(self.runningStream)")
+            logger.debug("CSP stream and self.running stream are different! cspStream: \(stream) self.stream: \(self.runningStream)")
         }
         setFilterForStream(filter: filter)
     }
@@ -235,15 +242,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         }
     }
     
-    nonisolated func contentSharingPickerStartDidFailWithError(_ error: any Error) {
-        Task { @MainActor in
-            self.handleContentSharingPickerStartFailure(error)
-        }
-    }
-    
-    private func handleContentSharingPickerStartFailure(_ error: any Error) {
-        logger.debug("Picker start failed failed: \(error)")
-    }
+
     
     private func windowPickerConfiguration() -> SCContentSharingPickerConfiguration {
         var configuration = SCContentSharingPickerConfiguration()
