@@ -10,7 +10,8 @@ import OSLog
 
 struct RecordingControlsView : View {
     private let logger = Logger()
-    @EnvironmentObject var streamManager: StreamManager
+    let streamManager: StreamManager
+    @EnvironmentObject var recordingState: RecordingState
     @Binding var selectedAudio: AVWrapper?
     @Binding var audioDevices: [AVWrapper]
     
@@ -22,7 +23,7 @@ struct RecordingControlsView : View {
             
             Divider()
             
-            if(!streamManager.recording){
+            if(!recordingState.recording){
                 Button(action: {
                     let url = showSavePanel()
                     let str: String = url?.absoluteString ?? "nil"
@@ -56,9 +57,9 @@ struct RecordingControlsView : View {
                     selectedAudio = newVal[0]
                 }
             }
-            .disabled(streamManager.recording)
+            .disabled(recordingState.recording)
             
-            Gauge(value: streamManager.audioLevel, in: Float(0)...Float(1)){
+            Gauge(value: recordingState.audioLevel, in: Float(0)...Float(1)){
                 Text("dB")
             }
             .gaugeStyle(AccessoryCircularGaugeStyle())

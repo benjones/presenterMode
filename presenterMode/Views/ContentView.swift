@@ -22,7 +22,7 @@ func maybeTruncate(str: String, limit: Int = 20) -> String {
 
 struct ContentView: View {
     
-    @EnvironmentObject var streamManager: StreamManager
+    let streamManager: StreamManager
     @EnvironmentObject var historyManager: HistoryManager
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     @EnvironmentObject var windowOpener: WindowOpener
@@ -64,9 +64,9 @@ struct ContentView: View {
             
             Divider()
             
-            RecordingControlsView(selectedAudio: $selectedAudio,
+            RecordingControlsView(streamManager: streamManager,
+                                  selectedAudio: $selectedAudio,
                                   audioDevices: $avDeviceManager.avAudioDevices)
-            .environmentObject(streamManager)
         }
         .onAppear(){
             streamManager.present()

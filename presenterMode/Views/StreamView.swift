@@ -12,12 +12,13 @@ import AVFoundation
 struct StreamView: NSViewRepresentable {
     
     
-    @EnvironmentObject var pickerManager: StreamManager
+    let streamManager: StreamManager
     @EnvironmentObject var avDeviceManager: AVDeviceManager
     private let logger = Logger()
     
     private let contentLayer = CALayer() //layer for SCKit stuff
-    init() {
+    init(streamManager: StreamManager) {
+        self.streamManager = streamManager
         contentLayer.contentsGravity = .resizeAspectFill
     }
     
@@ -36,7 +37,7 @@ struct StreamView: NSViewRepresentable {
     
     func makeNSView(context: Context) -> some NSView {
         let viewImpl = StreamViewImpl(layer:contentLayer)
-        pickerManager.registerView(self)
+        streamManager.registerView(self)
         return viewImpl
     }
     

@@ -46,6 +46,7 @@ struct presenterModeApp: App {
     @Environment(\.openWindow) private var openWindowEnv
     
     let historyManager: HistoryManager
+    let recordingState = RecordingState()
     let streamManager: StreamManager
     let windowOpener = WindowOpener()
     
@@ -55,6 +56,7 @@ struct presenterModeApp: App {
         self.streamManager = StreamManager(
             avManager: avDeviceManager,
             windowOpener: windowOpener,
+            recordingState: recordingState,
             updateHistory: { filter in
                 await historyManager.update(filter: filter)
             }
@@ -69,9 +71,9 @@ struct presenterModeApp: App {
     var body: some Scene {
         
         Window(presenterModeApp.pickerWindowTitle, id: "picker") {
-            ContentView(avMirroring: $avMirroring)
-                .environmentObject(streamManager)
+            ContentView(streamManager: streamManager, avMirroring: $avMirroring)
                 .environmentObject(historyManager)
+                .environmentObject(recordingState)
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .onAppear(){
@@ -91,8 +93,7 @@ struct presenterModeApp: App {
         //This and the windowOpener is a hack because the second Window cannot be maximized
         //by default
         WindowGroup("Mirror window", id: "mirror"){
-            StreamView()
-                .environmentObject(streamManager)
+            StreamView(streamManager: streamManager)
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

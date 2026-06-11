@@ -22,10 +22,10 @@ let sharingStoppedImage: CGImage = CGImage(
 
 
 @MainActor
-class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
+class StreamManager: NSObject, SCContentSharingPickerObserver {
     
+    private let recordingState: RecordingState
     private let updateHistory: (SCContentFilter) async -> Void
-    @Published var recording = false
     
     private let logger = Logger()
     private let screenPicker = SCContentSharingPicker.shared
@@ -50,7 +50,6 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     private var frameCaptureTask: Task<Void, Never>?
     
     let avRecorder = AVRecorder()
-    @Published var audioLevel: Float = 0
     
     private var audioMeterTask: AnyCancellable?
     
@@ -58,10 +57,12 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     init(
         avManager: AVDeviceManager,
         windowOpener: WindowOpener,
+        recordingState: RecordingState,
         updateHistory: @escaping (SCContentFilter) async -> Void
     ) {
         self.avDeviceManager = avManager
         self.windowOpener = windowOpener
+        self.recordingState = recordingState
         self.updateHistory = updateHistory
         super.init()
     }
@@ -86,20 +87,20 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     
     
     func startRecording(url: URL, audioDevice: AVCaptureDevice?){
-        recording = avRecorder.startRecording(url: url, audioDevice: audioDevice, delegate: scDelegate!)
+        recordingState.recording = avRecorder.startRecording(url: url, audioDevice: audioDevice, delegate: scDelegate!)
         
         audioMeterTask = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in
             guard let self = self else { return }
-            self.audioLevel = avRecorder.audioLevels.peakLevel
+            self.recordingState.audioLevel = avRecorder.audioLevels.peakLevel
         }
     }
     
     func stopRecording(){
-        if(recording) {
+        if(recordingState.recording) {
             avRecorder.finishRecording()
-            self.audioLevel = 0
+            recordingState.audioLevel = 0
             audioMeterTask?.cancel()
-            recording = false
+            recordingState.recording = false
             logger.debug("finished recording")
         }
     }
