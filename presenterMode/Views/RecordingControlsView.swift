@@ -7,10 +7,12 @@
 
 import SwiftUI
 import OSLog
+import AVFoundation
 
 struct RecordingControlsView : View {
     private let logger = Logger()
-    let streamManager: StreamManager
+    let startRecording: (URL, AVCaptureDevice?) -> Void
+    let stopRecording: () -> Void
     @EnvironmentObject var recordingState: RecordingState
     @Binding var selectedAudio: AVWrapper?
     @Binding var audioDevices: [AVWrapper]
@@ -28,8 +30,8 @@ struct RecordingControlsView : View {
                     let url = showSavePanel()
                     let str: String = url?.absoluteString ?? "nil"
                     logger.debug("URL: \(str)")
-                    if(url != nil){
-                        streamManager.startRecording(url: url!, audioDevice: selectedAudio?.device)
+                    if let url {
+                        startRecording(url, selectedAudio?.device)
                     }
                 }){
                     Image(systemName: "record.circle.fill")
@@ -37,7 +39,7 @@ struct RecordingControlsView : View {
                 }
             } else {
                 Button(action: {
-                    streamManager.stopRecording()
+                    stopRecording()
                 }){
                     Image(systemName: "stop")
                         .foregroundStyle(.red)

@@ -64,9 +64,16 @@ struct ContentView: View {
             
             Divider()
             
-            RecordingControlsView(streamManager: streamManager,
-                                  selectedAudio: $selectedAudio,
-                                  audioDevices: $avDeviceManager.avAudioDevices)
+            RecordingControlsView(
+                startRecording: { url, audioDevice in
+                    streamManager.startRecording(url: url, audioDevice: audioDevice)
+                },
+                stopRecording: {
+                    streamManager.stopRecording()
+                },
+                selectedAudio: $selectedAudio,
+                audioDevices: $avDeviceManager.avAudioDevices
+            )
         }
         .onAppear(){
             streamManager.present()
