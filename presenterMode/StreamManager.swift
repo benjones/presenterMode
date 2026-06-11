@@ -161,6 +161,9 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     func createStream(filter: SCContentFilter){
         self.runningStream = SCStream(filter: filter, configuration: getStreamConfig(filter.contentRect.size), delegate: self.scDelegate!)
         logger.debug("created new stream: \(self.runningStream)")
+        if let runningStream {
+            configurePicker(for: runningStream)
+        }
         do {
             try self.runningStream?.addStreamOutput(scDelegate!, type: .screen, sampleHandlerQueue: videoSampleBufferQueue)
             self.runningStream?.startCapture()
@@ -242,22 +245,30 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         logger.debug("Picker start failed failed: \(error)")
     }
     
+    private func windowPickerConfiguration() -> SCContentSharingPickerConfiguration {
+        var configuration = SCContentSharingPickerConfiguration()
+        configuration.allowedPickerModes = .singleWindow
+        configuration.allowsChangingSelectedContent = true
+        return configuration
+    }
+    
+    private func configurePicker(for stream: SCStream) {
+        screenPicker.setConfiguration(windowPickerConfiguration(), for: stream)
+    }
+    
     func present(){
         if(!screenPicker.isActive){
             screenPicker.isActive = true
             screenPicker.add(self)
         }
-        //You can't currently set the picker to support single app or single window
-        //You can either allow multiple of everything too, or only windows/only apps
-        //Thanks apple!
         
-//        let configuration = {
-//            var configuration = SCContentSharingPickerConfiguration()
-//            configuration.allowedPickerModes = .singleApplication | .singleWindow
-//            
-//        }
-
-        screenPicker.present()
+        if let runningStream {
+            configurePicker(for: runningStream)
+            screenPicker.present(for: runningStream, using: .window)
+        } else {
+            screenPicker.configuration = windowPickerConfiguration()
+            screenPicker.present(using: .window)
+        }
     }
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
@@ -274,6 +285,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
                 onStreamStop: {
                     Task { @MainActor in
                         self.runningStream = nil
+                        self.currentFilter = nil
                     }
                 }
             )

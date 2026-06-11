@@ -35,17 +35,32 @@ class AVRecorder {
     //returns true if the recording actually started
     func startRecording(url : URL, audioDevice: AVCaptureDevice?, delegate: AVCaptureAudioDataOutputSampleBufferDelegate) -> Bool {
         do {
-            assetWriter = try AVAssetWriter(outputURL: url, fileType: .mp4)
-            let settingsAssistant = AVOutputSettingsAssistant(preset: .preset1920x1080)?.videoSettings
-            assetWriterVideoInput = AVAssetWriterInput(mediaType: .video, outputSettings: settingsAssistant)
-            assetWriterVideoInput?.expectsMediaDataInRealTime = true
-            assetWriterVideoAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: assetWriterVideoInput!, sourcePixelBufferAttributes: nil)
-            assetWriter!.add(assetWriterVideoInput!)
+            let writer = try AVAssetWriter(outputURL: url, fileType: .mp4)
+
+            guard let videoSettings = AVOutputSettingsAssistant(preset: .preset1920x1080)?.videoSettings else {
+                Logger().error("Could not create video output settings")
+                return false
+            }
+
+            let videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
+            videoInput.expectsMediaDataInRealTime = true
+
+            guard writer.canAdd(videoInput) else {
+                Logger().error("Could not add video input to asset writer")
+                return false
+            }
+
+            let videoAdaptor = AVAssetWriterInputPixelBufferAdaptor(
+                assetWriterInput: videoInput,
+                sourcePixelBufferAttributes: nil
+            )
+
+            writer.add(videoInput)
 
             //audio setup
-            if audioDevice != nil {
+            if let audioDevice {
                 avCaptureSession.beginConfiguration()
-                avCaptureSession.addInput(try AVCaptureDeviceInput(device: audioDevice!))
+                avCaptureSession.addInput(try AVCaptureDeviceInput(device: audioDevice))
                 audioCaptureOutput.setSampleBufferDelegate(delegate, queue: audioQueue)
                 avCaptureSession.addOutput(audioCaptureOutput)
                 avCaptureSession.commitConfiguration()
@@ -55,9 +70,10 @@ class AVRecorder {
                 
                 let audioSettings = audioCaptureOutput.recommendedAudioSettingsForAssetWriter(writingTo: .mp4)
                 Logger().debug("recording audio settings: \(audioSettings!.debugDescription)")
-                assetWriterAudioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
-                assetWriterAudioInput?.expectsMediaDataInRealTime = true
-                assetWriter!.add(assetWriterAudioInput!)
+                let audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+                audioInput.expectsMediaDataInRealTime = true
+                writer.add(audioInput)
+                assetWriterAudioInput = audioInput
                 
                 NotificationCenter.default.addObserver(forName: AVCaptureInput.Port.formatDescriptionDidChangeNotification, object: nil, queue: nil) { notification in
                     Logger().debug("format changed: \(notification)")
@@ -66,16 +82,16 @@ class AVRecorder {
                 
                 NotificationCenter.default.addObserver(forName: AVCaptureSession.runtimeErrorNotification, object: nil, queue: nil) { notification in
                     Logger().debug("runtime error: \(notification)")
-                    
                 }
-
-                
             }
             
-            assetWriter!.startWriting()
+            writer.startWriting()
             recordingStartTime = clock.time
-            assetWriter!.startSession(atSourceTime: recordingStartTime)
+            writer.startSession(atSourceTime: recordingStartTime)
             
+            assetWriter = writer
+            assetWriterVideoInput = videoInput
+            assetWriterVideoAdaptor = videoAdaptor
             
             recording = true
             return true
