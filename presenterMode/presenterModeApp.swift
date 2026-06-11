@@ -45,12 +45,20 @@ struct presenterModeApp: App {
     let avDeviceManager = AVDeviceManager()
     @Environment(\.openWindow) private var openWindowEnv
     
+    let historyManager: HistoryManager
     let streamManager: StreamManager
     let windowOpener = WindowOpener()
     
     init() {
-        self.streamManager = StreamManager(avManager: avDeviceManager,
-                                           windowOpener: windowOpener)
+        let historyManager = HistoryManager()
+        self.historyManager = historyManager
+        self.streamManager = StreamManager(
+            avManager: avDeviceManager,
+            windowOpener: windowOpener,
+            updateHistory: { filter in
+                await historyManager.update(filter: filter)
+            }
+        )
         self.streamManager.setupTask()
     }
         
@@ -63,6 +71,7 @@ struct presenterModeApp: App {
         Window(presenterModeApp.pickerWindowTitle, id: "picker") {
             ContentView(avMirroring: $avMirroring)
                 .environmentObject(streamManager)
+                .environmentObject(historyManager)
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .onAppear(){

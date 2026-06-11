@@ -23,6 +23,7 @@ func maybeTruncate(str: String, limit: Int = 20) -> String {
 struct ContentView: View {
     
     @EnvironmentObject var streamManager: StreamManager
+    @EnvironmentObject var historyManager: HistoryManager
     @EnvironmentObject var avDeviceManager : AVDeviceManager
     @EnvironmentObject var windowOpener: WindowOpener
     
@@ -48,7 +49,7 @@ struct ContentView: View {
                 Divider()
                 
                 HistoryView(
-                    entries: streamManager.history.reversed(),
+                    entries: historyManager.entries.reversed(),
                     launchWindowPicker: {
                         streamManager.present()
                     }){ entry in

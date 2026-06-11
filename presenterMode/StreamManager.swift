@@ -24,21 +24,21 @@ let sharingStoppedImage: CGImage = CGImage(
 @MainActor
 class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver {
     
-    private let historyManager = HistoryManager()
-    var history: [HistoryEntry] {
-        historyManager.entries
-    }
+    private let updateHistory: (SCContentFilter) async -> Void
     @Published var recording = false
     
     private let logger = Logger()
     private let screenPicker = SCContentSharingPicker.shared
+        
+
     
     private let avDeviceManager: AVDeviceManager
-    
-    
-    
     //only used to open a window... seems like a bad design
     private let windowOpener: WindowOpener
+    
+    
+
+
     private var streamView: StreamView?
     public var scDelegate: StreamToFramesDelegate?
     public let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
@@ -53,18 +53,17 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
     @Published var audioLevel: Float = 0
     
     private var audioMeterTask: AnyCancellable?
-    private var historyObservation: AnyCancellable?
     
     
-    init(avManager: AVDeviceManager, windowOpener: WindowOpener) {
+    init(
+        avManager: AVDeviceManager,
+        windowOpener: WindowOpener,
+        updateHistory: @escaping (SCContentFilter) async -> Void
+    ) {
         self.avDeviceManager = avManager
         self.windowOpener = windowOpener
+        self.updateHistory = updateHistory
         super.init()
-        self.historyObservation = historyManager.objectWillChange.sink { [weak self] _ in
-            Task { @MainActor in
-                self?.objectWillChange.send()
-            }
-        }
     }
     
     func setupTask(){
@@ -187,7 +186,7 @@ class StreamManager: NSObject, ObservableObject, SCContentSharingPickerObserver 
         Task { @MainActor in
             
             await windowOpener.openWindow()
-            await historyManager.update(filter: filter)
+            await updateHistory(filter)
             
         }
         if(runningStream == nil){
