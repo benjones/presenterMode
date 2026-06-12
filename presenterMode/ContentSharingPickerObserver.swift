@@ -7,6 +7,7 @@
 
 import Foundation
 import ScreenCaptureKit
+import OSLog
 
 final class ContentSharingPickerObserver: NSObject, SCContentSharingPickerObserver {
     private let didUpdate: @MainActor (SCContentFilter, SCStream?) -> Void
@@ -26,6 +27,11 @@ final class ContentSharingPickerObserver: NSObject, SCContentSharingPickerObserv
 
     nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
         Task { @MainActor in
+            let logger = Logger()
+            logger.debug("Updated from picker!")
+            logger.debug("Filter rect: \(filter.contentRect.debugDescription) size: \(filter.contentRect.size.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
+            logger.debug("stream: \(stream)")
+            
             didUpdate(filter, stream)
         }
     }

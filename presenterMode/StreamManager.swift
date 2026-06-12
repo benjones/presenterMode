@@ -137,11 +137,7 @@ class StreamManager {
     }
     
     private func handleContentSharingPickerUpdate(filter: SCContentFilter, stream: SCStream?) {
-        
-        logger.debug("Updated from picker!")
-        logger.debug("Filter rect: \(filter.contentRect.debugDescription) size: \(filter.contentRect.size.debugDescription) scale: \(filter.pointPixelScale) iswindow?: \(filter.style == .window)")
-        logger.debug("stream: \(stream)")
-        
+    
         //don't expect either of these things to ever happen
         if(stream == nil && runningStream != nil){
             logger.debug("CSP stream is nil, but not the running stream! \(self.runningStream)")
@@ -217,7 +213,7 @@ class StreamManager {
     }
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
-        return AsyncThrowingStream<FrameType, Error> { continuation in
+        return AsyncThrowingStream<FrameType, Error>(bufferingPolicy: .bufferingNewest(1)) { continuation in
             let callbacks = StreamFrameCallbacks(
                 onFrame: { frame in
                     continuation.yield(frame)
@@ -256,4 +252,3 @@ func getStreamConfig(_ streamDimensions: CGSize) -> SCStreamConfiguration {
     Logger().debug("configuration width: \(conf.width) height: \(conf.height)")
     return conf
 }
-
