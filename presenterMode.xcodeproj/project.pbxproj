@@ -13,6 +13,7 @@
 		B526011B2FDA64E100EFAC38 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526011A2FDA64DC00EFAC38 /* Utils.swift */; };
 		B526011D2FDA677100EFAC38 /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526011C2FDA677100EFAC38 /* HistoryManager.swift */; };
 		B526011F2FDB6FAD00EFAC38 /* RecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526011E2FDB6FAD00EFAC38 /* RecordingState.swift */; };
+		B52601212FDBB75600EFAC38 /* ContentSharingPickerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52601202FDBB75600EFAC38 /* ContentSharingPickerObserver.swift */; };
 		B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385C26F527CE00D022C9 /* presenterModeApp.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
 		B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386326F527CF00D022C9 /* Preview Assets.xcassets */; };
@@ -41,6 +42,7 @@
 		B526011A2FDA64DC00EFAC38 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		B526011C2FDA677100EFAC38 /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
 		B526011E2FDB6FAD00EFAC38 /* RecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingState.swift; sourceTree = "<group>"; };
+		B52601202FDBB75600EFAC38 /* ContentSharingPickerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSharingPickerObserver.swift; sourceTree = "<group>"; };
 		B531385926F527CE00D022C9 /* presenterMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presenterMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B531385C26F527CE00D022C9 /* presenterModeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presenterModeApp.swift; sourceTree = "<group>"; };
 		B531386026F527CF00D022C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */,
 				B526011C2FDA677100EFAC38 /* HistoryManager.swift */,
 				B526011E2FDB6FAD00EFAC38 /* RecordingState.swift */,
+				B52601202FDBB75600EFAC38 /* ContentSharingPickerObserver.swift */,
 			);
 			path = presenterMode;
 			sourceTree = "<group>";
@@ -250,6 +253,7 @@
 				B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */,
 				B526011B2FDA64E100EFAC38 /* Utils.swift in Sources */,
 				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
+				B52601212FDBB75600EFAC38 /* ContentSharingPickerObserver.swift in Sources */,
 				B526011D2FDA677100EFAC38 /* HistoryManager.swift in Sources */,
 				B52601192FCE329A00EFAC38 /* StreamToFramesDelegate.swift in Sources */,
 				B526011F2FDB6FAD00EFAC38 /* RecordingState.swift in Sources */,

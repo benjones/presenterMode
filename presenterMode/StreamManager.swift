@@ -7,7 +7,6 @@
 
 import ScreenCaptureKit
 import OSLog
-import SwiftUI
 import AVFoundation
 import Combine
 
@@ -22,13 +21,21 @@ let sharingStoppedImage: CGImage = CGImage(
 
 
 @MainActor
-class StreamManager: NSObject, SCContentSharingPickerObserver {
+class StreamManager {
     
     private let recordingState: RecordingState
     private let updateHistory: (SCContentFilter) async -> Void
     
     private let logger = Logger()
     private let screenPicker = SCContentSharingPicker.shared
+    private lazy var pickerObserver = ContentSharingPickerObserver(
+        didUpdate: { [weak self] filter, stream in
+            self?.handleContentSharingPickerUpdate(filter: filter, stream: stream)
+        },
+        didFail: { [weak self] error in
+            self?.logger.debug("Picker start failed failed: \(error)")
+        }
+    )
         
 
     
@@ -64,7 +71,6 @@ class StreamManager: NSObject, SCContentSharingPickerObserver {
         self.windowOpener = windowOpener
         self.recordingState = recordingState
         self.updateHistory = updateHistory
-        super.init()
     }
     
     func setupTask(){
@@ -129,29 +135,6 @@ class StreamManager: NSObject, SCContentSharingPickerObserver {
     func updateAVMirroring(avMirroring: Bool){
         streamView?.setAVMirroring(mirroring: avMirroring)
     }
-    
-    //ContentSharingPickerObserver methods
-    
-    //force these to run on MainActor
-    
-    nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
-            //do nothing . User cancelled while selecting content, but we don't care
-    }
-    
-    nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
-        Task { @MainActor in
-            self.handleContentSharingPickerUpdate(filter: filter, stream: stream)
-        }
-    }
-    
-    nonisolated func contentSharingPickerStartDidFailWithError(_ error: any Error) {
-        Task { @MainActor in
-            //not sure when/how this could happen
-            logger.debug("Picker start failed failed: \(error)")
-        }
-    }
-    
-    
     
     private func handleContentSharingPickerUpdate(filter: SCContentFilter, stream: SCStream?) {
         
@@ -221,7 +204,7 @@ class StreamManager: NSObject, SCContentSharingPickerObserver {
     func present(){
         if(!screenPicker.isActive){
             screenPicker.isActive = true
-            screenPicker.add(self)
+            screenPicker.add(pickerObserver)
         }
         
         if let runningStream {
