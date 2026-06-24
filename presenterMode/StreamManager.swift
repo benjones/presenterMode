@@ -138,10 +138,7 @@ class StreamManager {
     
     private func handleContentSharingPickerUpdate(filter: SCContentFilter, stream: SCStream?) {
     
-        //don't expect either of these things to ever happen
-        if(stream == nil && runningStream != nil){
-            logger.debug("CSP stream is nil, but not the running stream! \(self.runningStream)")
-        } else if(stream != self.runningStream){
+        if let stream, stream != self.runningStream {
             logger.debug("CSP stream and self.running stream are different! cspStream: \(stream) self.stream: \(self.runningStream)")
         }
         setFilterForStream(filter: filter)
@@ -150,9 +147,6 @@ class StreamManager {
     func createStream(filter: SCContentFilter){
         self.runningStream = SCStream(filter: filter, configuration: getStreamConfig(filter.contentRect.size), delegate: self.scDelegate!)
         logger.debug("created new stream: \(self.runningStream)")
-        if let runningStream {
-            configurePicker(for: runningStream)
-        }
         do {
             try self.runningStream?.addStreamOutput(scDelegate!, type: .screen, sampleHandlerQueue: videoSampleBufferQueue)
             self.runningStream?.startCapture()
@@ -186,30 +180,13 @@ class StreamManager {
         
     }
     
-    private func windowPickerConfiguration() -> SCContentSharingPickerConfiguration {
-        var configuration = SCContentSharingPickerConfiguration()
-        configuration.allowedPickerModes = .singleWindow
-        configuration.allowsChangingSelectedContent = true
-        return configuration
-    }
-    
-    private func configurePicker(for stream: SCStream) {
-        screenPicker.setConfiguration(windowPickerConfiguration(), for: stream)
-    }
-    
     func present(){
         if(!screenPicker.isActive){
             screenPicker.isActive = true
             screenPicker.add(pickerObserver)
         }
-        
-        if let runningStream {
-            configurePicker(for: runningStream)
-            screenPicker.present(for: runningStream, using: .window)
-        } else {
-            screenPicker.configuration = windowPickerConfiguration()
-            screenPicker.present(using: .window)
-        }
+
+        screenPicker.present()
     }
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
