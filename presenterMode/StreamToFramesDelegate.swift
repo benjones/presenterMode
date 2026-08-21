@@ -140,29 +140,15 @@ class StreamToFramesDelegate: NSObject, SCStreamDelegate, SCStreamOutput,
         let nserr: NSError = error as NSError
         logger.debug("error code \(nserr.code)")
         if(nserr.code == SCStreamError.systemStoppedStream.rawValue){
-            logger.debug("System stopped the erorr, restart it!")
-            //TODO store the filter and reenable the stream from it
-            Task {
-                let filter = await callbacks.getCurrentFilter()
-                if(filter != nil){
-                    do{
-                        try await stream.updateContentFilter(filter!)
-                    } catch {
-                        logger.error("couldn't restart the stream: \(error)")
-                    }
-                }
-            }
-            
+            logger.debug("System stopped the stream; clearing stale stream reference")
         } else {
-            //continuation.finish()
-            callbacks.onFrame(FrameType.cropped(sharingStoppedImage))
-            if(recorder.recording){
-                recorder.writeFrame(frame: pixelBufferFromCGImage(image: sharingStoppedImage)!)
-            }
-            callbacks.onStreamStop()
+            logger.debug("Stream stopped; clearing stream reference")
         }
-        
-        
+        callbacks.onFrame(FrameType.cropped(sharingStoppedImage))
+        if(recorder.recording){
+            recorder.writeFrame(frame: pixelBufferFromCGImage(image: sharingStoppedImage)!)
+        }
+        callbacks.onStreamStop()
     }
     
     // like stream methods above, but for AV devices

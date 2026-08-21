@@ -28,6 +28,7 @@ class StreamManager {
     
     private let logger = Logger()
     private let screenPicker = SCContentSharingPicker.shared
+    private var pickerObserverRegistered = false
     private lazy var pickerObserver = ContentSharingPickerObserver(
         didUpdate: { [weak self] filter, stream in
             self?.handleContentSharingPickerUpdate(filter: filter, stream: stream)
@@ -183,10 +184,18 @@ class StreamManager {
     func present(){
         if(!screenPicker.isActive){
             screenPicker.isActive = true
-            screenPicker.add(pickerObserver)
         }
 
-        screenPicker.present()
+        if(!pickerObserverRegistered){
+            screenPicker.add(pickerObserver)
+            pickerObserverRegistered = true
+        }
+
+        if let runningStream {
+            screenPicker.present(for: runningStream)
+        } else {
+            screenPicker.present()
+        }
     }
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
