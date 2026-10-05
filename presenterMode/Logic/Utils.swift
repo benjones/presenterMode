@@ -8,6 +8,7 @@
 import CoreGraphics
 import AVFoundation
 import OSLog
+import ScreenCaptureKit
 
 
 //from https://stackoverflow.com/questions/38318387/swift-cgimage-to-cvpixelbuffer
@@ -59,4 +60,41 @@ func pixelBufferFromCGImage(image: CGImage) -> CVPixelBuffer? {
 
 func rectsApproxEqual(_ r1: CGSize, _ r2: CGSize) -> Bool{
     return (abs(r1.width - r2.width) + abs(r1.height - r2.height)) < 5 //+/- ~ 2 pixels in each dimension seems fine
+}
+
+func getScreenshot(for window: SCWindow) async throws -> CGImage{
+    let config = SCStreamConfiguration()
+    config.width = Int(window.frame.width)
+    config.height = Int(window.frame.height)
+    config.scalesToFit = true
+    return try await SCScreenshotManager.captureImage(
+        contentFilter: SCContentFilter(desktopIndependentWindow: window),
+        configuration: config
+    )
+}
+
+func getAllWindows() async -> [SCWindow] {
+    do {
+        let availableContent = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
+        return availableContent.windows
+
+//        Logger().debug("num windows: \(windows.count)")
+//        return await windows.asyncCompactMap{ window in
+//            guard !window.frame.isEmpty else {
+//                return nil
+//            }
+//            do {
+//                return try await getScreenshot(for: window)
+//            } catch {
+//                //Logger().debug("Failed to get screenshot: \(error) \(window.description)")
+//                return nil
+//            }
+//        }
+        
+
+    } catch {
+        Logger().debug("Couldn't get windows: \(error)")
+        return []
+    }
+
 }
