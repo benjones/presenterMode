@@ -138,11 +138,48 @@ class StreamManager {
     }
     
     private func handleContentSharingPickerUpdate(filter: SCContentFilter, stream: SCStream?) {
-    
-        if let stream, stream != self.runningStream {
-            logger.debug("CSP stream and self.running stream are different! cspStream: \(stream) self.stream: \(self.runningStream)")
+        logger.debug("""
+        Picker filter updated. isWindowStyle: \(filter.style == .window)
+        windows: \(filter.includedWindows.count)
+        displays: \(filter.includedDisplays.count)
+        """)
+        
+        // The picker has already applied this filter to an existing stream.
+        // Do not call updateContentFilter again.
+        if let stream {
+            guard stream === runningStream else {
+                logger.error("Picker updated an unexpected stream: \(stream)")
+                return
+            }
+            
+            currentFilter = filter
+            updatePickerStreamConfiguration(stream: stream, filter: filter)
+        } else {
+            // For the initial picker selection, the filter is returned before
+            // there is an app-owned stream. Construct the stream with it.
+            guard runningStream == nil else {
+                logger.error("Picker returned no stream while a stream is already running")
+                return
+            }
+            
+            createStream(filter: filter)
+            currentFilter = filter
         }
-        setFilterForStream(filter: filter)
+        
+        Task { @MainActor in
+            await windowOpener.openWindow()
+            await updateHistory(filter)
+        }
+    }
+    
+    private func updatePickerStreamConfiguration(stream: SCStream, filter: SCContentFilter) {
+        Task { @MainActor in
+            do {
+                try await stream.updateConfiguration(getStreamConfig(filter.contentRect.size))
+            } catch {
+                logger.error("Couldn't update stream configuration after picker change: \(error)")
+            }
+        }
     }
     
     func createStream(filter: SCContentFilter){
