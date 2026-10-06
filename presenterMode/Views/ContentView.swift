@@ -50,7 +50,11 @@ struct ContentView: View {
                 
                 VStack {
                     
-                    WindowSearchView()
+                    WindowSearchView(onSwitch: { result in
+                        streamManager.switchStreamToWindow(window: result.window)
+                    }, onAdd: {result in
+                        streamManager.addWindowToStream(window: result.window)
+                    })
                     
                     HistoryView(
                         entries: historyManager.entries.reversed(),

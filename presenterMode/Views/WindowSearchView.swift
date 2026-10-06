@@ -23,16 +23,9 @@ struct WindowSearchView : View {
     @State private var searchText = ""
     @State private var windowPreviews = [SearchResultData]()
     @FocusState private var searchFocused: Bool;
-    @Environment(\.isSearching) private var isSearching
+    let onSwitch: (SearchResultData) -> Void
+    let onAdd: (SearchResultData) -> Void
     
-    
-    private func switchToWindow(_ result: SearchResultData) {
-        Logger().debug("Switch to \(result.window.title ?? "")")
-    }
-    
-    private func addWindow(_ result: SearchResultData) {
-        Logger().debug("Add \(result.window.title!)")
-    }
 
     var body : some View {
         TextField("Search", text: $searchText)
@@ -59,7 +52,7 @@ struct WindowSearchView : View {
                     let scwindows = await getAllWindows().filter{ scw in
                         return (scw.title?.count ?? 0) > 5  &&  scw.frame.width > 100 && scw.frame.height > 100
                     }
-                    Logger().debug("Num scwindows: \(scwindows.count)")
+                    //Logger().debug("Num scwindows: \(scwindows.count)")
                     
                     let matcher = FuzzyMatcher(config: MatchConfig(algorithm:.smithWaterman()))
                     let query = matcher.prepare(searchText)
@@ -98,9 +91,9 @@ struct WindowSearchView : View {
                         }
                     }
                     
-                    Logger().debug("got windows, length: \(windowPreviews.count)")
+                    //Logger().debug("got windows, length: \(windowPreviews.count)")
                     bestMatches.forEach { match in
-                        Logger().debug("match: \(match.title!) score: \(scoreWindow(match, query: query, buffer: &buffer))")
+                        //Logger().debug("match: \(match.title!) score: \(scoreWindow(match, query: query, buffer: &buffer))")
                     }
                     showResults = true
                 } catch is CancellationError {
@@ -115,8 +108,8 @@ struct WindowSearchView : View {
                 SearchResultsView(
                     results: windowPreviews,
                     searchText: searchText,
-                    onSwitch: switchToWindow,
-                    onAdd: addWindow
+                    onSwitch: onSwitch,
+                    onAdd: onAdd
                 )
             }
     }

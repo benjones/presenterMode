@@ -156,6 +156,18 @@ class StreamManager {
         }
     }
     
+    func addWindowToStream(window: SCWindow){
+        if let currentFilter {
+            logger.debug("filter windows: \(currentFilter.includedWindows.count)")
+            logger.debug("filter displays: \(currentFilter.includedDisplays.count)")
+        }
+        
+    }
+    
+    func switchStreamToWindow(window: SCWindow){
+        setFilterForStream(filter: SCContentFilter(desktopIndependentWindow: window))
+    }
+    
     func setFilterForStream(filter: SCContentFilter) {
         avDeviceManager.stopSharing()
         Task { @MainActor in
