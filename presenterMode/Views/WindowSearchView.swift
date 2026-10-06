@@ -49,18 +49,23 @@ struct WindowSearchView : View {
                     
                     //filter icons and dock and other stuff
                     let scwindows = await getAllWindows().filter{ scw in
-                        return scw.title != nil &&  scw.frame.width > 100 && scw.frame.height > 100
+                        return (scw.title?.count ?? 0) > 5  &&  scw.frame.width > 100 && scw.frame.height > 100
                     }
                     Logger().debug("Num scwindows: \(scwindows.count)")
                     
-                    let matcher = FuzzyMatcher()
+                    let matcher = FuzzyMatcher(config: MatchConfig(algorithm:.smithWaterman()))
                     let query = matcher.prepare(searchText)
                     var buffer = matcher.makeBuffer()
                     let numMatches = 16 //give us a nice 4x4 grid below
                     
+                    let nameWithApp  = {(scw: SCWindow) -> String in
+                        (scw.owningApplication?.applicationName ?? "") + " " + (scw.title ?? "") }
+                
+                    
                     func scoreWindow(_ scw: SCWindow, query: FuzzyQuery, buffer: inout ScoringBuffer) -> Double {
-                        guard let title = scw.title else { return 0}
-                        return matcher.score(title, against: query, buffer: &buffer)?.score ?? 0
+                        let combinedTitle = nameWithApp(scw)
+                        if combinedTitle.count < 5 { return 0 }
+                        return matcher.score(combinedTitle, against: query, buffer: &buffer)?.score ?? 0
                     }
                     
                     //filter the trash
