@@ -26,6 +26,14 @@ struct WindowSearchView : View {
     @Environment(\.isSearching) private var isSearching
     
     
+    private func switchToWindow(_ result: SearchResultData) {
+        Logger().debug("Switch to \(result.window.title ?? "")")
+    }
+    
+    private func addWindow(_ result: SearchResultData) {
+        Logger().debug("Add \(result.window.title!)")
+    }
+
     var body : some View {
         TextField("Search", text: $searchText)
             .textFieldStyle(.roundedBorder)
@@ -104,19 +112,12 @@ struct WindowSearchView : View {
             }
 
             .popover(isPresented: $showResults, arrowEdge: .bottom) {
-                Text("Search results! \(searchText)")
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(220)), count: 4)) {
-                    ForEach(windowPreviews, id: \.self) { window in
-                        VStack {
-                            Image(decorative: window.preview, scale: 1.0)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                            Text(window.window.title!)
-                        }
-                        .padding(16)
-                    }
-                }
+                SearchResultsView(
+                    results: windowPreviews,
+                    searchText: searchText,
+                    onSwitch: switchToWindow,
+                    onAdd: addWindow
+                )
             }
     }
 }
