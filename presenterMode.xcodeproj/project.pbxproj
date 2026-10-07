@@ -7,23 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */; };
 		B522F6F72C5C3611004D5451 /* CollectionConcurrencyKit in Frameworks */ = {isa = PBXBuildFile; productRef = B522F6F62C5C3611004D5451 /* CollectionConcurrencyKit */; };
-		B52601192FCE329A00EFAC38 /* StreamToFramesDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */; };
-		B526011B2FDA64E100EFAC38 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526011A2FDA64DC00EFAC38 /* Utils.swift */; };
-		B526011D2FDA677100EFAC38 /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526011C2FDA677100EFAC38 /* HistoryManager.swift */; };
-		B526011F2FDB6FAD00EFAC38 /* RecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526011E2FDB6FAD00EFAC38 /* RecordingState.swift */; };
-		B52601212FDBB75600EFAC38 /* ContentSharingPickerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52601202FDBB75600EFAC38 /* ContentSharingPickerObserver.swift */; };
 		B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B531385C26F527CE00D022C9 /* presenterModeApp.swift */; };
 		B531386126F527CF00D022C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386026F527CF00D022C9 /* Assets.xcassets */; };
 		B531386426F527CF00D022C9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B531386326F527CF00D022C9 /* Preview Assets.xcassets */; };
-		B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */; };
-		B56D9A4F2CC1A60600FCCE43 /* PowerMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */; };
 		B56D9A512CC8116000FCCE43 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = B56D9A502CC8115A00FCCE43 /* TODO.md */; };
-		B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */; };
-		B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B680BB278A246F004BBBDB /* AVCapture.swift */; };
+		B5BEADC330741BF100219F4B /* FuzzyMatch in Frameworks */ = {isa = PBXBuildFile; productRef = B5BEADC230741BF100219F4B /* FuzzyMatch */; };
+		B5BEADC730742A7900219F4B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = B5BEADC630742A7900219F4B /* Algorithms */; };
 		B5C99D4E270E4E66007FBA84 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B5C99D4D270E4E66007FBA84 /* Credits.rtf */; };
-		B5D2D7A32CC96A7E009A0469 /* ConservativeTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,28 +28,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamManager.swift; sourceTree = "<group>"; };
-		B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamToFramesDelegate.swift; sourceTree = "<group>"; };
-		B526011A2FDA64DC00EFAC38 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		B526011C2FDA677100EFAC38 /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
-		B526011E2FDB6FAD00EFAC38 /* RecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingState.swift; sourceTree = "<group>"; };
-		B52601202FDBB75600EFAC38 /* ContentSharingPickerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSharingPickerObserver.swift; sourceTree = "<group>"; };
 		B531385926F527CE00D022C9 /* presenterMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presenterMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B531385C26F527CE00D022C9 /* presenterModeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presenterModeApp.swift; sourceTree = "<group>"; };
 		B531386026F527CF00D022C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B531386326F527CF00D022C9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B531386526F527D000D022C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B531386626F527D000D022C9 /* presenterMode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = presenterMode.entitlements; sourceTree = "<group>"; };
-		B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConservativeTrigger.swift; sourceTree = "<group>"; };
-		B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerMeter.swift; sourceTree = "<group>"; };
 		B56D9A502CC8115A00FCCE43 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
-		B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVRecorder.swift; sourceTree = "<group>"; };
-		B5B680BB278A246F004BBBDB /* AVCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCapture.swift; sourceTree = "<group>"; };
 		B5C99D4D270E4E66007FBA84 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		B5D2D79A2CC963D5009A0469 /* presenterModeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = presenterModeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B5BEADC0306D9A0200219F4B /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ConservativeTrigger.swift,
+			);
+			target = B5D2D7992CC963D5009A0469 /* presenterModeTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		B5BEADBF306D99F100219F4B /* Logic */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B5BEADC0306D9A0200219F4B /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Logic; sourceTree = "<group>"; };
 		B5D2D79B2CC963D5009A0469 /* presenterModeTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = presenterModeTests; sourceTree = "<group>"; };
 		B5D2D7AA2CCAAF62009A0469 /* Views */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Views; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -68,7 +60,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5BEADC730742A7900219F4B /* Algorithms in Frameworks */,
 				B522F6F72C5C3611004D5451 /* CollectionConcurrencyKit in Frameworks */,
+				B5BEADC330741BF100219F4B /* FuzzyMatch in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +83,7 @@
 				B5C99D4D270E4E66007FBA84 /* Credits.rtf */,
 				B531385B26F527CE00D022C9 /* presenterMode */,
 				B5D2D79B2CC963D5009A0469 /* presenterModeTests */,
+				B5BEADC530742A7900219F4B /* Frameworks */,
 				B531385A26F527CE00D022C9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,22 +100,13 @@
 		B531385B26F527CE00D022C9 /* presenterMode */ = {
 			isa = PBXGroup;
 			children = (
-				B526011A2FDA64DC00EFAC38 /* Utils.swift */,
+				B5BEADBF306D99F100219F4B /* Logic */,
 				B5D2D7AA2CCAAF62009A0469 /* Views */,
-				B56D9A4E2CC1A60600FCCE43 /* PowerMeter.swift */,
 				B531385C26F527CE00D022C9 /* presenterModeApp.swift */,
 				B531386026F527CF00D022C9 /* Assets.xcassets */,
 				B531386526F527D000D022C9 /* Info.plist */,
 				B531386626F527D000D022C9 /* presenterMode.entitlements */,
 				B531386226F527CF00D022C9 /* Preview Content */,
-				B5B680BB278A246F004BBBDB /* AVCapture.swift */,
-				B513C23C2C1B9DFC009AD1C1 /* StreamManager.swift */,
-				B53146CC2C78F0BD003546DA /* ConservativeTrigger.swift */,
-				B5960A1E2CAB53F30066CDD7 /* AVRecorder.swift */,
-				B52601182FCE329A00EFAC38 /* StreamToFramesDelegate.swift */,
-				B526011C2FDA677100EFAC38 /* HistoryManager.swift */,
-				B526011E2FDB6FAD00EFAC38 /* RecordingState.swift */,
-				B52601202FDBB75600EFAC38 /* ContentSharingPickerObserver.swift */,
 			);
 			path = presenterMode;
 			sourceTree = "<group>";
@@ -131,6 +117,13 @@
 				B531386326F527CF00D022C9 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B5BEADC530742A7900219F4B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,11 +142,14 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				B5BEADBF306D99F100219F4B /* Logic */,
 				B5D2D7AA2CCAAF62009A0469 /* Views */,
 			);
 			name = presenterMode;
 			packageProductDependencies = (
 				B522F6F62C5C3611004D5451 /* CollectionConcurrencyKit */,
+				B5BEADC230741BF100219F4B /* FuzzyMatch */,
+				B5BEADC630742A7900219F4B /* Algorithms */,
 			);
 			productName = presenterView;
 			productReference = B531385926F527CE00D022C9 /* presenterMode.app */;
@@ -211,6 +207,8 @@
 			mainGroup = B531385026F527CE00D022C9;
 			packageReferences = (
 				B522F6F52C5C3611004D5451 /* XCRemoteSwiftPackageReference "CollectionConcurrencyKit" */,
+				B5BEADC130741BF100219F4B /* XCRemoteSwiftPackageReference "FuzzyMatch" */,
+				B5BEADC430742A5D00219F4B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			productRefGroup = B531385A26F527CE00D022C9 /* Products */;
 			projectDirPath = "";
@@ -248,16 +246,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5B680BC278A246F004BBBDB /* AVCapture.swift in Sources */,
-				B5960A1F2CAB53F30066CDD7 /* AVRecorder.swift in Sources */,
-				B513C23D2C1B9DFC009AD1C1 /* StreamManager.swift in Sources */,
-				B526011B2FDA64E100EFAC38 /* Utils.swift in Sources */,
-				B53146CD2C78F0BD003546DA /* ConservativeTrigger.swift in Sources */,
-				B52601212FDBB75600EFAC38 /* ContentSharingPickerObserver.swift in Sources */,
-				B526011D2FDA677100EFAC38 /* HistoryManager.swift in Sources */,
-				B52601192FCE329A00EFAC38 /* StreamToFramesDelegate.swift in Sources */,
-				B526011F2FDB6FAD00EFAC38 /* RecordingState.swift in Sources */,
-				B56D9A4F2CC1A60600FCCE43 /* PowerMeter.swift in Sources */,
 				B531385D26F527CE00D022C9 /* presenterModeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,7 +254,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5D2D7A32CC96A7E009A0469 /* ConservativeTrigger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,7 +410,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = benjones.presenterMode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -452,7 +439,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = benjones.presenterMode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -538,6 +525,22 @@
 				minimumVersion = 0.2.0;
 			};
 		};
+		B5BEADC130741BF100219F4B /* XCRemoteSwiftPackageReference "FuzzyMatch" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ordo-one/FuzzyMatch.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
+		B5BEADC430742A5D00219F4B /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -545,6 +548,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B522F6F52C5C3611004D5451 /* XCRemoteSwiftPackageReference "CollectionConcurrencyKit" */;
 			productName = CollectionConcurrencyKit;
+		};
+		B5BEADC230741BF100219F4B /* FuzzyMatch */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5BEADC130741BF100219F4B /* XCRemoteSwiftPackageReference "FuzzyMatch" */;
+			productName = FuzzyMatch;
+		};
+		B5BEADC630742A7900219F4B /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5BEADC430742A5D00219F4B /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

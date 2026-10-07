@@ -15,6 +15,7 @@ struct StreamFrameCallbacks {
     let onFrame: (FrameType) -> Void
     let getCurrentFilter: () async -> SCContentFilter?
     let onStreamStop: () -> Void
+    let requestConfigurationUpdate: (CGSize) -> Void
 }
 
 // manage streaming data from SCKit, AV Video devices (camera, ipad), and audio devices
@@ -89,17 +90,8 @@ class StreamToFramesDelegate: NSObject, SCStreamDelegate, SCStreamOutput,
         
         let triggered = trigger.tick(updateOccurred: sizeChanged)
         if(triggered){
-            //update the stream config
-            Task {
-                do {
-                    //filter is not updated...
-                    logger.debug("updating config with dimensions: \(unscaledContentSize.debugDescription)")
-                    try await stream.updateConfiguration(getStreamConfig(unscaledContentSize))
-                    logger.debug("stream config updated")
-                } catch {
-                    logger.error("couldn't update stream: \(error)")
-                }
-            }
+            logger.debug("requesting config update with dimensions: \(unscaledContentSize.debugDescription)")
+            callbacks.requestConfigurationUpdate(unscaledContentSize)
         }
         //after the config update happens we should be able to do this
         if(!croppingRequired){

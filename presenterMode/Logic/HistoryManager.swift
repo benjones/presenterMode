@@ -45,16 +45,8 @@ final class HistoryManager: ObservableObject {
     }
 
     private func makeHistoryEntry(for window: SCWindow) async -> HistoryEntry? {
-        let config = SCStreamConfiguration()
-        config.width = Int(window.frame.width)
-        config.height = Int(window.frame.height)
-        config.scalesToFit = true
-
         do {
-            let screenshot = try await SCScreenshotManager.captureImage(
-                contentFilter: SCContentFilter(desktopIndependentWindow: window),
-                configuration: config
-            )
+            let screenshot = try await getScreenshot(for: window)
             return HistoryEntry(scWindow: window, preview: screenshot)
         } catch {
             logger.debug("history entry add failed: \(error)")

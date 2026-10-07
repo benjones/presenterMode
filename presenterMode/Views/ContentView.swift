@@ -48,17 +48,26 @@ struct ContentView: View {
                 
                 Divider()
                 
-                HistoryView(
-                    entries: historyManager.entries.reversed(),
-                    launchWindowPicker: {
-                        streamManager.present()
-                    }){ entry in
-                    Task {
-                        await windowOpener.openWindow()
-                        streamManager.setFilterForStream(
-                            filter: SCContentFilter(
-                                desktopIndependentWindow: entry.scWindow))
-                    }
+                VStack {
+                    
+                    WindowSearchView(onSwitch: { result in
+                        streamManager.switchStreamToWindow(window: result.window)
+                    }, onAdd: {result in
+                        streamManager.addWindowToStream(window: result.window)
+                    })
+                    
+                    HistoryView(
+                        entries: historyManager.entries.reversed(),
+                        launchWindowPicker: {
+                            streamManager.present()
+                        }){ entry in
+                            Task {
+                                await windowOpener.openWindow()
+                                streamManager.setFilterForStream(
+                                    filter: SCContentFilter(
+                                        desktopIndependentWindow: entry.scWindow))
+                            }
+                        }
                 }
             }
             

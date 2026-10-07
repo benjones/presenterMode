@@ -11,4 +11,5 @@ import Foundation
 final class RecordingState: ObservableObject {
     @Published var recording = false
     @Published var audioLevel: Float = 0
+    @Published var hasVideoFrame = false
 }

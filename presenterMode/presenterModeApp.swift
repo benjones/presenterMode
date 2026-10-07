@@ -61,7 +61,6 @@ struct presenterModeApp: App {
                 await historyManager.update(filter: filter)
             }
         )
-        self.streamManager.setupTask()
     }
         
     @State private var avMirroring = false
@@ -97,8 +96,14 @@ struct presenterModeApp: App {
                 .environmentObject(avDeviceManager)
                 .environmentObject(windowOpener)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onAppear(perform: {windowOpener.updateWindowStatus(opened: true)})
-                .onDisappear(perform: { windowOpener.updateWindowStatus(opened: false)})
+                .onAppear {
+                    windowOpener.updateWindowStatus(opened: true)
+                    streamManager.mirrorWindowDidAppear()
+                }
+                .onDisappear {
+                    windowOpener.updateWindowStatus(opened: false)
+                    streamManager.mirrorWindowDidDisappear()
+                }
                 .onGeometryChange(for: CGSize.self){proxy in
                     
                     return proxy.size

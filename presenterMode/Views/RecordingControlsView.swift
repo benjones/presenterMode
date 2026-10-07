@@ -35,8 +35,13 @@ struct RecordingControlsView : View {
                     }
                 }){
                     Image(systemName: "record.circle.fill")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(recordingState.hasVideoFrame ? .red : .secondary)
+                        .opacity(recordingState.hasVideoFrame ? 1 : 0.45)
                 }
+                .disabled(!recordingState.hasVideoFrame)
+                .help(recordingState.hasVideoFrame
+                      ? "Start recording"
+                      : "Start sharing before recording")
             } else {
                 Button(action: {
                     stopRecording()
