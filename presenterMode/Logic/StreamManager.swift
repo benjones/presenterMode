@@ -60,6 +60,35 @@ class StreamManager {
     let avRecorder = AVRecorder()
     
     private var audioMeterTask: AnyCancellable?
+    private var streamMutationTask: Task<Void, Never>?
+    
+    private func enqueueStreamMutation(
+        _ mutation: @escaping (SCStream) async throws -> Void
+    ) {
+        guard let stream = runningStream else { return }
+        
+        let previousTask = streamMutationTask
+        
+        streamMutationTask = Task { @MainActor [weak self, stream] in
+            _ = await previousTask?.result
+            
+            guard
+                !Task.isCancelled,
+                let self,
+                self.runningStream === stream
+            else {
+                return
+            }
+            
+            do {
+                try await mutation(stream)
+            } catch is CancellationError {
+                return
+            } catch {
+                self.logger.error("Stream mutation failed: \(error)")
+            }
+        }
+    }
     
     
     init(
@@ -173,12 +202,10 @@ class StreamManager {
     }
     
     private func updatePickerStreamConfiguration(stream: SCStream, filter: SCContentFilter) {
-        Task { @MainActor in
-            do {
-                try await stream.updateConfiguration(getStreamConfig(filter.contentRect.size))
-            } catch {
-                logger.error("Couldn't update stream configuration after picker change: \(error)")
-            }
+        enqueueStreamMutation { stream in
+            try await stream.updateConfiguration(
+                getStreamConfig(filter.contentRect.size)
+            )
         }
     }
     
@@ -262,16 +289,14 @@ class StreamManager {
         if(runningStream == nil){
             createStream(filter: filter)
         }
-        Task {
-            do {
-
-                try await self.runningStream?.updateContentFilter(filter)
-                try await self.runningStream?.updateConfiguration(getStreamConfig(filter.contentRect.size))
-
-            } catch {
-                logger.error("Couldn't update stream on picker change: \(error)")
-            }
-            currentFilter = filter
+        enqueueStreamMutation { [weak self] stream in
+            try await stream.updateContentFilter(filter)
+            try await stream.updateConfiguration(
+                getStreamConfig(filter.contentRect.size)
+            )
+            
+            guard let self, self.runningStream === stream else { return }
+            self.currentFilter = filter
         }
         
     }
@@ -308,6 +333,15 @@ class StreamManager {
                     Task { @MainActor in
                         self.runningStream = nil
                         self.currentFilter = nil
+                    }
+                },
+                requestConfigurationUpdate: { [weak self] size in
+                    Task { @MainActor in
+                        self?.enqueueStreamMutation { stream in
+                            try await stream.updateConfiguration(
+                                getStreamConfig(size)
+                            )
+                        }
                     }
                 }
             )
