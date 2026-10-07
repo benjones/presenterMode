@@ -73,6 +73,22 @@ func getScreenshot(for window: SCWindow) async throws -> CGImage{
     )
 }
 
+func findDisplay(containing window: SCWindow) async throws -> SCDisplay? {
+    let content = try await SCShareableContent.excludingDesktopWindows(
+        false,
+        onScreenWindowsOnly: true
+    )
+    
+    let windowCenter = CGPoint(
+        x: window.frame.midX,
+        y: window.frame.midY
+    )
+    
+    return content.displays.first {
+        $0.frame.contains(windowCenter)
+    }
+}
+
 func getAllWindows() async -> [SCWindow] {
     do {
         let availableContent = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)

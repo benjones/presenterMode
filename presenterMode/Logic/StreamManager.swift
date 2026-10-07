@@ -197,8 +197,54 @@ class StreamManager {
         if let currentFilter {
             logger.debug("filter windows: \(currentFilter.includedWindows.count)")
             logger.debug("filter displays: \(currentFilter.includedDisplays.count)")
+            
+            if currentFilter.includedDisplays.count > 0 {
+                if currentFilter.includedDisplays.count != 1 {
+                    logger.error("More than 1 display, ignoring all but the first: \(currentFilter.includedDisplays.count) displays")
+                }
+                
+                guard let display = currentFilter.includedDisplays.first else {
+                    logger.error("Current filter has no display to add a window to")
+                    return
+                }
+                
+                setFilterForStream(
+                    filter: SCContentFilter(
+                        display: display,
+                        including: currentFilter.includedWindows + [window]
+                    )
+                )
+            } else {
+                guard let sharedWindow = currentFilter.includedWindows.first else {
+                    logger.error("Current filter has no shared window")
+                    return
+                }
+                
+                let existingWindows = currentFilter.includedWindows
+                
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    
+                    do {
+                        guard let display = try await findDisplay(containing: sharedWindow) else {
+                            logger.error("Could not find display for shared window")
+                            return
+                        }
+                        
+                        setFilterForStream(
+                            filter: SCContentFilter(
+                                display: display,
+                                including: existingWindows + [window]
+                            )
+                        )
+                    } catch {
+                        logger.error("Could not retrieve shareable content: \(error)")
+                    }
+                }
+            }
+        } else {
+            switchStreamToWindow(window: window)
         }
-        
     }
     
     func switchStreamToWindow(window: SCWindow){
