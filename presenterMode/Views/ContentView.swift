@@ -74,11 +74,7 @@ struct ContentView: View {
                 ) { entry in
                     Task {
                         await windowOpener.openWindow()
-                        streamManager.setFilterForStream(
-                            filter: SCContentFilter(
-                                desktopIndependentWindow: entry.scWindow
-                            )
-                        )
+                        streamManager.switchStreamToWindow(window: entry.scWindow)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
