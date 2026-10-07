@@ -33,46 +33,60 @@ struct ContentView: View {
     private let logger = Logger()
     
     var body: some View {
-        VStack {
-            HStack{
-                
-                AVDeviceListView(captureDevices: avDeviceManager.avCaptureDevices){ device in
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                WindowSearchView(
+                    onSwitch: { result in
+                        streamManager.switchStreamToWindow(window: result.window)
+                    },
+                    onAdd: { result in
+                        streamManager.addWindowToStream(window: result.window)
+                    }
+                )
+                .frame(maxWidth: .infinity)
+
+                Button("Choose Window") {
+                    streamManager.present()
+                }
+                .frame(width: 190)
+            }
+            .frame(maxWidth: .infinity)
+
+            Divider()
+
+            HStack(spacing: 12) {
+                AVDeviceListView(captureDevices: avDeviceManager.avCaptureDevices) { device in
                     Task {
                         await windowOpener.openWindow()
                         streamManager.streamAVDevice(
                             device: device.device,
-                            avMirroring: avMirroring)
+                            avMirroring: avMirroring
+                        )
                     }
                 }
                 .environmentObject(avDeviceManager)
-                
+                .frame(width: 210)
+
                 Divider()
-                
-                VStack {
-                    
-                    WindowSearchView(onSwitch: { result in
-                        streamManager.switchStreamToWindow(window: result.window)
-                    }, onAdd: {result in
-                        streamManager.addWindowToStream(window: result.window)
-                    })
-                    
-                    HistoryView(
-                        entries: historyManager.entries.reversed(),
-                        launchWindowPicker: {
-                            streamManager.present()
-                        }){ entry in
-                            Task {
-                                await windowOpener.openWindow()
-                                streamManager.setFilterForStream(
-                                    filter: SCContentFilter(
-                                        desktopIndependentWindow: entry.scWindow))
-                            }
-                        }
+
+                HistoryView(
+                    entries: historyManager.entries.reversed()
+                ) { entry in
+                    Task {
+                        await windowOpener.openWindow()
+                        streamManager.setFilterForStream(
+                            filter: SCContentFilter(
+                                desktopIndependentWindow: entry.scWindow
+                            )
+                        )
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
             Divider()
-            
+
             RecordingControlsView(
                 startRecording: { url, audioDevice in
                     streamManager.startRecording(url: url, audioDevice: audioDevice)
@@ -83,10 +97,9 @@ struct ContentView: View {
                 selectedAudio: $selectedAudio,
                 audioDevices: $avDeviceManager.avAudioDevices
             )
+            .frame(maxWidth: .infinity)
         }
-        .onAppear(){
-            streamManager.present()
-        }
+        .padding(12)
         .onReceive(NotificationCenter.default.publisher(
             for: NSWindow.willCloseNotification)) { notification in
                 let window = notification.object as? NSWindow

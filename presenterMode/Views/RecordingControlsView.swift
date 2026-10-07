@@ -16,64 +16,71 @@ struct RecordingControlsView : View {
     @EnvironmentObject var recordingState: RecordingState
     @Binding var selectedAudio: AVWrapper?
     @Binding var audioDevices: [AVWrapper]
-    
+    @State private var hasInitializedAudioSelection = false
+
     var body: some View {
-        HStack {
-            Text("Video Recording")
+        VStack(spacing: 6) {
+            Text("Record to MP4 File")
                 .font(.title2)
-                .padding(.horizontal, 16)
-            
-            Divider()
-            
-            if(!recordingState.recording){
-                Button(action: {
-                    let url = showSavePanel()
-                    let str: String = url?.absoluteString ?? "nil"
-                    logger.debug("URL: \(str)")
-                    if let url {
-                        startRecording(url, selectedAudio?.device)
+
+            HStack(spacing: 12) {
+                if !recordingState.recording {
+                    Button(action: {
+                        let url = showSavePanel()
+                        let str: String = url?.absoluteString ?? "nil"
+                        logger.debug("URL: \(str)")
+                        if let url {
+                            startRecording(url, selectedAudio?.device)
+                        }
+                    }) {
+                        Image(systemName: "record.circle.fill")
+                            .foregroundStyle(recordingState.hasVideoFrame ? .red : .secondary)
+                            .opacity(recordingState.hasVideoFrame ? 1 : 0.45)
                     }
-                }){
-                    Image(systemName: "record.circle.fill")
-                        .foregroundStyle(recordingState.hasVideoFrame ? .red : .secondary)
-                        .opacity(recordingState.hasVideoFrame ? 1 : 0.45)
+                    .disabled(!recordingState.hasVideoFrame)
+                    .help(recordingState.hasVideoFrame
+                          ? "Start recording"
+                          : "Start sharing before recording")
+                } else {
+                    Button(action: {
+                        stopRecording()
+                    }) {
+                        Image(systemName: "stop")
+                            .foregroundStyle(.red)
+                    }
                 }
-                .disabled(!recordingState.hasVideoFrame)
-                .help(recordingState.hasVideoFrame
-                      ? "Start recording"
-                      : "Start sharing before recording")
-            } else {
-                Button(action: {
-                    stopRecording()
-                }){
-                    Image(systemName: "stop")
-                        .foregroundStyle(.red)
+
+                Picker("Audio input", selection: $selectedAudio) {
+                    ForEach(audioDevices, id: \.self) { dev in
+                        Text(dev.device.localizedName).tag(dev)
+                    }
+                    Text("None").tag(nil as AVWrapper?)
                 }
-            }
-            
-            Picker("Audio input", selection: $selectedAudio){
-                ForEach(audioDevices, id: \.self){ dev in
-                    Text(dev.device.localizedName).tag(dev)
+                .pickerStyle(.menu)
+                // Select the built-in microphone once the devices are available.
+                .onChange(of: audioDevices, initial: true) { _, newVal in
+                    guard !hasInitializedAudioSelection, !newVal.isEmpty else { return }
+
+                    if selectedAudio == nil {
+                        selectedAudio =
+                            newVal.first { $0.device.deviceType == .microphone }
+                            ?? newVal.first
+                    }
+
+                    hasInitializedAudioSelection = true
                 }
-                Text("None").tag(nil as AVWrapper?)
-            }
-            .pickerStyle(.menu)
-            //seems happy but makes sure we auto-select the internal microphone instead of "None" on load
-            .onChange(of: audioDevices){ oldVal, newVal in
-                if(oldVal.isEmpty){
-                    selectedAudio = newVal[0]
+                .disabled(recordingState.recording)
+
+                Gauge(value: recordingState.audioLevel, in: Float(0)...Float(1)) {
+                    Text("dB")
                 }
+                .gaugeStyle(AccessoryCircularGaugeStyle())
+                .tint(Gradient(colors: [.green, .yellow, .orange, .red]))
+                .scaleEffect(0.5) //no better way to resize it apparently
             }
-            .disabled(recordingState.recording)
-            
-            Gauge(value: recordingState.audioLevel, in: Float(0)...Float(1)){
-                Text("dB")
-            }
-            .gaugeStyle(AccessoryCircularGaugeStyle())
-            .tint(Gradient(colors: [.green, .yellow, .orange, .red]))
-            .scaleEffect(0.5) //no better way to resize it apparently
-            
-        }.frame(maxHeight: 80)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

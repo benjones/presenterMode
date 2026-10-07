@@ -22,9 +22,9 @@ class AVDeviceManager : NSObject, ObservableObject {
     private let avCaptureSession = AVCaptureSession()
     
     private let connectionPublisher = NotificationCenter.default
-        .publisher(for: NSNotification.Name.AVCaptureDeviceWasConnected)
+        .publisher(for: AVCaptureDevice.wasConnectedNotification)
     private let disconnectionPublisher = NotificationCenter.default
-        .publisher(for: NSNotification.Name.AVCaptureDeviceWasDisconnected)
+        .publisher(for: AVCaptureDevice.wasDisconnectedNotification)
     private var connectedSubscriptionHandle : AnyCancellable? = nil
     private var disconnectedSubscriptionHandle : AnyCancellable? = nil
     
@@ -88,7 +88,7 @@ class AVDeviceManager : NSObject, ObservableObject {
         AVCaptureDevice.requestAccess(for: .audio){ granted in
             if granted {
                 let discoverySession = AVCaptureDevice.DiscoverySession(
-                    deviceTypes: [.microphone],
+                    deviceTypes: [.microphone, .external],
                     mediaType: .audio, position: .unspecified)
                 Task { @MainActor in
                     self.avAudioDevices = discoverySession.devices.map({device -> AVWrapper in
@@ -146,14 +146,19 @@ class AVDeviceManager : NSObject, ObservableObject {
     }
 }
 
-struct AVWrapper : Identifiable, Hashable {
+struct AVWrapper: Identifiable, Hashable {
     let device: AVCaptureDevice
-    let id: ObjectIdentifier
-    
-    init(dev: AVCaptureDevice){
+    let id: String
+
+    init(dev: AVCaptureDevice) {
         device = dev
-        id = ObjectIdentifier(device)
+        id = dev.uniqueID
     }
+
+    static func == (lhs: AVWrapper, rhs: AVWrapper) -> Bool {
+        lhs.id == rhs.id
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
