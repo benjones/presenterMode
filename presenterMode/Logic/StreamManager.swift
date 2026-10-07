@@ -48,7 +48,41 @@ class StreamManager {
 
 
     private var streamView: StreamView?
-    public var scDelegate: StreamToFramesDelegate?
+    private var frameContinuation: AsyncThrowingStream<FrameType, Error>.Continuation?
+    private lazy var scDelegate: StreamToFramesDelegate = {
+        let callbacks = StreamFrameCallbacks(
+            onFrame: { [weak self] frame in
+                Task { @MainActor in
+                    guard let self, let continuation = self.frameContinuation else {
+                        return
+                    }
+                    self.recordingState.hasVideoFrame = true
+                    continuation.yield(frame)
+                }
+            },
+            getCurrentFilter: { [weak self] in
+                await MainActor.run {
+                    self?.currentFilter
+                }
+            },
+            onStreamStop: { [weak self] in
+                Task { @MainActor in
+                    self?.runningStream = nil
+                    self?.currentFilter = nil
+                }
+            },
+            requestConfigurationUpdate: { [weak self] size in
+                Task { @MainActor in
+                    self?.enqueueStreamMutation { stream in
+                        try await stream.updateConfiguration(
+                            getStreamConfig(size)
+                        )
+                    }
+                }
+            }
+        )
+        return StreamToFramesDelegate(recorder: avRecorder, callbacks: callbacks)
+    }()
     public let videoSampleBufferQueue = DispatchQueue(label: "edu.utah.cs.benjones.VideoSampleBufferQueue")
     private var runningStream: SCStream?
     //used for restarting stopped stream
@@ -104,6 +138,8 @@ class StreamManager {
     }
     
     func setupTask(){
+        guard frameCaptureTask == nil else { return }
+
         self.frameCaptureTask = Task {
             do {
                 for try await frame in getFrameSequence(){
@@ -116,14 +152,22 @@ class StreamManager {
             logger.debug("Frame Sequence loop ended for some reason")
             //so the stream can restart in the future
             //TODO FIXME!!!
-            self.streamView?.updateFrame(FrameType.cropped(sharingStoppedImage))
+            if !Task.isCancelled {
+                self.recordingState.hasVideoFrame = true
+                self.streamView?.updateFrame(FrameType.cropped(sharingStoppedImage))
+            }
             self.frameCaptureTask = nil
         }
     }
     
     
     func startRecording(url: URL, audioDevice: AVCaptureDevice?){
-        recordingState.recording = avRecorder.startRecording(url: url, audioDevice: audioDevice, delegate: scDelegate!)
+        guard recordingState.hasVideoFrame else {
+            logger.error("Cannot start recording before a video frame is available")
+            return
+        }
+
+        recordingState.recording = avRecorder.startRecording(url: url, audioDevice: audioDevice, delegate: scDelegate)
         
         audioMeterTask = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in
             guard let self = self else { return }
@@ -146,10 +190,24 @@ class StreamManager {
         self.streamView = streamView
         logger.debug("attaching view to picker manager")
     }
+
+    func mirrorWindowDidAppear() {
+        setupTask()
+    }
+
+    func mirrorWindowDidDisappear() {
+        stopRecording()
+        recordingState.hasVideoFrame = false
+        frameContinuation?.finish()
+        frameContinuation = nil
+        frameCaptureTask?.cancel()
+        frameCaptureTask = nil
+    }
     
     //TODO MOVE OUT OF THIS BIG CLASS!
     func streamAVDevice(device: AVCaptureDevice, avMirroring: Bool){
         logger.debug("want to stream device: \(device.localizedName)")
+        recordingState.hasVideoFrame = false
         runningStream?.stopCapture()
         runningStream = nil
         currentFilter = nil
@@ -210,10 +268,11 @@ class StreamManager {
     }
     
     func createStream(filter: SCContentFilter){
-        self.runningStream = SCStream(filter: filter, configuration: getStreamConfig(filter.contentRect.size), delegate: self.scDelegate!)
+        recordingState.hasVideoFrame = false
+        self.runningStream = SCStream(filter: filter, configuration: getStreamConfig(filter.contentRect.size), delegate: self.scDelegate)
         logger.debug("created new stream: \(self.runningStream)")
         do {
-            try self.runningStream?.addStreamOutput(scDelegate!, type: .screen, sampleHandlerQueue: videoSampleBufferQueue)
+            try self.runningStream?.addStreamOutput(scDelegate, type: .screen, sampleHandlerQueue: videoSampleBufferQueue)
             self.runningStream?.startCapture()
         } catch {
             logger.debug("Start capture failed: \(error)")
@@ -319,33 +378,14 @@ class StreamManager {
     }
     
     func getFrameSequence() -> AsyncThrowingStream<FrameType, Error> {
-        return AsyncThrowingStream<FrameType, Error>(bufferingPolicy: .bufferingNewest(1)) { continuation in
-            let callbacks = StreamFrameCallbacks(
-                onFrame: { frame in
-                    continuation.yield(frame)
-                },
-                getCurrentFilter: { [weak self] in
-                    await MainActor.run {
-                        self?.currentFilter
-                    }
-                },
-                onStreamStop: {
-                    Task { @MainActor in
-                        self.runningStream = nil
-                        self.currentFilter = nil
-                    }
-                },
-                requestConfigurationUpdate: { [weak self] size in
-                    Task { @MainActor in
-                        self?.enqueueStreamMutation { stream in
-                            try await stream.updateConfiguration(
-                                getStreamConfig(size)
-                            )
-                        }
-                    }
+        AsyncThrowingStream<FrameType, Error>(bufferingPolicy: .bufferingNewest(1)) {
+            [weak self] continuation in
+            self?.frameContinuation = continuation
+            continuation.onTermination = { @Sendable [weak self] _ in
+                Task { @MainActor in
+                    self?.frameContinuation = nil
                 }
-            )
-            self.scDelegate = StreamToFramesDelegate(recorder: avRecorder, callbacks: callbacks)
+            }
         }
     }
 }
