@@ -28,15 +28,14 @@ struct WindowSearchView : View {
     
 
     var body : some View {
-        TextField("Search", text: $searchText)
+        TextField("Search windows", text: $searchText)
             .textFieldStyle(.roundedBorder)
             .focused($searchFocused)
             .onChange(of: searchFocused) { _, focused in
-                if focused {
-                    showResults = true
-                    
-                }
+                showResults = focused && !searchText.isEmpty
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
             .task(id: searchText){
                 guard !searchText.isEmpty else {
                     windowPreviews = []
